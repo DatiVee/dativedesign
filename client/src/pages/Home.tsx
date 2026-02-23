@@ -729,7 +729,7 @@ export default function Home() {
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <DiamondLogo size={28} className="text-gold" />
+              <img src="/logo.png" alt="Dative Design logo" className="h-8" />
               <div>
                 <span className="font-display text-lg font-bold tracking-widest text-white">DATIVE</span>
                 <span className="font-display text-lg font-bold tracking-widest text-gold"> DESIGN</span>
