@@ -229,12 +229,16 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
         <div className="container flex items-center justify-between h-16">
           <a href="#hero" className="flex items-center gap-3 group">
-            <DiamondLogo size={32} className="text-gold group-hover:text-gold-light transition-colors" />
-            <div className="leading-none">
-              <span className="font-display text-xl font-bold tracking-widest text-white">DATIVE</span>
-              <span className="font-display text-xl font-bold tracking-widest text-gold"> DESIGN</span>
-            </div>
-          </a>
+  <img 
+    src="/logo.png" 
+    alt="Dative Design logo" 
+    className="h-8 w-auto group-hover:opacity-80 transition-opacity" 
+  />
+  <div className="leading-none">
+    <span className="font-display text-xl font-bold tracking-widest text-white">DATIVE</span>
+    <span className="font-display text-xl font-bold tracking-widest text-gold"> DESIGN</span>
+  </div>
+</a>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
