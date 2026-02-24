@@ -1,0 +1,289 @@
+/* ============================================================
+   DatiVe Design Landing Page — "Dark Luxury" Design System
+   Design Movement: Contemporary Dark Luxury / High-End Creative Agency
+   Core: Deep darkness as canvas, gold as luxury signal, generous whitespace
+   Colors: Near-black bg, near-white text, warm gold accent
+   Typography: Montserrat
+   ============================================================ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+}
+
+:root {
+  /* Dark Luxury Palette */
+  --background: oklch(0.09 0.008 285);
+  --foreground: oklch(0.95 0.005 60);
+  --card: oklch(0.13 0.008 285);
+  --card-foreground: oklch(0.95 0.005 60);
+  --popover: oklch(0.13 0.008 285);
+  --popover-foreground: oklch(0.95 0.005 60);
+  
+  /* Gold as primary luxury accent */
+  --primary: oklch(0.72 0.12 85);
+  --primary-foreground: oklch(0.09 0.008 285);
+  
+  --secondary: oklch(0.18 0.008 285);
+  --secondary-foreground: oklch(0.85 0.005 60);
+  --muted: oklch(0.16 0.006 285);
+  --muted-foreground: oklch(0.6 0.01 60);
+  --accent: oklch(0.72 0.12 85);
+  --accent-foreground: oklch(0.09 0.008 285);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.72 0.12 85);
+  --radius: 0.5rem;
+  
+  /* Gold scale */
+  --gold: oklch(0.72 0.12 85);
+  --gold-light: oklch(0.82 0.10 85);
+  --gold-dark: oklch(0.55 0.10 85);
+  
+  /* Sidebar (unused but required) */
+  --sidebar: oklch(0.13 0.008 285);
+  --sidebar-foreground: oklch(0.95 0.005 60);
+  --sidebar-primary: oklch(0.72 0.12 85);
+  --sidebar-primary-foreground: oklch(0.09 0.008 285);
+  --sidebar-accent: oklch(0.18 0.008 285);
+  --sidebar-accent-foreground: oklch(0.85 0.005 60);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.12 85);
+  
+  /* Charts */
+  --chart-1: oklch(0.72 0.12 85);
+  --chart-2: oklch(0.60 0.10 85);
+  --chart-3: oklch(0.50 0.08 85);
+  --chart-4: oklch(0.40 0.06 85);
+  --chart-5: oklch(0.30 0.04 85);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Zmiana na Montserrat dla tekstu głównego */
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    /* Zmiana na Montserrat dla nagłówków */
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1280px;
+    }
+  }
+
+  /* Gold accent line */
+  .gold-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, oklch(0.72 0.12 85), transparent);
+  }
+  
+  /* Gold text */
+  .text-gold {
+    color: oklch(0.72 0.12 85);
+  }
+  
+  /* Section label style */
+  .section-label {
+    /* Zmiana na Montserrat */
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: oklch(0.72 0.12 85);
+  }
+  
+  /* Display font */
+  .font-display {
+    /* Zmiana na Montserrat */
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  /* Italic accent */
+  .font-accent {
+    /* Zmiana na Montserrat */
+    font-family: 'Montserrat', sans-serif;
+    font-style: italic;
+  }
+  
+  /* Card hover effect */
+  .card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px oklch(0.72 0.12 85 / 0.15);
+  }
+  
+  /* Gold border on hover (ZBALANSOWANY EFEKT GLOW) */
+  .gold-border-hover {
+    border: 1px solid oklch(1 0 0 / 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .gold-border-hover:hover {
+    border-color: oklch(0.72 0.12 85 / 0.6); /* Zmniejszona moc ramki */
+    box-shadow: 
+      0 0 10px oklch(0.72 0.12 85 / 0.4), /* Mniejsze pierwsze świecenie */
+      0 0 20px oklch(0.72 0.12 85 / 0.2), /* Mniejsze drugie świecenie */
+      0 0 35px oklch(0.72 0.12 85 / 0.1); /* Delikatniejsza zewnętrzna mgiełka */
+    transform: translateY(-4px);
+  }
+
+  /* Fade-up animation */
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-up {
+    animation: fadeUp 0.7s ease-out forwards;
+  }
+  
+  .animate-fade-up-delay-1 {
+    animation: fadeUp 0.7s ease-out 0.15s forwards;
+    opacity: 0;
+  }
+  
+  .animate-fade-up-delay-2 {
+    animation: fadeUp 0.7s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+  
+  .animate-fade-up-delay-3 {
+    animation: fadeUp 0.7s ease-out 0.45s forwards;
+    opacity: 0;
+  }
+
+  /* Gold shimmer */
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  
+  .gold-shimmer {
+    background: linear-gradient(90deg, oklch(0.72 0.12 85), oklch(0.88 0.08 85), oklch(0.72 0.12 85));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+  
+  /* Marquee animation */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+}
+
+/* Shimmer effect for the gold button background */
+  .gold-button-shimmer {
+    background: linear-gradient(
+      90deg, 
+      oklch(0.72 0.12 85) 0%, 
+      oklch(0.88 0.08 85) 50%, 
+      oklch(0.72 0.12 85) 100%
+    );
+    background-size: 200% auto;
+    animation: shimmer 7s linear infinite;
+    border: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gold-button-shimmer:hover {
+    box-shadow: 0 0 20px oklch(0.72 0.12 85 / 0.4);
+    transform: translateY(-1px);
+  }
