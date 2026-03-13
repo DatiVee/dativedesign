@@ -1,41 +1,82 @@
 <!doctype html>
 <html lang="pl">
-
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121114" />
+
     <link rel="icon" type="image/png" href="/logo-av.png" />
-    
-    <title>DatiVe Design — Profesjonalne Usługi Graficzne</title>
-    <meta name="description" content="DatiVe Design — profesjonalne usługi graficzne dla Twojej firmy. Z pomysłu do realizacji. Projektowanie logo, brandingu, etykiet i materiałów reklamowych." />
-    <meta name="keywords" content="grafik komputerowy, projektowanie logo, rzeszów, kolbuszowa, identyfikacja wizualna, etykiety, DatiVe Design" />
+    <link rel="canonical" href="https://dativedesign.com/" />
+    <link rel="alternate" hreflang="pl" href="https://dativedesign.com/" />
+    <link rel="alternate" hreflang="en" href="https://dativedesign.com/?lang=en" />
+    <link rel="alternate" hreflang="x-default" href="https://dativedesign.com/" />
+
+    <title>DatiVe Design | Projektowanie graficzne, logo, etykiety i branding</title>
+    <meta
+      name="description"
+      content="DatiVe Design tworzy logo, branding, etykiety, opakowania i materiały reklamowe dla firm z Rzeszowa, Kolbuszowej i całej Polski."
+    />
+    <meta
+      name="keywords"
+      content="grafik komputerowy, projektowanie logo, branding, identyfikacja wizualna, etykiety, opakowania, grafika reklamowa, Rzeszów, Kolbuszowa, DatiVe Design"
+    />
     <meta name="author" content="DatiVe Design" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+    <meta name="robots" content="index, follow" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:url" content="https://dativedesign.com/" />
-    <meta property="og:title" content="DatiVe Design — Profesjonalne Usługi Graficzne" />
-    <meta property="og:description" content="Z pomysłu do realizacji. Projektowanie logo, brandingu, etykiet i materiałów reklamowych." />
+    <meta property="og:title" content="DatiVe Design | Projektowanie graficzne dla marek" />
+    <meta
+      property="og:description"
+      content="Logo, branding, etykiety, opakowania i materiały reklamowe zaprojektowane z wyczuciem marki i sprzedaży."
+    />
     <meta property="og:image" content="https://dativedesign.com/og-image.jpg" />
+    <meta property="og:site_name" content="DatiVe Design" />
 
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://dativedesign.com/" />
-    <meta property="twitter:title" content="DatiVe Design — Usługi Graficzne" />
-    <meta property="twitter:description" content="Z pomysłu do realizacji. Projektowanie logo, brandingu, etykiet i materiałów reklamowych." />
-    <meta property="twitter:image" content="https://dativedesign.com/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DatiVe Design | Projektowanie graficzne dla marek" />
+    <meta
+      name="twitter:description"
+      content="Profesjonalne projekty graficzne dla firm: logo, branding, etykiety i materiały reklamowe."
+    />
+    <meta name="twitter:image" content="https://dativedesign.com/og-image.jpg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "DatiVe Design",
+        "url": "https://dativedesign.com/",
+        "image": "https://dativedesign.com/og-image.jpg",
+        "description": "Projektowanie graficzne, branding, logo, etykiety i materiały reklamowe dla firm.",
+        "email": "kontakt@dativedesign.com",
+        "telephone": "+48796106675",
+        "inLanguage": ["pl-PL", "en-US"],
+        "areaServed": ["Rzeszów", "Kolbuszowa", "Polska"],
+        "sameAs": [
+          "https://instagram.com/dative_design",
+          "https://facebook.com/DativeDesign",
+          "https://www.linkedin.com/in/damian-wilk-456362271/"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Rzeszów",
+          "addressCountry": "PL"
+        }
+      }
+    </script>
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>
-
 </html>

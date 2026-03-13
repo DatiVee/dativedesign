@@ -211,6 +211,46 @@
     transform: translateY(-4px);
   }
 
+  .section-grid {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
+  }
+
+  .ambient-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .ambient-orb-gold {
+    background: radial-gradient(circle, oklch(0.72 0.12 85 / 0.35) 0%, transparent 70%);
+  }
+
+  .ambient-orb-soft {
+    background: radial-gradient(circle, oklch(0.7 0.04 250 / 0.2) 0%, transparent 70%);
+  }
+
+  .portfolio-sheen {
+    background: linear-gradient(120deg, transparent 15%, oklch(1 0 0 / 0.16) 50%, transparent 85%);
+    transform: translateX(-130%);
+    transition: transform 0.8s ease;
+  }
+
+  .group:hover .portfolio-sheen {
+    transform: translateX(130%);
+  }
+
+  .noise-overlay {
+    background-image: radial-gradient(oklch(1 0 0 / 0.04) 0.7px, transparent 0.7px);
+    background-size: 14px 14px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
   /* Fade-up animation */
   @keyframes fadeUp {
     from {
