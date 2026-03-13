@@ -327,3 +327,39 @@
     box-shadow: 0 0 20px oklch(0.72 0.12 85 / 0.4);
     transform: translateY(-1px);
   }
+
+@media (max-width: 767px) {
+  .section-label {
+    letter-spacing: 0.16em;
+    font-size: 0.68rem;
+  }
+
+  .ambient-orb,
+  .noise-overlay,
+  .section-grid,
+  .portfolio-sheen {
+    display: none !important;
+  }
+
+  .card-hover,
+  .gold-border-hover,
+  .gold-button-shimmer,
+  .animate-marquee,
+  .gold-shimmer {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .card-hover:hover,
+  .gold-border-hover:hover,
+  .gold-button-shimmer:hover,
+  .group:hover .portfolio-sheen {
+    transform: none;
+    box-shadow: none;
+    border-color: oklch(1 0 0 / 0.1);
+  }
+
+  .ambient-orb {
+    filter: none;
+  }
+}
