@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from "react";
+import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
 import { SectionHeading } from "@/components/site/SectionHeading";
@@ -7,6 +8,54 @@ import { getBriefPrompt } from "@/data/orderBriefConfig";
 import { useLocale } from "@/contexts/LocaleContext";
 import { type OrderBriefAnswer, useOrderFlow } from "@/contexts/OrderFlowContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+
+type BriefFieldProps = {
+  label: string;
+  value: string;
+  placeholder: string;
+  disabled: boolean;
+  textarea?: boolean;
+  compact?: boolean;
+  onChange: (value: string) => void;
+};
+
+function BriefField({
+  label,
+  value,
+  placeholder,
+  disabled,
+  textarea,
+  compact,
+  onChange,
+}: BriefFieldProps) {
+  const baseClass =
+    "w-full rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none transition focus:border-gold/45 disabled:opacity-60";
+
+  return (
+    <label className="grid gap-2">
+      <span className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/38">
+        {label}
+      </span>
+      {textarea ? (
+        <textarea
+          disabled={disabled}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          className={`${baseClass} ${compact ? "min-h-20" : "min-h-24"} py-3 leading-relaxed`}
+        />
+      ) : (
+        <input
+          disabled={disabled}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          className={`${baseClass} h-11`}
+        />
+      )}
+    </label>
+  );
+}
 
 export default function OrderBriefPage() {
   const { locale, getStaticPath } = useLocale();
@@ -45,7 +94,11 @@ export default function OrderBriefPage() {
         <section className="container py-24">
           <SectionHeading
             eyebrow="Brief"
-            title={locale === "en" ? "There is no active order to complete" : "Nie ma aktywnego zamówienia do uzupełnienia"}
+            title={
+              locale === "en"
+                ? "There is no active order to complete"
+                : "Nie ma aktywnego zamówienia do uzupełnienia"
+            }
             description={
               locale === "en"
                 ? "The brief appears only after the checkout creates an order record."
@@ -120,149 +173,162 @@ export default function OrderBriefPage() {
 
   return (
     <SiteLayout>
-      <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Post-purchase brief" : "Brief po zakupie"}
-          title={locale === "en" ? "Now the client gives the real production input" : "Tu klient daje realny input do realizacji"}
-          description={
-            locale === "en"
-              ? "The checkout collects buyer data. This stage collects the actual creative and production context needed before work starts."
-              : "Checkout zbiera dane kupującego. Ten etap zbiera właściwy kontekst kreatywny i produkcyjny potrzebny przed startem pracy."
-          }
-        />
+      <section className="container py-10 sm:py-14 lg:py-16">
+        <div className="grid gap-5 rounded-sm border border-gold/20 bg-card p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <div className="section-label mb-3">
+              {locale === "en" ? "Brief after checkout" : "Brief po checkoutcie"}
+            </div>
+            <h1 className="max-w-4xl font-display text-3xl font-black leading-[1.04] text-white sm:text-5xl">
+              {locale === "en" ? "Complete the project brief" : "Uzupełnij brief projektu"}
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65 sm:text-base">
+              {locale === "en"
+                ? "The first order email has already been sent. This step sends the full production brief."
+                : "Pierwszy mail z zamówieniem już poszedł. Ten krok dosyła pełny brief produkcyjny."}
+            </p>
+          </div>
 
-        <div className="mt-10 rounded-sm border border-gold/20 bg-card p-6 sm:p-8">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-3 rounded-sm border border-white/8 bg-background p-4 text-sm sm:min-w-72">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/35">
+              <div className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/35">
                 {locale === "en" ? "Order number" : "Numer zamówienia"}
               </div>
-              <div className="mt-3 font-display text-2xl font-black text-gold">{activeOrder.number}</div>
+              <div className="mt-1 font-display text-2xl font-black text-gold">{activeOrder.number}</div>
             </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/35">
-                {locale === "en" ? "Client" : "Klient"}
-              </div>
-              <div className="mt-3 text-sm font-semibold text-white">{activeOrder.customer.name}</div>
-              <div className="text-sm text-white/55">{activeOrder.customer.email}</div>
-            </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/35">
-                {locale === "en" ? "Current status" : "Aktualny status"}
-              </div>
-              <div className="mt-3 text-sm font-semibold text-white">
-                {locale === "en" ? "Brief pending" : "Brief do uzupełnienia"}
-              </div>
+            <div className="grid gap-1 text-white/60">
+              <span>
+                {locale === "en" ? "Client" : "Klient"}:{" "}
+                <strong className="text-white">{activeOrder.customer.name}</strong>
+              </span>
+              <span>
+                {locale === "en" ? "Status" : "Status"}:{" "}
+                <strong className="text-white">
+                  {locale === "en" ? "Brief pending" : "Brief do uzupełnienia"}
+                </strong>
+              </span>
             </div>
           </div>
         </div>
 
-        <form onSubmit={submit} className="mt-10 grid gap-8">
+        <form onSubmit={submit} className="mt-6 grid gap-5">
           {activeOrder.items.map((item) => {
             const prompt = getBriefPrompt(locale, item.serviceSlug);
             const answer = answers.find((entry) => entry.itemId === item.id);
             if (!answer) return null;
 
+            const price = item.price + item.addons.reduce((sum, addon) => sum + addon.price, 0);
+
             return (
-              <article key={item.id} className="rounded-sm border border-white/5 bg-card p-6 sm:p-8">
-                <div className="flex flex-col gap-3 border-b border-white/5 pb-6 lg:flex-row lg:items-end lg:justify-between">
+              <article key={item.id} className="rounded-sm border border-white/6 bg-card p-5 sm:p-6">
+                <div className="grid gap-4 border-b border-white/6 pb-5 sm:grid-cols-[1fr_auto] sm:items-start">
                   <div>
                     <div className="section-label mb-2">{item.serviceName}</div>
-                    <h2 className="font-display text-3xl font-black text-white">{item.packageName}</h2>
-                    <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/62">{prompt.description}</p>
+                    <h2 className="font-display text-2xl font-black leading-tight text-white sm:text-3xl">
+                      {item.packageName}
+                    </h2>
+                    <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/60">
+                      {prompt.description}
+                    </p>
                   </div>
-                  <div className="rounded-sm border border-gold/20 bg-gold/8 px-4 py-3 text-sm text-white/75">
-                    {item.price + item.addons.reduce((sum, addon) => sum + addon.price, 0)} zł
+                  <div className="w-fit rounded-sm border border-gold/25 bg-gold/10 px-4 py-2 font-display text-xl font-black text-gold">
+                    {price} zł
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  <input
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  <BriefField
                     disabled={isSubmitting}
+                    label={locale === "en" ? "Brand / company" : "Marka / firma"}
                     value={answer.brandName}
-                    onChange={(event) => updateAnswer(item.id, "brandName", event.target.value)}
-                    placeholder={locale === "en" ? "Brand / company name" : "Nazwa marki / firmy"}
-                    className="h-12 rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none disabled:opacity-60"
+                    onChange={(value) => updateAnswer(item.id, "brandName", value)}
+                    placeholder={locale === "en" ? "Brand or company name" : "Nazwa marki albo firmy"}
                   />
-                  <input
+                  <BriefField
                     disabled={isSubmitting}
+                    label={locale === "en" ? "Deadline" : "Termin"}
                     value={answer.deadline}
-                    onChange={(event) => updateAnswer(item.id, "deadline", event.target.value)}
+                    onChange={(value) => updateAnswer(item.id, "deadline", value)}
                     placeholder={prompt.deadlinePlaceholder}
-                    className="h-12 rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none disabled:opacity-60"
                   />
-                </div>
-
-                <div className="mt-4 grid gap-4">
-                  <textarea
+                  <BriefField
                     disabled={isSubmitting}
+                    textarea
+                    label={locale === "en" ? "Goal" : "Cel projektu"}
                     value={answer.projectGoal}
-                    onChange={(event) => updateAnswer(item.id, "projectGoal", event.target.value)}
+                    onChange={(value) => updateAnswer(item.id, "projectGoal", value)}
                     placeholder={prompt.goalPlaceholder}
-                    className="min-h-24 rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none disabled:opacity-60"
                   />
-                  <textarea
+                  <BriefField
                     disabled={isSubmitting}
+                    textarea
+                    label={locale === "en" ? "Target audience" : "Odbiorcy"}
                     value={answer.audience}
-                    onChange={(event) => updateAnswer(item.id, "audience", event.target.value)}
+                    onChange={(value) => updateAnswer(item.id, "audience", value)}
                     placeholder={prompt.audiencePlaceholder}
-                    className="min-h-24 rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none disabled:opacity-60"
                   />
-                  <textarea
+                  <BriefField
                     disabled={isSubmitting}
+                    textarea
+                    label={locale === "en" ? "Visual direction" : "Klimat wizualny"}
                     value={answer.visualDirection}
-                    onChange={(event) => updateAnswer(item.id, "visualDirection", event.target.value)}
+                    onChange={(value) => updateAnswer(item.id, "visualDirection", value)}
                     placeholder={prompt.visualPlaceholder}
-                    className="min-h-24 rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none disabled:opacity-60"
                   />
-                  <textarea
+                  <BriefField
                     disabled={isSubmitting}
-                    value={answer.references}
-                    onChange={(event) => updateAnswer(item.id, "references", event.target.value)}
-                    placeholder={prompt.referencesPlaceholder}
-                    className="min-h-24 rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none disabled:opacity-60"
-                  />
-                  <textarea
-                    disabled={isSubmitting}
+                    textarea
+                    label={locale === "en" ? "Scope / content" : "Zakres / treści"}
                     value={answer.contentScope}
-                    onChange={(event) => updateAnswer(item.id, "contentScope", event.target.value)}
+                    onChange={(value) => updateAnswer(item.id, "contentScope", value)}
                     placeholder={prompt.contentPlaceholder}
-                    className="min-h-24 rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none disabled:opacity-60"
                   />
-                  <textarea
+                  <BriefField
                     disabled={isSubmitting}
+                    textarea
+                    compact
+                    label={locale === "en" ? "References" : "Inspiracje / linki"}
+                    value={answer.references}
+                    onChange={(value) => updateAnswer(item.id, "references", value)}
+                    placeholder={prompt.referencesPlaceholder}
+                  />
+                  <BriefField
+                    disabled={isSubmitting}
+                    textarea
+                    compact
+                    label={locale === "en" ? "Extra notes" : "Dodatkowe uwagi"}
                     value={answer.additionalNotes}
-                    onChange={(event) => updateAnswer(item.id, "additionalNotes", event.target.value)}
+                    onChange={(value) => updateAnswer(item.id, "additionalNotes", value)}
                     placeholder={prompt.notesPlaceholder}
-                    className="min-h-24 rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none disabled:opacity-60"
                   />
                 </div>
               </article>
             );
           })}
 
-          <div className="rounded-sm border border-gold/20 bg-gradient-to-r from-gold/12 via-card to-card p-6 sm:p-8">
-            <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="sticky bottom-4 z-20 rounded-sm border border-gold/25 bg-background/95 p-4 shadow-2xl shadow-black/40 backdrop-blur md:static md:bg-gradient-to-r md:from-gold/12 md:via-card md:to-card md:p-5">
+            <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
               <div>
-                <div className="section-label mb-3">{locale === "en" ? "Final step" : "Ostatni krok"}</div>
-                <h2 className="font-display text-3xl font-black text-white">
-                  {locale === "en" ? "Save the brief and move to the order confirmation" : "Zapisz brief i przejdź do potwierdzenia zamówienia"}
+                <div className="section-label mb-2">{locale === "en" ? "Final step" : "Ostatni krok"}</div>
+                <h2 className="font-display text-xl font-black text-white sm:text-2xl">
+                  {locale === "en" ? "Send the brief" : "Wyślij brief do realizacji"}
                 </h2>
-                <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65">
+                <p className="mt-1 text-sm leading-relaxed text-white/60">
                   {locale === "en"
-                    ? "At this stage the order has enough real input to start production properly."
-                    : "Na tym etapie zamówienie ma już wystarczająco konkretów, żeby ruszyć z realizacją bez zgadywania."}
+                    ? "After saving, I receive the full brief and the client gets a confirmation email."
+                    : "Po zapisie dostaję pełny brief, a klient otrzymuje potwierdzenie mailowe."}
                 </p>
               </div>
               <button
                 disabled={isSubmitting}
                 type="submit"
-                className="gold-button-shimmer inline-flex items-center justify-center rounded-sm px-7 py-4 text-sm font-black uppercase tracking-wider text-background disabled:opacity-60"
+                className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-6 py-3 text-xs font-black uppercase tracking-wider text-background disabled:opacity-60"
               >
+                <Save size={16} />
                 {isSubmitting
                   ? locale === "en"
-                    ? "Saving brief..."
-                    : "Zapisywanie briefu..."
+                    ? "Saving..."
+                    : "Zapisywanie..."
                   : locale === "en"
                     ? "Save brief"
                     : "Zapisz brief"}
