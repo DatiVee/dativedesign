@@ -1,0 +1,39 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" rx="48" fill="#07080C"/>
+  <rect x="38" y="38" width="1124" height="824" rx="36" stroke="#1A1E27"/>
+  <circle cx="190" cy="160" r="180" fill="url(#goldGlow)" fill-opacity="0.18"/>
+  <circle cx="1000" cy="760" r="220" fill="url(#blueGlow)" fill-opacity="0.14"/>
+  <g filter="url(#shadowCard)">
+    <rect x="172" y="186" width="284" height="390" rx="30" fill="#F4F1E8"/>
+    <rect x="210" y="232" width="102" height="102" rx="16" fill="#E0B54A"/>
+    <rect x="210" y="366" width="180" height="22" rx="11" fill="#13161E"/>
+    <rect x="210" y="408" width="150" height="12" rx="6" fill="#6F7482"/>
+    <rect x="210" y="440" width="130" height="12" rx="6" fill="#9CA3B3"/>
+  </g>
+  <g filter="url(#shadowBoard)">
+    <rect x="508" y="164" width="520" height="550" rx="34" fill="#10131B"/>
+    <rect x="548" y="212" width="192" height="140" rx="20" fill="#E0B54A"/>
+    <rect x="770" y="212" width="218" height="140" rx="20" fill="#1A1F29"/>
+    <rect x="548" y="384" width="440" height="90" rx="18" fill="#151922" stroke="#2A2F3A"/>
+    <rect x="548" y="502" width="130" height="130" rx="18" fill="#F4F1E8"/>
+    <rect x="708" y="502" width="120" height="130" rx="18" fill="#0D5C7A"/>
+    <rect x="858" y="502" width="130" height="130" rx="18" fill="#12161E" stroke="#2A2F3A"/>
+  </g>
+  <text x="172" y="122" fill="#FAFAFA" font-family="Arial, Helvetica, sans-serif" font-size="34" letter-spacing="8">BRANDING</text>
+  <defs>
+    <linearGradient id="goldGlow" x1="20" y1="-20" x2="330" y2="290" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0B54A"/>
+      <stop offset="1" stop-color="#E0B54A" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="blueGlow" x1="800" y1="560" x2="1140" y2="910" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D5C7A"/>
+      <stop offset="1" stop-color="#0D5C7A" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadowCard" x="144" y="166" width="340" height="446" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="shadowBoard" x="480" y="144" width="576" height="606" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+</svg>
