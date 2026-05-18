@@ -117,15 +117,195 @@ function formatOrderItems(items: unknown[]) {
     .join("\n");
 }
 
-function formatBriefAnswers(answers: unknown[]) {
+function escapeHtml(value: unknown) {
+  return String(value ?? "-")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatPrice(value: unknown) {
+  const price = Number(value);
+  return Number.isFinite(price) ? `${price} zł` : "-";
+}
+
+function formatOrderItemsHtml(items: unknown[]) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return `<p style="margin:0;color:#8f8b99;">Brak pozycji w zamówieniu.</p>`;
+  }
+
+  return items
+    .map((item: any, index) => {
+      const serviceName = item.serviceName || item.name || "Usługa";
+      const packageName = item.packageName ? ` / ${item.packageName}` : "";
+      const price = Number(item.price || 0);
+      const addonsTotal =
+        Array.isArray(item.addons) && item.addons.length > 0
+          ? item.addons.reduce((sum: number, addon: any) => sum + Number(addon.price || 0), 0)
+          : 0;
+
+      return `
+        <tr>
+          <td style="padding:14px 0;border-bottom:1px solid #24212c;color:#f7f2e8;font-weight:700;">
+            ${index + 1}. ${escapeHtml(serviceName)}${escapeHtml(packageName)}
+            ${
+              Array.isArray(item.addons) && item.addons.length > 0
+                ? `<div style="margin-top:6px;color:#8f8b99;font-size:13px;">Dodatki: ${escapeHtml(
+                    item.addons.map((addon: any) => addon.name || addon.label || addon).join(", ")
+                  )}</div>`
+                : ""
+            }
+          </td>
+          <td style="padding:14px 0;border-bottom:1px solid #24212c;color:#d4aa3f;text-align:right;font-weight:800;white-space:nowrap;">
+            ${formatPrice(price + addonsTotal)}
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function formatBriefAnswersText(answers: unknown[]) {
   if (!Array.isArray(answers) || answers.length === 0) {
     return "Brief nie został jeszcze uzupełniony.";
   }
 
-  return JSON.stringify(answers, null, 2);
+  return answers
+    .map((rawAnswer, index) => {
+      const answer = rawAnswer as Partial<Record<string, string>>;
+      return [
+        `Pozycja ${index + 1}`,
+        `Marka / firma: ${answer.brandName || "-"}`,
+        `Cel projektu: ${answer.projectGoal || "-"}`,
+        `Odbiorcy: ${answer.audience || "-"}`,
+        `Klimat wizualny: ${answer.visualDirection || "-"}`,
+        `Inspiracje / linki: ${answer.references || "-"}`,
+        `Zakres / treści: ${answer.contentScope || "-"}`,
+        `Termin: ${answer.deadline || "-"}`,
+        `Dodatkowe uwagi: ${answer.additionalNotes || "-"}`,
+      ].join("\n");
+    })
+    .join("\n\n");
 }
 
-async function sendResendEmail(config: EmailConfig, input: { to: string; subject: string; text: string }) {
+function formatBriefAnswersHtml(answers: unknown[]) {
+  if (!Array.isArray(answers) || answers.length === 0) {
+    return `<p style="margin:0;color:#8f8b99;">Brief nie został jeszcze uzupełniony.</p>`;
+  }
+
+  const labels: Array<[string, string]> = [
+    ["brandName", "Marka / firma"],
+    ["projectGoal", "Cel projektu"],
+    ["audience", "Odbiorcy"],
+    ["visualDirection", "Klimat wizualny"],
+    ["references", "Inspiracje / linki"],
+    ["contentScope", "Zakres / treści"],
+    ["deadline", "Termin"],
+    ["additionalNotes", "Dodatkowe uwagi"],
+  ];
+
+  return answers
+    .map((rawAnswer, index) => {
+      const answer = rawAnswer as Partial<Record<string, string>>;
+      const rows = labels
+        .map(
+          ([key, label]) => `
+            <tr>
+              <td style="padding:10px 0;border-bottom:1px solid #24212c;color:#8f8b99;font-size:13px;vertical-align:top;width:180px;">
+                ${label}
+              </td>
+              <td style="padding:10px 0;border-bottom:1px solid #24212c;color:#f7f2e8;font-size:14px;line-height:1.55;">
+                ${escapeHtml(answer[key] || "-")}
+              </td>
+            </tr>
+          `
+        )
+        .join("");
+
+      return `
+        <div style="margin-top:${index === 0 ? "0" : "18px"};padding:18px;border:1px solid #24212c;border-radius:14px;background:#100f14;">
+          <div style="margin-bottom:8px;color:#d4aa3f;font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;">
+            Brief ${index + 1}
+          </div>
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+            ${rows}
+          </table>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function emailShell(input: {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  content: string;
+  footer?: string;
+}) {
+  return `
+    <!doctype html>
+    <html>
+      <body style="margin:0;background:#050507;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#f7f2e8;">
+        <div style="max-width:720px;margin:0 auto;border:1px solid #24212c;border-radius:18px;background:#0b0a0f;overflow:hidden;">
+          <div style="padding:30px 28px 24px;border-bottom:1px solid #24212c;background:linear-gradient(135deg,#14110c 0%,#0b0a0f 52%,#050507 100%);">
+            <div style="color:#d4aa3f;font-size:12px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;">
+              ${escapeHtml(input.eyebrow)}
+            </div>
+            <h1 style="margin:12px 0 0;color:#ffffff;font-size:30px;line-height:1.08;font-weight:900;letter-spacing:-0.02em;">
+              ${escapeHtml(input.title)}
+            </h1>
+            <p style="margin:14px 0 0;color:#c8c2d1;font-size:15px;line-height:1.6;">
+              ${escapeHtml(input.intro)}
+            </p>
+          </div>
+          <div style="padding:28px;">
+            ${input.content}
+          </div>
+          <div style="padding:18px 28px;border-top:1px solid #24212c;color:#8f8b99;font-size:12px;line-height:1.5;">
+            ${escapeHtml(input.footer || "DatiVe Design - powiadomienie systemowe ze strony dativedesign.com")}
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+function keyValueTable(rows: Array<[string, unknown]>) {
+  return `
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+      ${rows
+        .map(
+          ([label, value]) => `
+            <tr>
+              <td style="padding:9px 0;border-bottom:1px solid #24212c;color:#8f8b99;font-size:13px;width:170px;">
+                ${escapeHtml(label)}
+              </td>
+              <td style="padding:9px 0;border-bottom:1px solid #24212c;color:#f7f2e8;font-size:14px;font-weight:700;">
+                ${escapeHtml(value || "-")}
+              </td>
+            </tr>
+          `
+        )
+        .join("")}
+    </table>
+  `;
+}
+
+function sectionCard(title: string, content: string) {
+  return `
+    <div style="margin-top:18px;padding:20px;border:1px solid #24212c;border-radius:14px;background:#100f14;">
+      <div style="margin-bottom:12px;color:#d4aa3f;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">
+        ${escapeHtml(title)}
+      </div>
+      ${content}
+    </div>
+  `;
+}
+
+async function sendResendEmail(config: EmailConfig, input: { to: string; subject: string; text: string; html?: string }) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -137,6 +317,7 @@ async function sendResendEmail(config: EmailConfig, input: { to: string; subject
       to: [input.to],
       subject: input.subject,
       text: input.text,
+      html: input.html,
     }),
   });
 
@@ -173,6 +354,35 @@ async function sendNewOrderNotification(order: OrderRecord) {
         `Pozycje:\n${formatOrderItems(order.items)}\n\n` +
         `Łącznie: ${order.subtotal} zł\n\n` +
         `Brief zostanie dosłany po kolejnym kroku formularza.`,
+      html: emailShell({
+        eyebrow: "Nowe zamówienie",
+        title: `Zamówienie ${order.number}`,
+        intro: "Klient przeszedł checkout. Brief projektowy powinien przyjść w kolejnym mailu po uzupełnieniu formularza.",
+        content:
+          sectionCard(
+            "Dane klienta",
+            keyValueTable([
+              ["Numer zamówienia", order.number],
+              ["Data", new Date(order.createdAt).toLocaleString("pl-PL")],
+              ["Klient", order.customer.name],
+              ["Email", order.customer.email],
+              ["Telefon", order.customer.phone],
+              ["Firma", order.customer.company],
+              ["NIP", order.customer.taxId || "-"],
+              ["Płatność", order.customer.paymentMethod],
+              ["Notatki", order.customer.notes || "-"],
+            ])
+          ) +
+          sectionCard(
+            "Pozycje zamówienia",
+            `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${formatOrderItemsHtml(
+              order.items
+            )}</table>`
+          ) +
+          `<div style="margin-top:18px;padding:18px;border-radius:14px;background:#d4aa3f;color:#050507;text-align:right;font-size:24px;font-weight:900;">
+            Łącznie: ${formatPrice(order.subtotal)}
+          </div>`,
+      }),
     });
 
     return { adminEmail: "sent" as DeliveryState };
@@ -210,7 +420,30 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
         `Telefon: ${order.customer.phone}\n` +
         `Firma: ${order.customer.company}\n\n` +
         `Pozycje:\n${formatOrderItems(order.items)}\n\n` +
-        `Brief:\n${formatBriefAnswers(order.briefAnswers)}`,
+        `Brief:\n${formatBriefAnswersText(order.briefAnswers)}`,
+      html: emailShell({
+        eyebrow: "Brief do zamówienia",
+        title: `Brief ${order.number}`,
+        intro: "Klient uzupełnił dane potrzebne do rozpoczęcia realizacji projektu.",
+        content:
+          sectionCard(
+            "Dane klienta",
+            keyValueTable([
+              ["Numer zamówienia", order.number],
+              ["Klient", order.customer.name],
+              ["Email", order.customer.email],
+              ["Telefon", order.customer.phone],
+              ["Firma", order.customer.company],
+            ])
+          ) +
+          sectionCard(
+            "Pozycje zamówienia",
+            `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${formatOrderItemsHtml(
+              order.items
+            )}</table>`
+          ) +
+          sectionCard("Brief projektowy", formatBriefAnswersHtml(order.briefAnswers)),
+      }),
     });
     adminEmail = "sent";
   } catch (error) {
@@ -228,6 +461,27 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
         `Kwota: ${order.subtotal} zł\n` +
         `Status: brief wysłany.\n\n` +
         `Skontaktujemy się po weryfikacji briefu i potwierdzeniu zakresu realizacji.`,
+      html: emailShell({
+        eyebrow: "Potwierdzenie zamówienia",
+        title: "Dziękujemy za przesłanie briefu",
+        intro: "Twoje zamówienie i brief projektowy zostały zapisane. Kolejny krok to weryfikacja zakresu i kontakt w sprawie realizacji.",
+        content:
+          sectionCard(
+            "Podsumowanie",
+            keyValueTable([
+              ["Numer zamówienia", order.number],
+              ["Kwota", formatPrice(order.subtotal)],
+              ["Status", "Brief wysłany"],
+            ])
+          ) +
+          sectionCard(
+            "Co dalej?",
+            `<p style="margin:0;color:#c8c2d1;font-size:15px;line-height:1.7;">
+              Przejrzę przesłane informacje, sprawdzę zakres projektu i odezwę się z potwierdzeniem dalszych kroków.
+            </p>`
+          ),
+        footer: "DatiVe Design - dziękujemy za zaufanie.",
+      }),
     });
     customerEmail = "sent";
   } catch (error) {
