@@ -374,18 +374,18 @@
   }
 
   h1 {
-    font-size: clamp(2.25rem, 11vw, 3.35rem) !important;
+    font-size: clamp(1.85re, 9.5vw, 3rem) !important;
     line-height: 1.02 !important;
     letter-spacing: 0.005em;
   }
 
   h2 {
-    font-size: clamp(1.55rem, 7.2vw, 2.15rem) !important;
+    font-size: clamp(1.35rem, 6vw, 1.85rem) !important;
     line-height: 1.08 !important;
   }
 
   h3 {
-    font-size: clamp(1.15rem, 5.7vw, 1.65rem) !important;
+    font-size: clamp(1rem, 4.8vw, 1.4rem) !important;
     line-height: 1.12 !important;
   }
 
