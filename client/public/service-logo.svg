@@ -1,0 +1,34 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" rx="48" fill="#07080C"/>
+  <rect x="38" y="38" width="1124" height="824" rx="36" stroke="#1A1E27"/>
+  <circle cx="1010" cy="150" r="180" fill="url(#goldGlow)" fill-opacity="0.18"/>
+  <circle cx="170" cy="740" r="210" fill="url(#blueGlow)" fill-opacity="0.14"/>
+  <g filter="url(#shadowA)">
+    <rect x="160" y="170" width="540" height="560" rx="34" fill="#11141C"/>
+    <rect x="190" y="200" width="480" height="500" rx="24" fill="#0C0F15"/>
+    <path d="M286 318L432 248H607C663 248 708 261 742 287C775 313 792 348 792 391C792 460 748 507 660 532L795 652H661L537 545H432V652H286V318ZM432 439H598C631 439 656 434 673 423C690 412 699 395 699 372C699 349 690 333 673 322C656 311 631 306 598 306H432V439Z" fill="#E0B54A"/>
+    <text x="286" y="610" fill="#FAFAFA" font-family="Arial, Helvetica, sans-serif" font-size="26" letter-spacing="5">SYGNET • TYPOGRAFIA • SYSTEM ZNAKU</text>
+  </g>
+  <g filter="url(#shadowB)">
+    <rect x="720" y="250" width="290" height="210" rx="26" transform="rotate(10 720 250)" fill="#F6F2E9"/>
+    <path d="M800 310L878 272H969V412H905V334L846 362L800 310Z" fill="#0C0F15"/>
+    <text x="777" y="415" fill="#6F7482" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="3">BRAND CARD</text>
+  </g>
+  <text x="160" y="120" fill="#FAFAFA" font-family="Arial, Helvetica, sans-serif" font-size="34" letter-spacing="8">PROJEKT LOGO</text>
+  <defs>
+    <linearGradient id="goldGlow" x1="840" y1="-30" x2="1156" y2="292" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0B54A"/>
+      <stop offset="1" stop-color="#E0B54A" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="blueGlow" x1="-20" y1="560" x2="330" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D5C7A"/>
+      <stop offset="1" stop-color="#0D5C7A" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadowA" x="132" y="150" width="708" height="630" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="shadowB" x="677" y="223" width="385" height="316" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+</svg>
