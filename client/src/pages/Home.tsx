@@ -105,7 +105,7 @@ export default function Home() {
         <div className="relative container py-16 sm:py-28 lg:py-36">
           <div className="max-w-5xl">
             <div className="section-label mb-4 sm:mb-5">{hero.label}</div>
-            <h1 className="max-w-4xl font-display text-[2.35rem] font-black leading-[1.02] text-white sm:text-6xl sm:leading-[0.94] lg:text-8xl">
+            <h1 className="max-w-4xl font-display text-[2.10rem] font-black leading-[1.02] text-white sm:text-6xl sm:leading-[0.94] lg:text-8xl">
               <span className="block">{hero.titleTop}</span>
               <span className="block text-gold">{hero.titleBottom}</span>
             </h1>
