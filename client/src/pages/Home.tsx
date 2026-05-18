@@ -91,7 +91,7 @@ export default function Home() {
       <section className="relative overflow-hidden border-b border-white/5">
         <div className="absolute inset-0">
           <img
-            src="/hero.jpg"
+            src="/hero.webp"
             alt=""
             className="h-full w-full object-cover object-center opacity-65"
             fetchPriority="high"
