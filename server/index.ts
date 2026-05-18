@@ -44,6 +44,13 @@ type OrderRecord = {
   };
 };
 
+type BriefAttachment = {
+  name: string;
+  type?: string;
+  size?: number;
+  content?: string;
+};
+
 type EmailConfig = {
   apiKey: string;
   fromEmail: string;
@@ -84,6 +91,21 @@ async function readOrders() {
 
 async function writeOrders(orders: OrderRecord[]) {
   await fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2), "utf-8");
+}
+
+function stripAttachmentContentFromAnswers(answers: unknown[]) {
+  if (!Array.isArray(answers)) return [];
+
+  return answers.map((rawAnswer: any) => ({
+    ...rawAnswer,
+    attachments: Array.isArray(rawAnswer?.attachments)
+      ? rawAnswer.attachments.map((file: BriefAttachment) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        }))
+      : [],
+  }));
 }
 
 function getEmailConfig(): EmailConfig | null {
@@ -129,6 +151,13 @@ function escapeHtml(value: unknown) {
 function formatPrice(value: unknown) {
   const price = Number(value);
   return Number.isFinite(price) ? `${price} zł` : "-";
+}
+
+function formatFileSize(size: unknown) {
+  const bytes = Number(size || 0);
+  if (!Number.isFinite(bytes) || bytes <= 0) return "-";
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
 function formatOrderItemsHtml(items: unknown[]) {
@@ -185,6 +214,7 @@ function formatBriefAnswersText(answers: unknown[]) {
         `Zakres / treści: ${answer.contentScope || "-"}`,
         `Termin: ${answer.deadline || "-"}`,
         `Dodatkowe uwagi: ${answer.additionalNotes || "-"}`,
+        `Pliki: ${Array.isArray((answer as any).attachments) && (answer as any).attachments.length > 0 ? (answer as any).attachments.map((file: BriefAttachment) => file.name).join(", ") : "-"}`,
       ].join("\n");
     })
     .join("\n\n");
@@ -223,6 +253,28 @@ function formatBriefAnswersHtml(answers: unknown[]) {
           `
         )
         .join("");
+      const attachments = Array.isArray((answer as any).attachments)
+        ? ((answer as any).attachments as BriefAttachment[])
+        : [];
+      const attachmentList =
+        attachments.length > 0
+          ? `
+            <div style="margin-top:14px;padding:14px;border:1px solid rgba(212,170,63,.25);border-radius:12px;background:#14110c;">
+              <div style="margin-bottom:8px;color:#d4aa3f;font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;">
+                Załączniki
+              </div>
+              ${attachments
+                .map(
+                  (file) => `
+                    <div style="padding:7px 0;color:#f7f2e8;font-size:14px;border-bottom:1px solid #24212c;">
+                      ${escapeHtml(file.name)} <span style="color:#8f8b99;">(${escapeHtml(formatFileSize(file.size))})</span>
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
+          `
+          : "";
 
       return `
         <div style="margin-top:${index === 0 ? "0" : "18px"};padding:18px;border:1px solid #24212c;border-radius:14px;background:#100f14;">
@@ -232,10 +284,26 @@ function formatBriefAnswersHtml(answers: unknown[]) {
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
             ${rows}
           </table>
+          ${attachmentList}
         </div>
       `;
     })
     .join("");
+}
+
+function collectEmailAttachments(answers: unknown[]) {
+  if (!Array.isArray(answers)) return [];
+
+  return answers.flatMap((rawAnswer: any, answerIndex) => {
+    if (!Array.isArray(rawAnswer?.attachments)) return [];
+
+    return rawAnswer.attachments
+      .filter((file: BriefAttachment) => file?.name && file?.content)
+      .map((file: BriefAttachment, fileIndex: number) => ({
+        filename: `${answerIndex + 1}-${fileIndex + 1}-${file.name}`,
+        content: file.content,
+      }));
+  });
 }
 
 function emailShell(input: {
@@ -346,7 +414,7 @@ function sectionCard(title: string, content: string) {
   `;
 }
 
-async function sendResendEmail(config: EmailConfig, input: { to: string; subject: string; text: string; html?: string }) {
+async function sendResendEmail(config: EmailConfig, input: { to: string; subject: string; text: string; html?: string; attachments?: Array<{ filename: string; content: string }> }) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -359,6 +427,7 @@ async function sendResendEmail(config: EmailConfig, input: { to: string; subject
       subject: input.subject,
       text: input.text,
       html: input.html,
+      attachments: input.attachments,
     }),
   });
 
@@ -456,6 +525,8 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
   let message = "";
 
   try {
+    const attachments = collectEmailAttachments(order.briefAnswers);
+
     await sendResendEmail(config, {
       to: config.notifyEmail,
       subject: `Brief do zamówienia ${order.number} - ${order.customer.company || order.customer.name}`,
@@ -497,6 +568,7 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
           ) +
           sectionCard("Brief projektowy", formatBriefAnswersHtml(order.briefAnswers)),
       }),
+      attachments,
     });
     adminEmail = "sent";
   } catch (error) {
@@ -552,7 +624,7 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  app.use(express.json());
+  app.use(express.json({ limit: "35mb" }));
   await ensureFile(REACTIONS_FILE, defaultReactions);
   await ensureFile(ORDERS_FILE, []);
 
@@ -648,6 +720,7 @@ async function startServer() {
       };
 
       orders[index] = updatedOrder;
+      updatedOrder.briefAnswers = stripAttachmentContentFromAnswers(updatedOrder.briefAnswers);
       await writeOrders(orders);
       res.json(updatedOrder);
     } catch (error) {

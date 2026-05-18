@@ -6,8 +6,37 @@ import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { getBriefPrompt } from "@/data/orderBriefConfig";
 import { useLocale } from "@/contexts/LocaleContext";
-import { type OrderBriefAnswer, useOrderFlow } from "@/contexts/OrderFlowContext";
+import { type OrderBriefAnswer, type OrderBriefFile, useOrderFlow } from "@/contexts/OrderFlowContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+
+const MAX_FILES_PER_ITEM = 5;
+const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const MAX_TOTAL_SIZE = 18 * 1024 * 1024;
+
+function readFileAsBriefAttachment(file: File) {
+  return new Promise<OrderBriefFile>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("FILE_READ_FAILED"));
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      resolve({
+        name: file.name,
+        type: file.type || "application/octet-stream",
+        size: file.size,
+        content: result.includes(",") ? result.split(",")[1] : result,
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function formatFileSize(size: number) {
+  if (size >= 1024 * 1024) {
+    return `${(size / 1024 / 1024).toFixed(1)} MB`;
+  }
+
+  return `${Math.max(1, Math.round(size / 1024))} KB`;
+}
 
 type BriefFieldProps = {
   label: string;
@@ -74,6 +103,7 @@ export default function OrderBriefPage() {
         contentScope: item.scopeDetails || "",
         deadline: "",
         additionalNotes: item.notes || "",
+        attachments: [],
       })) ?? [],
     [activeOrder]
   );
@@ -134,6 +164,77 @@ export default function OrderBriefPage() {
             }
           : answer
       )
+    );
+  };
+
+  const updateAttachments = (itemId: string, attachments: OrderBriefFile[]) => {
+    setAnswers((current) =>
+      current.map((answer) =>
+        answer.itemId === itemId
+          ? {
+              ...answer,
+              attachments,
+            }
+          : answer
+      )
+    );
+  };
+
+  const addFiles = async (itemId: string, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const answer = answers.find((entry) => entry.itemId === itemId);
+    if (!answer) return;
+
+    const selectedFiles = Array.from(files);
+    const tooLarge = selectedFiles.find((file) => file.size > MAX_FILE_SIZE);
+    if (tooLarge) {
+      toast.error(
+        locale === "en"
+          ? `File "${tooLarge.name}" is too large. Max file size is 8 MB.`
+          : `Plik "${tooLarge.name}" jest za duży. Maksymalny rozmiar jednego pliku to 8 MB.`
+      );
+      return;
+    }
+
+    if (answer.attachments.length + selectedFiles.length > MAX_FILES_PER_ITEM) {
+      toast.error(
+        locale === "en"
+          ? `You can attach up to ${MAX_FILES_PER_ITEM} files per item.`
+          : `Możesz dodać maksymalnie ${MAX_FILES_PER_ITEM} plików do jednej pozycji.`
+      );
+      return;
+    }
+
+    const currentTotal = answer.attachments.reduce((sum, file) => sum + file.size, 0);
+    const newTotal = selectedFiles.reduce((sum, file) => sum + file.size, currentTotal);
+    if (newTotal > MAX_TOTAL_SIZE) {
+      toast.error(
+        locale === "en"
+          ? "Attached files are too large. Max total size per item is 18 MB."
+          : "Załączniki są za duże. Maksymalny łączny rozmiar przy jednej pozycji to 18 MB."
+      );
+      return;
+    }
+
+    try {
+      const attachments = await Promise.all(selectedFiles.map(readFileAsBriefAttachment));
+      updateAttachments(itemId, [...answer.attachments, ...attachments]);
+    } catch {
+      toast.error(
+        locale === "en"
+          ? "One of the files could not be read."
+          : "Nie udało się odczytać jednego z plików."
+      );
+    }
+  };
+
+  const removeFile = (itemId: string, fileIndex: number) => {
+    const answer = answers.find((entry) => entry.itemId === itemId);
+    if (!answer) return;
+    updateAttachments(
+      itemId,
+      answer.attachments.filter((_, index) => index !== fileIndex)
     );
   };
 
@@ -301,6 +402,58 @@ export default function OrderBriefPage() {
                     onChange={(value) => updateAnswer(item.id, "additionalNotes", value)}
                     placeholder={prompt.notesPlaceholder}
                   />
+                </div>
+
+                <div className="mt-5 rounded-sm border border-white/8 bg-background/55 p-4">
+                  <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
+                    <div>
+                      <div className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/38">
+                        {locale === "en" ? "Project files" : "Pliki do projektu"}
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-white/55">
+                        {locale === "en"
+                          ? "Attach logo files, screenshots, references or print files. Max 5 files, 8 MB each."
+                          : "Dodaj logo, screeny, inspiracje albo pliki do druku. Maks. 5 plików, 8 MB każdy."}
+                      </p>
+                    </div>
+                    <label className="inline-flex cursor-pointer items-center justify-center rounded-sm border border-gold/35 px-5 py-3 text-xs font-black uppercase tracking-wider text-gold transition hover:bg-gold/10">
+                      {locale === "en" ? "Add files" : "Dodaj pliki"}
+                      <input
+                        disabled={isSubmitting}
+                        type="file"
+                        multiple
+                        className="sr-only"
+                        onChange={(event) => {
+                          void addFiles(item.id, event.target.files);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {answer.attachments.length > 0 ? (
+                    <div className="mt-4 grid gap-2">
+                      {answer.attachments.map((file, fileIndex) => (
+                        <div
+                          key={`${file.name}-${fileIndex}`}
+                          className="flex items-center justify-between gap-3 rounded-sm border border-white/8 bg-card px-3 py-2 text-sm"
+                        >
+                          <div className="min-w-0">
+                            <div className="truncate font-semibold text-white">{file.name}</div>
+                            <div className="text-xs text-white/45">{formatFileSize(file.size)}</div>
+                          </div>
+                          <button
+                            disabled={isSubmitting}
+                            type="button"
+                            onClick={() => removeFile(item.id, fileIndex)}
+                            className="shrink-0 text-xs font-black uppercase tracking-wider text-white/45 transition hover:text-gold disabled:opacity-50"
+                          >
+                            {locale === "en" ? "Remove" : "Usuń"}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </article>
             );

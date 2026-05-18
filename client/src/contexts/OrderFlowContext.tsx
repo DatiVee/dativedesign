@@ -20,6 +20,13 @@ export type CheckoutCustomerData = {
   notes: string;
 };
 
+export type OrderBriefFile = {
+  name: string;
+  type: string;
+  size: number;
+  content: string;
+};
+
 export type OrderBriefAnswer = {
   itemId: string;
   brandName: string;
@@ -30,6 +37,7 @@ export type OrderBriefAnswer = {
   contentScope: string;
   deadline: string;
   additionalNotes: string;
+  attachments: OrderBriefFile[];
 };
 
 export type OrderRecord = {
