@@ -1,0 +1,54 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="124" y1="82" x2="1082" y2="824" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2C2A27"/>
+      <stop offset="1" stop-color="#0D0D0F"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#E1BD6C"/>
+      <stop offset="1" stop-color="#AF7F29"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="1200" height="900" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="soft" x="0" y="0" width="1200" height="900" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="#0B0B0D"/>
+  <rect x="36" y="36" width="1128" height="828" rx="30" fill="url(#bg)"/>
+  <circle cx="1038" cy="128" r="148" fill="#E1BD6C" fill-opacity="0.06"/>
+  <circle cx="124" cy="782" r="188" fill="#DAB25B" fill-opacity="0.04"/>
+
+  <g filter="url(#soft)">
+    <rect x="168" y="188" width="430" height="500" rx="18" fill="#151618"/>
+    <rect x="168" y="188" width="430" height="500" rx="18" stroke="#2A2C31"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="492" y="130" width="402" height="566" rx="18" transform="rotate(8 492 130)" fill="#1A1B1F"/>
+    <rect x="492" y="130" width="402" height="566" rx="18" transform="rotate(8 492 130)" stroke="#34363A"/>
+  </g>
+
+  <g filter="url(#soft)">
+    <rect x="694" y="462" width="268" height="160" rx="16" transform="rotate(-8 694 462)" fill="#1B1D22"/>
+    <rect x="694" y="462" width="268" height="160" rx="16" transform="rotate(-8 694 462)" stroke="#32343A"/>
+  </g>
+
+  <path d="M248 286H334C334 365.529 269.529 430 190 430V344C190 311.967 215.967 286 248 286Z" fill="url(#gold)"/>
+  <rect x="286" y="332" width="108" height="108" fill="#151618"/>
+  <path d="M394 386L484 492H406L342 418L394 386Z" fill="url(#gold)"/>
+
+  <text x="212" y="536" fill="#F6F2EA" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="0.22em">PROJEKT LOGO</text>
+  <text x="212" y="582" fill="#D0AE65" font-family="Arial, Helvetica, sans-serif" font-size="20" letter-spacing="0.18em">SYGNET • TYPOGRAFIA • SYSTEM</text>
+
+  <text x="570" y="246" fill="#F6F2EA" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="0.18em" transform="rotate(8 570 246)">DATiVE DESIGN</text>
+  <path d="M554 284H820" stroke="#A87A28" stroke-width="2" transform="rotate(8 554 284)"/>
+  <path d="M562 560H810" stroke="#A87A28" stroke-width="2" transform="rotate(8 562 560)"/>
+
+  <path d="M752 508L814 488L854 536L788 558L752 508Z" fill="#F4EFE6"/>
+  <text x="756" y="590" fill="#F0E9DD" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="0.24em" transform="rotate(-8 756 590)">BRAND CARD</text>
+
+  <text x="94" y="90" fill="#D4AE5A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="0.34em">BESTSELLER</text>
+</svg>
