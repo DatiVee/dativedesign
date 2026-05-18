@@ -243,6 +243,7 @@ function emailShell(input: {
   title: string;
   intro: string;
   content: string;
+  badge?: string;
   footer?: string;
 }) {
   return `
@@ -251,8 +252,17 @@ function emailShell(input: {
       <body style="margin:0;background:#050507;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#f7f2e8;">
         <div style="max-width:720px;margin:0 auto;border:1px solid #24212c;border-radius:18px;background:#0b0a0f;overflow:hidden;">
           <div style="padding:30px 28px 24px;border-bottom:1px solid #24212c;background:linear-gradient(135deg,#14110c 0%,#0b0a0f 52%,#050507 100%);">
-            <div style="color:#d4aa3f;font-size:12px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;">
-              ${escapeHtml(input.eyebrow)}
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+              <div style="color:#d4aa3f;font-size:12px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;">
+                ${escapeHtml(input.eyebrow)}
+              </div>
+              ${
+                input.badge
+                  ? `<div style="border:1px solid rgba(212,170,63,.45);border-radius:999px;background:rgba(212,170,63,.12);padding:7px 11px;color:#f5d88a;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;">
+                      ${escapeHtml(input.badge)}
+                    </div>`
+                  : ""
+              }
             </div>
             <h1 style="margin:12px 0 0;color:#ffffff;font-size:30px;line-height:1.08;font-weight:900;letter-spacing:-0.02em;">
               ${escapeHtml(input.title)}
@@ -270,6 +280,37 @@ function emailShell(input: {
         </div>
       </body>
     </html>
+  `;
+}
+
+function contactHighlight(order: OrderRecord) {
+  return `
+    <div style="margin-top:18px;padding:18px;border:1px solid rgba(212,170,63,.35);border-radius:14px;background:linear-gradient(135deg,rgba(212,170,63,.16),rgba(16,15,20,.92));">
+      <div style="margin-bottom:12px;color:#d4aa3f;font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">
+        Szybki kontakt
+      </div>
+      <div style="display:grid;gap:10px;">
+        <a href="mailto:${escapeHtml(order.customer.email)}" style="display:block;color:#ffffff;font-size:20px;font-weight:900;text-decoration:none;">
+          ${escapeHtml(order.customer.email || "-")}
+        </a>
+        <a href="tel:${escapeHtml(order.customer.phone)}" style="display:block;color:#f5d88a;font-size:18px;font-weight:800;text-decoration:none;">
+          ${escapeHtml(order.customer.phone || "-")}
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+function infoBox(title: string, description: string) {
+  return `
+    <div style="margin-top:18px;padding:18px;border:1px solid rgba(212,170,63,.28);border-radius:14px;background:#14110c;">
+      <div style="margin-bottom:8px;color:#d4aa3f;font-size:12px;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;">
+        ${escapeHtml(title)}
+      </div>
+      <p style="margin:0;color:#c8c2d1;font-size:14px;line-height:1.7;">
+        ${escapeHtml(description)}
+      </p>
+    </div>
   `;
 }
 
@@ -358,7 +399,13 @@ async function sendNewOrderNotification(order: OrderRecord) {
         eyebrow: "Nowe zamówienie",
         title: `Zamówienie ${order.number}`,
         intro: "Klient przeszedł checkout. Brief projektowy powinien przyjść w kolejnym mailu po uzupełnieniu formularza.",
+        badge: "Brief oczekuje",
         content:
+          contactHighlight(order) +
+          infoBox(
+            "Co dalej?",
+            "To jest pierwszy mail po checkoutcie. Poczekaj na drugi mail z briefem albo skontaktuj się z klientem, jeśli brief nie przyjdzie."
+          ) +
           sectionCard(
             "Dane klienta",
             keyValueTable([
@@ -425,7 +472,13 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
         eyebrow: "Brief do zamówienia",
         title: `Brief ${order.number}`,
         intro: "Klient uzupełnił dane potrzebne do rozpoczęcia realizacji projektu.",
+        badge: "Brief wysłany",
         content:
+          contactHighlight(order) +
+          infoBox(
+            "Co dalej?",
+            "Ten mail zawiera komplet informacji z briefu. Możesz zweryfikować zakres, potwierdzić cenę/termin i przejść do realizacji."
+          ) +
           sectionCard(
             "Dane klienta",
             keyValueTable([
@@ -465,6 +518,7 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
         eyebrow: "Potwierdzenie zamówienia",
         title: "Dziękujemy za przesłanie briefu",
         intro: "Twoje zamówienie i brief projektowy zostały zapisane. Kolejny krok to weryfikacja zakresu i kontakt w sprawie realizacji.",
+        badge: "Przyjęte",
         content:
           sectionCard(
             "Podsumowanie",
