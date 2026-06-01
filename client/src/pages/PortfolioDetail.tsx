@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Link, useRoute } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -110,47 +111,52 @@ export default function PortfolioDetail() {
 
       <section className="container py-16">
         <div className="mb-10 max-w-3xl">
-          <SectionHeading
-            eyebrow="Case study"
-            title={
-              locale === "en"
-                ? "A portfolio page should explain more than the visual"
-                : "Podstrona portfolio powinna tłumaczyć coś więcej niż sam wygląd"
-            }
-            description={
-              locale === "en"
-                ? "The goal is not to stop at one image. A strong case study gives context, business intent and a real outcome."
-                : "Chodzi o coś więcej niż jeden ładny mockup. Dobre case study pokazuje kontekst, cel biznesowy i realny efekt projektu."
-            }
-          />
+          <Reveal>
+            <SectionHeading
+              eyebrow="Case study"
+              title={
+                locale === "en"
+                  ? "The thinking behind the project"
+                  : "Co stoi za tym projektem"
+              }
+              description={
+                locale === "en"
+                  ? "More than one nice mockup - the context, the goal and the real outcome behind the work."
+                  : "Więcej niż jeden ładny mockup - kontekst, cel i realny efekt, które stoją za realizacją."
+              }
+            />
+          </Reveal>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
           {[
             [locale === "en" ? "Project goal" : "Cel projektu", project.goal],
             [locale === "en" ? "Final result" : "Efekt końcowy", project.outcome],
             [locale === "en" ? "Application" : "Zastosowanie", project.application],
-          ].map(([title, text]) => (
-            <article key={title} className="rounded-sm border border-white/5 bg-card p-8">
+          ].map(([title, text], index) => (
+            <Reveal key={title} delay={(index % 3) * 80} as="article" className="rounded-sm border border-white/5 bg-card p-8">
               <h2 className="font-display text-2xl font-black text-white">{title}</h2>
               <p className="mt-4 text-sm leading-relaxed text-white/65">{text}</p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </section>
 
       <section className="container py-16">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Related services" : "Powiązane usługi"}
-          title={locale === "en" ? "Services connected to this type of project" : "Usługi powiązane z tym typem realizacji"}
-          description={
-            locale === "en"
-              ? "A portfolio page should naturally lead the user back to the offer."
-              : "Dobra podstrona portfolio powinna naturalnie prowadzić użytkownika z powrotem do oferty."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Related services" : "Powiązane usługi"}
+            title={locale === "en" ? "Services connected to this type of project" : "Usługi powiązane z tym typem realizacji"}
+            description={
+              locale === "en"
+                ? "Want a similar result? These are the services behind a project like this one."
+                : "Chcesz podobny efekt? To usługi, które stoją za realizacją tego typu."
+            }
+          />
+        </Reveal>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          {suggestedServices.map((service) => (
-            <Link key={service.slug} href={getServicePath(service.slug)} className="overflow-hidden rounded-sm border border-white/5 bg-card">
+          {suggestedServices.map((service, index) => (
+            <Reveal key={service.slug} delay={(index % 3) * 80}>
+            <Link href={getServicePath(service.slug)} className="block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover">
               <div className="aspect-[16/10] overflow-hidden border-b border-white/5">
                 <img src={service.coverImage ?? "/blog-cover.svg"} alt={service.name} loading="lazy" className="h-full w-full object-cover" />
               </div>
@@ -164,24 +170,28 @@ export default function PortfolioDetail() {
                 </div>
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {similarProjects.length > 0 ? (
         <section className="container py-16">
-          <SectionHeading
-            eyebrow={locale === "en" ? "More from this category" : "Więcej z tej kategorii"}
-            title={locale === "en" ? "Similar projects" : "Podobne realizacje"}
-            description={
-              locale === "en"
-                ? "Additional examples from the same category or service direction."
-                : "Dalsze przykłady projektów dla tego samego typu usługi lub branży."
-            }
-          />
+          <Reveal>
+            <SectionHeading
+              eyebrow={locale === "en" ? "More from this category" : "Więcej z tej kategorii"}
+              title={locale === "en" ? "Similar projects" : "Podobne realizacje"}
+              description={
+                locale === "en"
+                  ? "Additional examples from the same category or service direction."
+                  : "Dalsze przykłady projektów dla tego samego typu usługi lub branży."
+              }
+            />
+          </Reveal>
           <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {similarProjects.map((item) => (
-              <Link key={item.slug} href={getPortfolioDetailPath(item.slug)} className="group overflow-hidden rounded-sm border border-white/5 bg-card">
+            {similarProjects.map((item, index) => (
+              <Reveal key={item.slug} delay={(index % 3) * 80}>
+              <Link href={getPortfolioDetailPath(item.slug)} className="group block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover">
                 <div className="aspect-square overflow-hidden">
                   <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
@@ -191,6 +201,7 @@ export default function PortfolioDetail() {
                   <p className="mt-2 text-sm leading-relaxed text-white/60">{item.summary}</p>
                 </div>
               </Link>
+              </Reveal>
             ))}
           </div>
         </section>

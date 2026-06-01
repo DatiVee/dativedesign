@@ -104,3 +104,14 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Dane runtime - nie commitujemy danych klientów
+/reactions.json
+/server/orders.json
+/server/reactions.json
+
+# Lokalne foldery robocze / narzędzia
+/BACKUP/
+/dative-github-clean/
+/.manus-logs/
+/.claude/

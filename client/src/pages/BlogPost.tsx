@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Link, useRoute } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -27,8 +28,8 @@ export default function BlogPostPage() {
         : "Wpis blogowy | DatiVe Design",
     post?.excerpt ||
       (locale === "en"
-        ? "A DatiVe Design blog article supporting SEO and sales of graphic design services."
-        : "Artykuł blogowy DatiVe Design wspierający SEO i sprzedaż usług graficznych."),
+        ? "A DatiVe Design article about branding, design and visual identity."
+        : "Artykuł DatiVe Design o brandingu, projektowaniu i identyfikacji wizualnej."),
     { locale, path: slug ? `${getStaticPath("blog")}/${slug}` : getStaticPath("blog") }
   );
 
@@ -56,18 +57,6 @@ export default function BlogPostPage() {
   }
 
   const relatedPosts = blogPosts.filter((item) => item.slug !== post.slug).slice(0, 2);
-  const articleHighlights =
-    locale === "en"
-      ? [
-          "People-first content built around real client questions",
-          "Clear connection between educational content and actual service pages",
-          "A format designed to support both trust and conversion",
-        ]
-      : [
-          "People-first content oparty na realnych pytaniach klientów",
-          "Jasne połączenie wiedzy z konkretnymi podstronami usług",
-          "Format, który ma wspierać i zaufanie, i konwersję",
-        ];
 
   return (
     <SiteLayout>
@@ -84,25 +73,8 @@ export default function BlogPostPage() {
         </div>
 
         <div className="mt-10 overflow-hidden rounded-sm border border-gold/15 bg-card">
-          <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="overflow-hidden">
-              <img src={post.image} alt={post.title} className="h-full w-full object-cover" />
-            </div>
-            <div className="p-8">
-              <div className="section-label mb-3">{locale === "en" ? "Why this article exists" : "Po co jest ten artykuł"}</div>
-              <p className="text-sm leading-relaxed text-white/68 sm:text-base">
-                {locale === "en"
-                  ? "The goal here is not to fill the blog with generic posts. Each article should answer a real question before a client reaches out or buys a service."
-                  : "To nie ma być blog zapchany ogólnikami. Każdy wpis ma odpowiadać na realne pytanie zanim klient napisze wiadomość albo kupi usługę."}
-              </p>
-              <div className="mt-6 grid gap-3">
-                {articleHighlights.map((item) => (
-                  <div key={item} className="rounded-sm border border-white/5 bg-background/50 p-4 text-sm text-white/62">
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="aspect-[16/9] overflow-hidden">
+            <img src={post.image} alt={post.title} className="h-full w-full object-cover" />
           </div>
         </div>
       </section>
@@ -139,7 +111,7 @@ export default function BlogPostPage() {
             </div>
 
             <div className="rounded-sm border border-gold/15 bg-gradient-to-br from-gold/10 via-card to-card p-6">
-              <div className="section-label mb-3">CTA</div>
+              <div className="section-label mb-3">{locale === "en" ? "Shop" : "Sklep"}</div>
               <h2 className="font-display text-2xl font-black text-white">
                 {locale === "en" ? "Need a similar result for your brand" : "Chcesz podobny efekt dla swojej marki"}
               </h2>
@@ -161,9 +133,9 @@ export default function BlogPostPage() {
         <div className="rounded-sm border border-gold/20 bg-gradient-to-r from-gold/12 via-card to-card p-8 sm:p-10">
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="section-label mb-3">CTA</div>
+              <div className="section-label mb-3">{locale === "en" ? "Start" : "Zacznij"}</div>
               <h2 className="font-display text-3xl font-black text-white sm:text-4xl">
-                {locale === "en" ? "Want to move from reading to ordering" : "Chcesz przejść od wiedzy do zamówienia"}
+                {locale === "en" ? "Ready for a project for your brand?" : "Gotowy na projekt dla swojej marki?"}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">
                 {locale === "en"
@@ -180,18 +152,21 @@ export default function BlogPostPage() {
       </section>
 
       <section className="container py-16">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Read next" : "Czytaj dalej"}
-          title={locale === "en" ? "Related posts" : "Powiązane wpisy"}
-          description={
-            locale === "en"
-              ? "More topics that support ranking and help the client understand the offer."
-              : "Kolejne tematy, które wspierają pozycjonowanie i pomagają klientowi zrozumieć ofertę."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Read next" : "Czytaj dalej"}
+            title={locale === "en" ? "Related posts" : "Powiązane wpisy"}
+            description={
+              locale === "en"
+                ? "More topics that help you understand branding, design and how to get the most out of your visuals."
+                : "Kolejne tematy, które pomagają zrozumieć branding, projektowanie i jak wycisnąć więcej z grafiki."
+            }
+          />
+        </Reveal>
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          {relatedPosts.map((item) => (
-            <Link key={item.slug} href={getBlogPostPath(item.slug)} className="overflow-hidden rounded-sm border border-white/5 bg-card">
+          {relatedPosts.map((item, index) => (
+            <Reveal key={item.slug} delay={(index % 2) * 90}>
+            <Link href={getBlogPostPath(item.slug)} className="block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover">
               <div className="aspect-[16/10] overflow-hidden">
                 <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
               </div>
@@ -201,6 +176,7 @@ export default function BlogPostPage() {
                 <p className="mt-3 text-sm leading-relaxed text-white/60">{item.excerpt}</p>
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
       </section>

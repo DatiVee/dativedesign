@@ -115,7 +115,7 @@ export default function OrderBriefPage() {
     locale === "en"
       ? "Post-purchase project brief for DatiVe Design orders. The client fills in brand, scope, references and execution details."
       : "Brief projektowy po zakupie usługi DatiVe Design. Klient uzupełnia markę, zakres, inspiracje i detale realizacji.",
-    { locale, path: getStaticPath("brief") }
+    { locale, path: getStaticPath("brief"), robots: "noindex, follow" }
   );
 
   if (!activeOrder) {

@@ -6,8 +6,35 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { randomUUID } from "crypto";
 
+// Domyślnie produkcja, jeśli host nie ustawił NODE_ENV. Dzięki temu skrypt
+// "start" jest cross-platform (Windows/macOS/Linux) i nie wymaga cross-env.
+process.env.NODE_ENV = process.env.NODE_ENV || "production";
+
+// Wczytujemy .env TYLKO gdy host nie dostarczył już konfiguracji maili.
+// Dzięki temu zmienne środowiskowe z produkcji ZAWSZE mają pierwszeństwo
+// i nie ma ryzyka nadpisania ich przez przypadkowy plik .env w buildzie.
+if (!process.env.RESEND_API_KEY) {
+  try {
+    process.loadEnvFile?.();
+  } catch {
+    // brak pliku .env - lecimy dalej na zmiennych środowiskowych systemu
+  }
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Serializuje operacje read-modify-write na plikach JSON, żeby równoczesne
+// żądania nie nadpisywały sobie nawzajem danych (race condition).
+let fileLock: Promise<unknown> = Promise.resolve();
+function withFileLock<T>(task: () => Promise<T>): Promise<T> {
+  const run = fileLock.then(task, task);
+  fileLock = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
 
 const preferredDataDir = path.resolve(process.cwd(), "server");
 const dataDir = existsSync(preferredDataDir) ? preferredDataDir : __dirname;
@@ -628,6 +655,14 @@ async function startServer() {
   await ensureFile(REACTIONS_FILE, defaultReactions);
   await ensureFile(ORDERS_FILE, []);
 
+  if (!getEmailConfig()) {
+    console.warn(
+      "[DatiVe] Brak konfiguracji maili (RESEND_API_KEY / ORDER_FROM_EMAIL). " +
+        "Zamówienia będą zapisywane, ale powiadomienia e-mail NIE zostaną wysłane. " +
+        "Uzupełnij zmienne środowiskowe wg .env.example.",
+    );
+  }
+
   app.get("/api/reactions", async (_req, res) => {
     try {
       const data = await fs.readFile(REACTIONS_FILE, "utf-8");
@@ -642,13 +677,17 @@ async function startServer() {
     const { title } = req.params;
 
     try {
-      const data = await fs.readFile(REACTIONS_FILE, "utf-8");
-      const reactions = JSON.parse(data);
+      const count = await withFileLock(async () => {
+        const data = await fs.readFile(REACTIONS_FILE, "utf-8");
+        const reactions = JSON.parse(data);
 
-      reactions[title] = (reactions[title] || 0) + 1;
-      await fs.writeFile(REACTIONS_FILE, JSON.stringify(reactions, null, 2), "utf-8");
+        reactions[title] = (reactions[title] || 0) + 1;
+        await fs.writeFile(REACTIONS_FILE, JSON.stringify(reactions, null, 2), "utf-8");
 
-      res.json({ success: true, count: reactions[title] });
+        return reactions[title] as number;
+      });
+
+      res.json({ success: true, count });
     } catch (error) {
       console.error("Nie udało się zapisać reakcji:", error);
       res.status(500).json({ error: "Błąd serwera przy zapisie reakcji." });
@@ -657,7 +696,6 @@ async function startServer() {
 
   app.post("/api/orders", async (req, res) => {
     try {
-      const orders = await readOrders();
       const payload = req.body;
 
       const order: OrderRecord = {
@@ -684,7 +722,10 @@ async function startServer() {
         message: emailState.message,
       };
 
-      await writeOrders([order, ...orders]);
+      await withFileLock(async () => {
+        const orders = await readOrders();
+        await writeOrders([order, ...orders]);
+      });
       res.json(order);
     } catch (error) {
       console.error("Nie udało się zapisać zamówienia:", error);
@@ -711,6 +752,7 @@ async function startServer() {
         briefSubmittedAt: new Date().toISOString(),
       };
 
+      // Maile wysyłamy z pełnymi (base64) załącznikami, jeszcze przed obcięciem.
       const emailState = await sendBriefSubmittedEmails(updatedOrder);
       updatedOrder.delivery = {
         savedToServer: true,
@@ -719,9 +761,20 @@ async function startServer() {
         message: emailState.message,
       };
 
-      orders[index] = updatedOrder;
+      // Na dysku nie trzymamy base64 załączników - tylko metadane.
       updatedOrder.briefAnswers = stripAttachmentContentFromAnswers(updatedOrder.briefAnswers);
-      await writeOrders(orders);
+
+      await withFileLock(async () => {
+        const current = await readOrders();
+        const currentIndex = current.findIndex((order) => order.id === id);
+        if (currentIndex === -1) {
+          current.unshift(updatedOrder);
+        } else {
+          current[currentIndex] = updatedOrder;
+        }
+        await writeOrders(current);
+      });
+
       res.json(updatedOrder);
     } catch (error) {
       console.error("Nie udało się zapisać briefu:", error);
@@ -746,10 +799,13 @@ async function startServer() {
     }
   });
 
-  const staticPath =
-    process.env.NODE_ENV === "production"
-      ? path.resolve(__dirname, "public")
-      : path.resolve(__dirname, "..", "dist", "public");
+  // Wybieramy katalog ze zbudowanym frontem po tym, co realnie istnieje na dysku,
+  // zamiast polegać wyłącznie na NODE_ENV (odporne na różne układy build/deploy).
+  const staticCandidates = [
+    path.resolve(__dirname, "public"),
+    path.resolve(__dirname, "..", "dist", "public"),
+  ];
+  const staticPath = staticCandidates.find((candidate) => existsSync(candidate)) ?? staticCandidates[0];
 
   app.use(express.static(staticPath));
 

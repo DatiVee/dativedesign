@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -31,15 +32,17 @@ export default function Portfolio() {
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow="Portfolio"
-          title={locale === "en" ? "Case studies, not just a gallery" : "Case studies, nie tylko galeria"}
-          description={
-            locale === "en"
-              ? "Each project sits inside a category and includes its own goal, result, application and visual direction."
-              : "Każdy projekt jest przypięty do kategorii i ma własny opis celu, efektu, zastosowania i kierunku wizualnego."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow="Portfolio"
+            title={locale === "en" ? "Case studies, not just a gallery" : "Case studies, nie tylko galeria"}
+            description={
+              locale === "en"
+                ? "Each project sits inside a category and includes its own goal, result, application and visual direction."
+                : "Każdy projekt jest przypięty do kategorii i ma własny opis celu, efektu, zastosowania i kierunku wizualnego."
+            }
+          />
+        </Reveal>
 
         <div className="mt-8 flex flex-wrap gap-3">
           {categories.map((category) => {
@@ -62,11 +65,11 @@ export default function Portfolio() {
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filteredProjects.map((project) => (
+          {filteredProjects.map((project, index) => (
+            <Reveal key={project.slug} delay={(index % 3) * 70}>
             <Link
-              key={project.slug}
               href={getPortfolioDetailPath(project.slug)}
-              className="group overflow-hidden rounded-sm border border-white/5 bg-card"
+              className="group block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
             >
               <div className="relative aspect-square overflow-hidden">
                 <img
@@ -90,6 +93,7 @@ export default function Portfolio() {
                 </div>
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
       </section>

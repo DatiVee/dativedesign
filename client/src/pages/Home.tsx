@@ -1,6 +1,7 @@
-import { ArrowRight, Check, ShoppingBag, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Check, Sparkles, Star } from "lucide-react";
 import { Link } from "wouter";
 import { ContactSection } from "@/components/site/ContactSection";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -25,6 +26,9 @@ export default function Home() {
   const faqs = getFaqs(locale);
   const latestPosts = getBlogPosts(locale).slice(0, 3);
 
+  const [leadProject, ...restProjects] = homepageProjects;
+  const [leadReview, ...restReviews] = testimonials;
+
   usePageMeta(
     locale === "en"
       ? "DatiVe Design | Premium graphic design studio and online service ordering"
@@ -43,9 +47,8 @@ export default function Home() {
           titleBottom: "TO EXECUTION",
           description:
             "Professional graphic design services for your business. I create visual identities, labels, print materials and promotional graphics that help your brand stand out.",
-          primary: "See portfolio",
-          secondary: "Order project",
-          values: ["PROFESSIONALISM", "EXPERIENCE", "INNOVATION"],
+          primary: "Order project",
+          secondary: "See portfolio",
         }
       : {
           label: "Projektant graficzny - Rzeszów / Kolbuszowa",
@@ -53,9 +56,8 @@ export default function Home() {
           titleBottom: "DO REALIZACJI",
           description:
             "Profesjonalne usługi graficzne dla Twojej firmy. Tworzę identyfikacje wizualne, etykiety, materiały drukowane i grafiki reklamowe, które wyróżniają Twoją markę.",
-          primary: "Zobacz portfolio",
-          secondary: "Zamów projekt",
-          values: ["PROFESJONALIZM", "DOŚWIADCZENIE", "INNOWACYJNOŚĆ"],
+          primary: "Zamów projekt",
+          secondary: "Zobacz portfolio",
         };
 
   const marqueeItems =
@@ -88,10 +90,11 @@ export default function Home() {
 
   return (
     <SiteLayout>
+      {/* HERO */}
       <section className="relative overflow-hidden border-b border-white/5">
         <div className="absolute inset-0">
           <img
-            src="/hero.webp"
+            src="/hero.jpg"
             alt=""
             className="h-full w-full object-cover object-center opacity-65"
             fetchPriority="high"
@@ -102,46 +105,47 @@ export default function Home() {
           <div className="ambient-orb ambient-orb-soft bottom-10 right-[12%] h-52 w-52" />
         </div>
 
-        <div className="relative container py-16 sm:py-28 lg:py-36">
+        <div className="relative container py-24 sm:py-28 lg:py-36">
           <div className="max-w-5xl">
-            <div className="section-label mb-4 sm:mb-5">{hero.label}</div>
-            <h1 className="max-w-4xl font-display text-[2.10rem] font-black leading-[1.02] text-white sm:text-6xl sm:leading-[0.94] lg:text-8xl">
+            <div className="section-label mb-5 animate-fade-up">{hero.label}</div>
+            <h1 className="max-w-4xl font-display text-4xl font-black leading-[0.94] text-white sm:text-6xl lg:text-8xl animate-fade-up">
               <span className="block">{hero.titleTop}</span>
               <span className="block text-gold">{hero.titleBottom}</span>
             </h1>
-            <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/68 sm:mt-6 sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg animate-fade-up-delay-1">
               {hero.description}
             </p>
 
-            <div className="mt-7 flex flex-col gap-2.5 sm:mt-9 sm:flex-row sm:gap-3">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row animate-fade-up-delay-2">
               <Link
-                href={getStaticPath("portfolio")}
-                className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-5 py-3 text-xs font-black uppercase tracking-wider text-background sm:px-7 sm:py-4 sm:text-sm"
+                href={getStaticPath("order")}
+                className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-7 py-4 text-sm font-black uppercase tracking-wider text-background"
               >
-                <ShoppingBag size={18} />
+                <Sparkles size={18} />
                 {hero.primary}
               </Link>
               <Link
-                href={getStaticPath("order")}
-                className="inline-flex items-center justify-center gap-2 rounded-sm border border-gold/30 px-5 py-3 text-xs font-black uppercase tracking-wider text-gold transition-colors hover:bg-gold/10 sm:px-7 sm:py-4 sm:text-sm"
+                href={getStaticPath("portfolio")}
+                className="inline-flex items-center justify-center gap-2 rounded-sm border border-gold/30 px-7 py-4 text-sm font-black uppercase tracking-wider text-gold transition-colors hover:bg-gold/10"
               >
                 {hero.secondary}
                 <ArrowRight size={18} />
               </Link>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/55 sm:mt-10 sm:gap-5 sm:text-sm">
-              {hero.values.map((item) => (
-                <span key={item} className="inline-flex items-center gap-2">
+            <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/60 animate-fade-up-delay-3">
+              {companyStats.slice(0, 3).map((stat) => (
+                <span key={stat.label} className="inline-flex items-center gap-2">
                   <Check size={16} className="text-gold" />
-                  {item}
+                  <span className="font-bold text-white">{stat.value}</span>
+                  {stat.label}
                 </span>
               ))}
             </div>
           </div>
 
           <a
-            href="#home-overview"
+            href="#home-work"
             className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/45 transition-colors hover:text-gold md:flex"
           >
             <span>{locale === "en" ? "Scroll" : "Przewiń"}</span>
@@ -149,12 +153,12 @@ export default function Home() {
           </a>
         </div>
 
-        <div className="relative overflow-hidden border-t border-gold/15 bg-gold/8 py-3 sm:py-5">
+        <div className="relative overflow-hidden border-t border-gold/15 bg-gold/8 py-5">
           <div className="flex min-w-max animate-marquee gap-8 whitespace-nowrap">
             {[...marqueeItems, ...marqueeItems].map((item, index) => (
               <span
                 key={`${item}-${index}`}
-                className="font-display text-xs font-bold uppercase tracking-[0.14em] text-gold/90 sm:text-sm sm:tracking-[0.18em]"
+                className="font-display text-sm font-bold uppercase tracking-[0.18em] text-gold/90"
               >
                 {item}
                 <span className="ml-8 text-gold/45">•</span>
@@ -164,20 +168,142 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="home-overview" className="py-20">
+      {/* PROOF BAR (jeden, scalony zestaw statystyk) */}
+      <section className="border-b border-white/5 bg-white/[0.02] py-10 sm:py-12">
         <div className="container grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {companyStats.map((stat) => (
-            <div key={stat.label} className="rounded-sm border border-white/5 bg-card p-6">
-              <div className="font-display text-4xl font-black text-gold">{stat.value}</div>
+          {companyStats.map((stat, index) => (
+            <Reveal
+              key={stat.label}
+              delay={index * 80}
+              className="rounded-sm border border-white/5 bg-card px-6 py-5"
+            >
+              <div className="font-display text-3xl font-black text-gold sm:text-4xl">{stat.value}</div>
               <div className="mt-2 text-sm text-white/65">{stat.label}</div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="py-20">
-        <div className="container grid items-start gap-14 lg:grid-cols-[1fr_1.05fr]">
-          <div>
+      {/* PORTFOLIO - przeniesione wyżej, z dużym kafelkiem wiodącym */}
+      <section id="home-work" className="py-20 sm:py-24">
+        <div className="container">
+          <Reveal>
+            <SectionHeading
+              eyebrow="Portfolio"
+              title={locale === "en" ? "Selected" : "Wybrane"}
+              accent={locale === "en" ? "work" : "realizacje"}
+              description={
+                locale === "en"
+                  ? "A selection of projects where design solved a real problem for the brand - not just looked good."
+                  : "Wybór projektów, w których design rozwiązał realny problem marki - a nie tylko ładnie wyglądał."
+              }
+            />
+          </Reveal>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {leadProject ? (
+              <Reveal className="lg:col-span-2" as="div">
+                <Link
+                  href={getPortfolioDetailPath(leadProject.slug)}
+                  className="group block h-full overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden lg:aspect-[16/9]">
+                    <img
+                      src={leadProject.image}
+                      alt={leadProject.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="portfolio-sheen absolute inset-0" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-6 sm:p-8">
+                      <div className="section-label mb-2">{leadProject.category}</div>
+                      <h3 className="font-display text-2xl font-black text-white sm:text-4xl">
+                        {leadProject.title}
+                      </h3>
+                      <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/65">
+                        {leadProject.summary}
+                      </p>
+                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
+                        {locale === "en" ? "View project" : "Zobacz projekt"}
+                        <ArrowRight size={16} />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            ) : null}
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+              {restProjects.slice(0, 2).map((project, index) => (
+                <Reveal key={project.slug} delay={index * 100}>
+                  <Link
+                    href={getPortfolioDetailPath(project.slug)}
+                    className="group block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
+                  >
+                    <div className="relative aspect-[16/10] overflow-hidden">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="portfolio-sheen absolute inset-0" />
+                    </div>
+                    <div className="p-5">
+                      <div className="section-label mb-1.5">{project.category}</div>
+                      <h3 className="font-display text-lg font-black text-white">{project.title}</h3>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+
+          {restProjects.length > 2 ? (
+            <div className="mt-6 grid gap-6 md:grid-cols-3">
+              {restProjects.slice(2).map((project, index) => (
+                <Reveal key={project.slug} delay={index * 100}>
+                  <Link
+                    href={getPortfolioDetailPath(project.slug)}
+                    className="group block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
+                  >
+                    <div className="relative aspect-square overflow-hidden">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="portfolio-sheen absolute inset-0" />
+                    </div>
+                    <div className="p-6">
+                      <div className="section-label mb-2">{project.category}</div>
+                      <h3 className="font-display text-xl font-black text-white">{project.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-white/60">{project.summary}</p>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="mt-10">
+            <Link
+              href={getStaticPath("portfolio")}
+              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+            >
+              {locale === "en" ? "See full portfolio" : "Zobacz pełne portfolio"}
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* O MNIE */}
+      <section className="border-y border-white/5 bg-white/[0.02] py-20 sm:py-24">
+        <div className="container grid items-start gap-14 lg:grid-cols-[1fr_0.9fr]">
+          <Reveal>
             <SectionHeading
               eyebrow={locale === "en" ? "Our story" : "Nasza historia"}
               title={locale === "en" ? "Graphic designer" : "Grafik komputerowy"}
@@ -200,164 +326,150 @@ export default function Home() {
               ).map((item) => (
                 <span
                   key={item}
-                  className="rounded-sm border border-gold/25 px-4 py-2 text-xs font-bold uppercase tracking-wide text-gold"
+                  className="inline-flex items-center gap-2 rounded-sm border border-gold/25 px-4 py-2 text-xs font-bold uppercase tracking-wide text-gold"
                 >
+                  <Check size={14} />
                   {item}
                 </span>
               ))}
             </div>
-          </div>
+          </Reveal>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            {(locale === "en"
-              ? [
-                  ["100%", "Client recommendations", "based on real feedback"],
-                  ["100+", "Active audience", "a growing community around the brand"],
-                  ["Multiple", "Industries", "different clients and different visual needs"],
-                  ["Direct", "Contact without middlemen", "you speak directly with the person doing the work"],
-                ]
-              : [
-                  ["100%", "Poleceń od klientów", "na podstawie opinii"],
-                  ["100+", "Obserwujących", "aktywnie rosnąca społeczność"],
-                  ["Różne", "Branże", "Różnorodne projekty"],
-                  ["Kontakt", "Bez pośredników", "rozmawiasz bezpośrednio ze mną"],
-                ]
-            ).map(([value, title, text]) => (
-              <article key={`${value}-${title}`} className="rounded-sm border border-white/5 bg-card p-6">
-                <div className="font-display text-4xl font-black text-gold">{value}</div>
-                <div className="mt-3 text-lg font-black text-white">{title}</div>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{text}</p>
-              </article>
-            ))}
-          </div>
+          <Reveal delay={120}>
+            <div className="rounded-sm border border-gold/20 bg-gradient-to-br from-gold/12 via-card to-card p-7 sm:p-9">
+              <div className="section-label mb-4">{locale === "en" ? "How I work" : "Jak pracuję"}</div>
+              <div className="grid gap-6">
+                {(locale === "en"
+                  ? [
+                      ["Direct contact", "You talk to the person doing the work - no middlemen, no telephone game."],
+                      ["Clear process", "Scope, price and timeline are agreed before anything starts."],
+                      ["Files you own", "You receive ready-to-use files in the right formats for web and print."],
+                    ]
+                  : [
+                      ["Kontakt bez pośredników", "Rozmawiasz z osobą, która realnie robi projekt - bez głuchego telefonu."],
+                      ["Przejrzysty proces", "Zakres, cenę i termin ustalamy, zanim cokolwiek ruszy."],
+                      ["Pliki na własność", "Dostajesz gotowe pliki w odpowiednich formatach pod web i druk."],
+                    ]
+                ).map(([title, text]) => (
+                  <div key={title} className="flex gap-4">
+                    <ArrowRight size={18} className="mt-1 shrink-0 text-gold" />
+                    <div>
+                      <div className="font-black text-white">{title}</div>
+                      <p className="mt-1 text-sm leading-relaxed text-white/60">{text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="py-20">
+      {/* USŁUGI */}
+      <section className="py-20 sm:py-24">
         <div className="container">
-          <SectionHeading
-            eyebrow={locale === "en" ? "Popular services" : "Najpopularniejsze usługi"}
-            title={locale === "en" ? "Services ready" : "Usługi gotowe"}
-            accent={locale === "en" ? "to order" : "do zamówienia"}
-            description={
-              locale === "en"
-                ? "Each service has its own URL, benefits, portfolio, packages, FAQ and a direct path to the cart."
-                : "Każda usługa ma własny URL, opis, korzyści, portfolio, pakiety, FAQ i przejście do koszyka."
-            }
-          />
+          <Reveal>
+            <SectionHeading
+              eyebrow={locale === "en" ? "Popular services" : "Najpopularniejsze usługi"}
+              title={locale === "en" ? "Services ready" : "Usługi gotowe"}
+              accent={locale === "en" ? "to order" : "do zamówienia"}
+              description={
+                locale === "en"
+                  ? "Clear scope, examples and packages with pricing - pick what fits and order online in a few clicks."
+                  : "Jasny zakres, przykłady i pakiety z cenami - wybierz to, co pasuje, i zamów online w kilka kliknięć."
+              }
+            />
+          </Reveal>
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {featuredServices.map((service) => (
-              <article key={service.slug} className="rounded-sm border border-white/5 bg-card p-6">
-                <div className="section-label mb-3">{service.category}</div>
-                <h3 className="font-display text-2xl font-black text-white">{service.name}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/65">{service.shortDescription}</p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {service.packages.slice(0, 3).map((item) => (
-                    <span key={item.slug} className="rounded-full bg-white/5 px-3 py-1 text-xs text-white/50">
-                      {item.name} ·{" "}
-                      {item.priceLabel
-                        ? formatPackagePrice(item.price, item.priceLabel)
-                        : `${locale === "en" ? "from" : "od"} ${formatPackagePrice(item.price)}`}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link href={getServicePath(service.slug)} className="inline-flex items-center gap-2 text-sm font-bold text-gold">
-                    {locale === "en" ? "Service details" : "Szczegóły usługi"}
-                    <ArrowRight size={16} />
-                  </Link>
-                </div>
-              </article>
+            {featuredServices.map((service, index) => (
+              <Reveal key={service.slug} delay={index * 100}>
+                <article className="flex h-full flex-col rounded-sm border border-white/5 bg-card p-6 gold-border-hover">
+                  <div className="section-label mb-3">{service.category}</div>
+                  <h3 className="font-display text-2xl font-black text-white">{service.name}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65">{service.shortDescription}</p>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {service.packages.slice(0, 3).map((item) => (
+                      <span key={item.slug} className="rounded-full bg-white/5 px-3 py-1 text-xs text-white/50">
+                        {item.name} ·{" "}
+                        {item.priceLabel
+                          ? formatPackagePrice(item.price, item.priceLabel)
+                          : `${locale === "en" ? "from" : "od"} ${formatPackagePrice(item.price)}`}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-auto pt-6">
+                    <Link
+                      href={getServicePath(service.slug)}
+                      className="inline-flex items-center gap-2 text-sm font-bold text-gold"
+                    >
+                      {locale === "en" ? "Service details" : "Szczegóły usługi"}
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20">
+      {/* OPINIE - jedna duża + mniejsze */}
+      <section className="border-y border-white/5 bg-white/[0.02] py-20 sm:py-24">
         <div className="container">
-          <SectionHeading
-            eyebrow="Portfolio"
-            title={locale === "en" ? "Selected work" : "Wybrane realizacje"}
-            description={
-              locale === "en"
-                ? "This is not a gallery for the sake of a gallery. Each project should show design thinking, quality and real-world application."
-                : "To nie jest galeria dla galerii. Każdy projekt ma pokazać sposób myślenia, jakość wykonania i realne zastosowanie w marce."
-            }
-          />
-          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {homepageProjects.map((project) => (
-              <Link
-                key={project.slug}
-                href={getPortfolioDetailPath(project.slug)}
-                className="group overflow-hidden rounded-sm border border-white/5 bg-card"
-              >
-                <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="portfolio-sheen absolute inset-0" />
-                </div>
-                <div className="p-6">
-                  <div className="section-label mb-2">{project.category}</div>
-                  <h3 className="font-display text-xl font-black text-white">{project.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/60">{project.summary}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-10">
-            <Link href={getStaticPath("portfolio")} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
-              {locale === "en" ? "See full portfolio" : "Zobacz pełne portfolio"}
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-        </div>
-      </section>
+          <Reveal>
+            <SectionHeading
+              eyebrow={locale === "en" ? "Client reviews" : "Opinie klientów"}
+              title={locale === "en" ? "100% recommendation rate" : "100% rekomendacji"}
+              description={
+                locale === "en"
+                  ? "Beyond good-looking visuals you get a clear process, straightforward communication and a result you can count on."
+                  : "Poza dobrą estetyką dostajesz przejrzysty proces, prostą komunikację i efekt, na którym możesz polegać."
+              }
+            />
+          </Reveal>
 
-      <section className="py-20">
-        <div className="container">
-          <SectionHeading
-            eyebrow={locale === "en" ? "Client reviews" : "Opinie klientów"}
-            title={locale === "en" ? "100% recommendation rate" : "100% rekomendacji"}
-            description={
-              locale === "en"
-                ? "Clients should get more than good-looking visuals. They should get a clear process, reliable communication and a predictable result."
-                : "Klient ma dostać nie tylko estetykę, ale też dobry proces, komunikację i przewidywalny efekt."
-            }
-          />
-          <div className="mt-8 flex flex-wrap gap-3">
-            {(locale === "en"
-              ? ["300+ happy clients", "5/5 rating", "Refined projects", "Direct contact"]
-              : ["300+ zadowolonych klientów", "5/5 ocena", "Dopracowane projekty", "Kontakt bez pośredników"]
-            ).map((item) => (
-              <span
-                key={item}
-                className="rounded-full border border-gold/20 bg-gold/8 px-4 py-2 text-xs font-bold uppercase tracking-wide text-gold"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            {testimonials.map((review) => (
-              <article key={review.id} className="rounded-sm border border-white/5 bg-card p-6">
-                <div className="mb-4 flex gap-1">
-                  {Array.from({ length: review.rating }).map((_, index) => (
-                    <Star key={`${review.id}-${index}`} size={16} className="fill-gold text-gold" />
+          {leadReview ? (
+            <Reveal className="mt-10">
+              <article className="rounded-sm border border-gold/20 bg-gradient-to-br from-gold/12 via-card to-card p-7 sm:p-10">
+                <div className="mb-5 flex gap-1">
+                  {Array.from({ length: leadReview.rating }).map((_, index) => (
+                    <Star key={`${leadReview.id}-${index}`} size={18} className="fill-gold text-gold" />
                   ))}
                 </div>
-                <p className="text-lg italic leading-relaxed text-white/72">"{review.quote}"</p>
-                <div className="mt-5 text-sm text-white/50">
-                  <span className="font-bold text-white">{review.name}</span> · {review.company} · {review.service}
+                <p className="font-display text-xl italic leading-relaxed text-white/85 sm:text-2xl">
+                  "{leadReview.quote}"
+                </p>
+                <div className="mt-6 text-sm text-white/55">
+                  <span className="font-bold text-white">{leadReview.name}</span> · {leadReview.company} ·{" "}
+                  {leadReview.service}
                 </div>
               </article>
+            </Reveal>
+          ) : null}
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            {restReviews.map((review, index) => (
+              <Reveal key={review.id} delay={index * 100}>
+                <article className="h-full rounded-sm border border-white/5 bg-card p-6">
+                  <div className="mb-4 flex gap-1">
+                    {Array.from({ length: review.rating }).map((_, starIndex) => (
+                      <Star key={`${review.id}-${starIndex}`} size={16} className="fill-gold text-gold" />
+                    ))}
+                  </div>
+                  <p className="text-lg italic leading-relaxed text-white/72">"{review.quote}"</p>
+                  <div className="mt-5 text-sm text-white/50">
+                    <span className="font-bold text-white">{review.name}</span> · {review.company} · {review.service}
+                  </div>
+                </article>
+              </Reveal>
             ))}
           </div>
+
           <div className="mt-8">
-            <Link href={getStaticPath("reviews")} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
+            <Link
+              href={getStaticPath("reviews")}
+              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+            >
               {locale === "en" ? "See all reviews" : "Zobacz wszystkie opinie"}
               <ArrowRight size={16} />
             </Link>
@@ -365,27 +477,35 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20">
+      {/* FAQ */}
+      <section className="py-20 sm:py-24">
         <div className="container">
-          <SectionHeading
-            eyebrow="FAQ"
-            title={locale === "en" ? "Questions that block a purchase" : "Pytania, które blokują zakup"}
-            description={
-              locale === "en"
-                ? "Straight answers, no hidden details about revisions, files, timelines or payments."
-                : "Najważniejsze odpowiedzi podane wprost. Bez chowania detali o poprawkach, plikach, terminach czy płatnościach."
-            }
-          />
+          <Reveal>
+            <SectionHeading
+              eyebrow="FAQ"
+              title={locale === "en" ? "Before you order" : "Zanim zamówisz"}
+              description={
+                locale === "en"
+                  ? "Straight answers about revisions, files, timelines and payments - no fine print."
+                  : "Konkretne odpowiedzi o poprawkach, plikach, terminach i płatnościach - bez drobnego druku."
+              }
+            />
+          </Reveal>
           <div className="mt-10 grid gap-5 lg:grid-cols-2">
-            {faqs.slice(0, 4).map((faq) => (
-              <article key={faq.id} className="rounded-sm border border-white/5 bg-card p-6">
-                <h3 className="font-display text-xl font-black text-white">{faq.question}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/65">{faq.answer}</p>
-              </article>
+            {faqs.slice(0, 4).map((faq, index) => (
+              <Reveal key={faq.id} delay={index * 80}>
+                <article className="h-full rounded-sm border border-white/5 bg-card p-6">
+                  <h3 className="font-display text-xl font-black text-white">{faq.question}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65">{faq.answer}</p>
+                </article>
+              </Reveal>
             ))}
           </div>
           <div className="mt-8">
-            <Link href={getStaticPath("faq")} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
+            <Link
+              href={getStaticPath("faq")}
+              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+            >
               {locale === "en" ? "See full FAQ" : "Zobacz pełne FAQ"}
               <ArrowRight size={16} />
             </Link>
@@ -393,69 +513,80 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20">
+      {/* GŁÓWNE CTA */}
+      <section className="py-20 sm:py-24">
         <div className="container">
-          <div className="rounded-sm border border-gold/20 bg-gradient-to-r from-gold/12 via-card to-card p-8 sm:p-10">
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_auto] lg:items-center">
-              <div>
-                <div className="section-label mb-3">{locale === "en" ? "Shop" : "Sklep"}</div>
-                <h2 className="font-display text-4xl font-black text-white sm:text-5xl">
-                  {locale === "en"
-                    ? "Order a design service online and choose the right package right away"
-                    : "Zamów usługę graficzną online i od razu wybierz odpowiedni pakiet"}
-                </h2>
-                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/65 sm:text-base">
-                  {locale === "en"
-                    ? "Compare services, add extras to the cart and move to checkout with a cleaner, more structured buying flow."
-                    : "Porównaj usługi, dodaj dodatki do koszyka i przejdź do checkoutu bez chaosu i bez przeciągania całego procesu."}
-                </p>
+          <Reveal>
+            <div className="relative overflow-hidden rounded-sm border border-gold/25 bg-gradient-to-r from-gold/14 via-card to-card p-8 sm:p-12">
+              <div className="ambient-orb ambient-orb-gold -right-10 -top-10 h-48 w-48" />
+              <div className="relative grid gap-8 lg:grid-cols-[1.3fr_auto] lg:items-center">
+                <div>
+                  <div className="section-label mb-3">{locale === "en" ? "Start your project" : "Zacznij projekt"}</div>
+                  <h2 className="font-display text-4xl font-black text-white sm:text-5xl">
+                    {locale === "en"
+                      ? "Order a design service online and pick the right package right away"
+                      : "Zamów usługę graficzną online i od razu wybierz odpowiedni pakiet"}
+                  </h2>
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/65 sm:text-base">
+                    {locale === "en"
+                      ? "Compare services, add extras to the cart and move to checkout - a clean, structured buying flow from start to finish."
+                      : "Porównaj usługi, dodaj dodatki do koszyka i przejdź do checkoutu - prosty, uporządkowany proces od początku do końca."}
+                  </p>
+                </div>
+                <Link
+                  href={getStaticPath("order")}
+                  className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-8 py-4 text-sm font-black uppercase tracking-wider text-background"
+                >
+                  <Sparkles size={16} />
+                  {locale === "en" ? "Order project" : "Zamów projekt"}
+                </Link>
               </div>
-              <Link
-                href={getStaticPath("order")}
-                className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-8 py-4 text-sm font-black uppercase tracking-wider text-background"
-              >
-                <Sparkles size={16} />
-                {locale === "en" ? "Order project" : "Zamów projekt"}
-              </Link>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="py-20">
+      {/* BLOG */}
+      <section className="border-y border-white/5 bg-white/[0.02] py-20 sm:py-24">
         <div className="container">
-          <SectionHeading
-            eyebrow="Blog"
-            title={locale === "en" ? "Latest articles" : "Ostatnie wpisy"}
-            description={
-              locale === "en"
-                ? "The blog supports both SEO and sales. The content should answer questions before the client even sends a message."
-                : "Blog ma wspierać SEO i sprzedaż. Artykuły odpowiadają na pytania klientów, zanim ci w ogóle napiszą wiadomość."
-            }
-          />
+          <Reveal>
+            <SectionHeading
+              eyebrow="Blog"
+              title={locale === "en" ? "Latest articles" : "Ostatnie wpisy"}
+              description={
+                locale === "en"
+                  ? "Practical articles about branding, design and getting the most out of your visual identity."
+                  : "Praktyczne artykuły o brandingu, projektowaniu i tym, jak wycisnąć więcej z identyfikacji wizualnej."
+              }
+            />
+          </Reveal>
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {latestPosts.map((post) => (
-              <Link
-                key={post.slug}
-                href={getBlogPostPath(post.slug)}
-                className="overflow-hidden rounded-sm border border-white/5 bg-card"
-              >
-                <div className="aspect-[16/10] overflow-hidden">
-                  <img src={post.image} alt={post.title} loading="lazy" className="h-full w-full object-cover" />
-                </div>
-                <div className="p-6">
-                  <div className="section-label mb-2">{post.category}</div>
-                  <h3 className="font-display text-2xl font-black text-white">{post.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/60">{post.excerpt}</p>
-                  <div className="mt-4 text-xs uppercase tracking-wider text-white/35">
-                    {post.readTime} · {post.publishedAt}
+            {latestPosts.map((post, index) => (
+              <Reveal key={post.slug} delay={index * 100}>
+                <Link
+                  href={getBlogPostPath(post.slug)}
+                  className="block h-full overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
+                >
+                  <div className="aspect-[16/10] overflow-hidden">
+                    <img src={post.image} alt={post.title} loading="lazy" className="h-full w-full object-cover" />
                   </div>
-                </div>
-              </Link>
+                  <div className="p-6">
+                    <div className="section-label mb-2">{post.category}</div>
+                    <h3 className="font-display text-2xl font-black text-white">{post.title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-white/60">{post.excerpt}</p>
+                    <div className="mt-4 text-xs uppercase tracking-wider text-white/35">
+                      {post.readTime} · {post.publishedAt}
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
             ))}
           </div>
           <div className="mt-8">
-            <Link href={getStaticPath("blog")} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
+            <Link
+              href={getStaticPath("blog")}
+              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+            >
               {locale === "en" ? "Go to blog" : "Przejdź do bloga"}
               <ArrowRight size={16} />
             </Link>

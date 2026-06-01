@@ -1,5 +1,6 @@
 import { CheckCircle2, FileText, Mail, ShoppingBag } from "lucide-react";
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -10,38 +11,12 @@ export default function ThankYouPage() {
   const { locale, getStaticPath } = useLocale();
   const { activeOrder } = useOrderFlow();
 
-  const adminEmailState =
-    activeOrder?.delivery.adminEmail === "sent"
-      ? locale === "en"
-        ? "Admin email sent"
-        : "Mail do Ciebie wysłany"
-      : activeOrder?.delivery.adminEmail === "failed"
-        ? locale === "en"
-          ? "Admin email failed"
-          : "Mail do Ciebie nie wyszedł"
-        : locale === "en"
-          ? "Admin email not configured"
-          : "Mail do Ciebie nie jest skonfigurowany";
-
-  const customerEmailState =
-    activeOrder?.delivery.customerEmail === "sent"
-      ? locale === "en"
-        ? "Customer email sent"
-        : "Mail do klienta wysłany"
-      : activeOrder?.delivery.customerEmail === "failed"
-        ? locale === "en"
-          ? "Customer email failed"
-          : "Mail do klienta nie wyszedł"
-        : locale === "en"
-          ? "Customer email not configured"
-          : "Mail do klienta nie jest skonfigurowany";
-
   usePageMeta(
     locale === "en" ? "Thank You | DatiVe Design" : "Dziękujemy | DatiVe Design",
     locale === "en"
       ? "Order confirmation page for DatiVe Design. Summary of the service order, current status and next project steps."
       : "Strona potwierdzenia zamówienia DatiVe Design. Podsumowanie zakupu usługi, aktualny status i kolejne kroki projektu.",
-    { locale, path: getStaticPath("thankYou") }
+    { locale, path: getStaticPath("thankYou"), robots: "noindex, follow" }
   );
 
   if (!activeOrder) {
@@ -73,15 +48,17 @@ export default function ThankYouPage() {
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Thank you for your order" : "Dziękujemy za zamówienie"}
-          title={locale === "en" ? "Your order has been received" : "Twoje zamówienie zostało przyjęte"}
-          description={
-            locale === "en"
-              ? "Your project brief is already saved. The next step is review, confirmation of the scope and moving the project into production."
-              : "Twój brief projektowy został już zapisany. Teraz kolejnym krokiem jest weryfikacja zgłoszenia, potwierdzenie zakresu i przejście do realizacji."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Thank you for your order" : "Dziękujemy za zamówienie"}
+            title={locale === "en" ? "Your order has been received" : "Twoje zamówienie zostało przyjęte"}
+            description={
+              locale === "en"
+                ? "Your project brief is already saved. The next step is review, confirmation of the scope and moving the project into production."
+                : "Twój brief projektowy został już zapisany. Teraz kolejnym krokiem jest weryfikacja zgłoszenia, potwierdzenie zakresu i przejście do realizacji."
+            }
+          />
+        </Reveal>
 
         <div className="mt-10 rounded-sm border border-gold/20 bg-gradient-to-r from-gold/12 via-card to-card p-6 sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
@@ -139,7 +116,14 @@ export default function ThankYouPage() {
                 },
                 {
                   icon: Mail,
-                  title: `${locale === "en" ? "4. Notification status:" : "4. Status powiadomień:"} ${adminEmailState}`,
+                  title:
+                    activeOrder.delivery.customerEmail === "sent"
+                      ? locale === "en"
+                        ? "4. A confirmation has been sent to your inbox"
+                        : "4. Potwierdzenie trafiło na Twojego maila"
+                      : locale === "en"
+                        ? "4. Keep your order number - we'll get back to you by email or phone"
+                        : "4. Zachowaj numer zamówienia - odezwiemy się mailowo lub telefonicznie",
                 },
               ].map((step) => (
                 <div key={step.title} className="rounded-sm border border-white/8 bg-background px-4 py-4">
@@ -178,8 +162,6 @@ export default function ThankYouPage() {
               <div>{locale === "en" ? `Client: ${activeOrder.customer.name}` : `Klient: ${activeOrder.customer.name}`}</div>
               <div>{locale === "en" ? `Email: ${activeOrder.customer.email}` : `Email: ${activeOrder.customer.email}`}</div>
               <div>{locale === "en" ? `Company: ${activeOrder.customer.company}` : `Firma: ${activeOrder.customer.company}`}</div>
-              <div>{customerEmailState}</div>
-              {activeOrder.delivery.message ? <div>{activeOrder.delivery.message}</div> : null}
             </div>
 
             <div className="mt-8 flex flex-col gap-3">

@@ -1,5 +1,6 @@
 import { ArrowRight, CheckCircle2, FileText, ShoppingBag, Trash2 } from "lucide-react";
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
@@ -15,7 +16,7 @@ export default function CartPage() {
     locale === "en"
       ? "Cart for DatiVe Design graphic services. Review selected packages, extras, pricing and move to checkout."
       : "Koszyk usług graficznych DatiVe Design. Sprawdź wybrane pakiety, dodatki, cenę i przejdź do checkoutu.",
-    { locale, path: getStaticPath("cart") }
+    { locale, path: getStaticPath("cart"), robots: "noindex, follow" }
   );
 
   if (items.length === 0) {
@@ -54,15 +55,17 @@ export default function CartPage() {
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Cart" : "Koszyk"}
-          title={locale === "en" ? "Order summary" : "Podsumowanie zamówienia"}
-          description={
-            locale === "en"
-              ? "The cart should clearly show what is being bought, what affects the price and what happens right after checkout."
-              : "Koszyk ma jasno pokazać, co klient kupuje, co wpływa na cenę i co wydarzy się zaraz po checkoutcie."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Cart" : "Koszyk"}
+            title={locale === "en" ? "Order summary" : "Podsumowanie zamówienia"}
+            description={
+              locale === "en"
+                ? "A clear view of what you're buying, what affects the price and what happens right after checkout."
+                : "Przejrzysty widok tego, co kupujesz, co wpływa na cenę i co wydarzy się zaraz po checkoutcie."
+            }
+          />
+        </Reveal>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {(locale === "en"
@@ -76,10 +79,10 @@ export default function CartPage() {
                 "2. Przejdź do checkoutu i potwierdź dane klienta.",
                 "3. Po checkoutcie uzupełnij brief projektowy.",
               ]).map((item, index) => (
-            <div key={item} className="rounded-sm border border-white/8 bg-card px-5 py-4">
+            <Reveal key={item} delay={index * 80} as="div" className="rounded-sm border border-white/8 bg-card px-5 py-4">
               <div className="text-xs font-bold uppercase tracking-[0.2em] text-gold">0{index + 1}</div>
               <div className="mt-3 text-sm leading-relaxed text-white/72">{item}</div>
-            </div>
+            </Reveal>
           ))}
         </div>
 
@@ -188,19 +191,19 @@ export default function CartPage() {
                 </div>
                 <div className="mt-3 leading-relaxed">
                   {locale === "en"
-                    ? "After checkout the client goes straight to a detailed project brief. Only then is the order really ready for production."
-                    : "Po checkoutcie klient przechodzi od razu do szczegółowego briefu projektowego. Dopiero wtedy zamówienie jest realnie gotowe do realizacji."}
+                    ? "After checkout you go straight to a short project brief. That's where we collect everything needed to start your project."
+                    : "Po checkoutcie przejdziesz od razu do krótkiego briefu projektowego. To tam zbieramy wszystko, co potrzebne, żeby ruszyć z Twoim projektem."}
                 </div>
               </div>
               <div className="rounded-sm border border-white/10 bg-background px-4 py-4 text-sm text-white/65">
                 <div className="inline-flex items-center gap-2 font-bold text-white">
                   <FileText size={16} className="text-gold" />
-                  {locale === "en" ? "Current stack" : "Obecny stan"}
+                  {locale === "en" ? "No risk" : "Bez ryzyka"}
                 </div>
                 <div className="mt-3 leading-relaxed">
                   {locale === "en"
-                    ? "The frontend flow is ready. Real payment gateways and automatic email delivery still need backend integration."
-                    : "Frontendowy flow jest gotowy. Prawdziwe bramki płatności i automatyczna wysyłka maili dalej wymagają integracji backendowej."}
+                    ? "Placing the order is the start of our conversation. We confirm the scope and timeline with you before any work begins."
+                    : "Złożenie zamówienia to początek rozmowy. Zakres i termin potwierdzamy z Tobą, zanim ruszymy z realizacją."}
                 </div>
               </div>
             </div>

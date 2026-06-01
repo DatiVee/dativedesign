@@ -1,6 +1,7 @@
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
 import { ArrowRight, Star } from "lucide-react";
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -53,15 +54,17 @@ export default function OrderPage() {
   return (
     <SiteLayout>
       <section className="container py-14 sm:py-24">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Shop" : "Sklep"}
-          title={locale === "en" ? "Graphic design store" : "Sklep z usługami graficznymi"}
-          description={
-            locale === "en"
-              ? "Browse products, open the product card, choose a package and order online."
-              : "Przeglądaj produkty, otwieraj kartę produktu, wybieraj pakiet i zamawiaj online."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Shop" : "Sklep"}
+            title={locale === "en" ? "Graphic design store" : "Sklep z usługami graficznymi"}
+            description={
+              locale === "en"
+                ? "Browse products, open the product card, choose a package and order online."
+                : "Przeglądaj produkty, otwieraj kartę produktu, wybieraj pakiet i zamawiaj online."
+            }
+          />
+        </Reveal>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-white/5 bg-card/50 px-4 py-3 sm:mt-8 sm:px-5 sm:py-4">
           <div className="text-sm text-white/62">
@@ -86,8 +89,8 @@ export default function OrderPage() {
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/62 sm:text-base">
                 {locale === "en"
-                  ? "The fastest way into the store. These are the products clients open and order most often."
-                  : "Najprostsze wejście do sklepu. To produkty, które klienci najczęściej otwierają i zamawiają."}
+                  ? "The products clients choose most often."
+                  : "Produkty, które klienci wybierają najczęściej."}
               </p>
             </div>
             <Link
@@ -99,13 +102,15 @@ export default function OrderPage() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {bestSellers.map((service) => {
+            {bestSellers.map((service, index) => {
               const lowestPackage = service.packages[0];
 
               return (
-                <article
+                <Reveal
                   key={`bestseller-${service.slug}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-sm border border-gold/15 bg-card transition-colors hover:border-gold/30"
+                  delay={index * 80}
+                  as="article"
+                  className="group flex h-full flex-col overflow-hidden rounded-sm border border-gold/15 bg-card gold-border-hover"
                 >
                   <Link href={getServicePath(service.slug)} className="block">
                     <div className="relative aspect-[4/3] overflow-hidden bg-background">
@@ -162,7 +167,7 @@ export default function OrderPage() {
                       </Link>
                     </div>
                   </div>
-                </article>
+                </Reveal>
               );
             })}
           </div>
@@ -195,13 +200,15 @@ export default function OrderPage() {
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredServices.map((service) => {
+          {filteredServices.map((service, index) => {
             const lowestPackage = service.packages[0];
 
             return (
-              <article
+              <Reveal
                 key={service.slug}
-                className="content-auto-card group flex h-full flex-col overflow-hidden rounded-sm border border-white/5 bg-card transition-colors hover:border-gold/25"
+                delay={(index % 3) * 80}
+                as="article"
+                className="content-auto-card group flex h-full flex-col overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
               >
                 <Link href={getServicePath(service.slug)} className="block">
                   <div className="relative aspect-[16/10] overflow-hidden bg-background">
@@ -282,7 +289,7 @@ export default function OrderPage() {
                     </div>
                   </div>
                 </div>
-              </article>
+              </Reveal>
             );
           })}
         </div>

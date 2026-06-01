@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -44,19 +45,21 @@ export default function FAQPage() {
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow="FAQ"
-          title={locale === "en" ? "Questions before ordering a service" : "Pytania przed zamówieniem usługi"}
-          description={
-            locale === "en"
-              ? "The FAQ should remove friction, explain the process clearly and support SEO with useful answers."
-              : "FAQ ma zdejmować opór zakupowy, porządkować proces i dawać sensowny content pod SEO."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow="FAQ"
+            title={locale === "en" ? "Questions before ordering a service" : "Pytania przed zamówieniem usługi"}
+            description={
+              locale === "en"
+                ? "Clear answers about the process, revisions, files, timelines and payments - everything before you decide."
+                : "Jasne odpowiedzi o procesie, poprawkach, plikach, terminach i płatnościach - wszystko, zanim zdecydujesz."
+            }
+          />
+        </Reveal>
 
         <div className="mt-10 grid gap-8">
-          {Object.entries(groupedFaqs).map(([category, items]) => (
-            <section key={category} className="rounded-sm border border-white/5 bg-card p-6 sm:p-8">
+          {Object.entries(groupedFaqs).map(([category, items], index) => (
+            <Reveal key={category} delay={(index % 3) * 70} as="section" className="rounded-sm border border-white/5 bg-card p-6 sm:p-8">
               <div className="section-label mb-4">
                 {categoryLabels[category as keyof typeof categoryLabels] ?? category}
               </div>
@@ -68,7 +71,7 @@ export default function FAQPage() {
                   </article>
                 ))}
               </div>
-            </section>
+            </Reveal>
           ))}
         </div>
       </section>

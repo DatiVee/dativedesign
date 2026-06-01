@@ -1,36 +1,49 @@
-import { AlertCircle, Home } from "lucide-react";
-import { useLocation } from "wouter";
+import { ArrowRight, Home } from "lucide-react";
+import { Link } from "wouter";
+import { SectionHeading } from "@/components/site/SectionHeading";
+import { SiteLayout } from "@/components/site/SiteLayout";
+import { useLocale } from "@/contexts/LocaleContext";
 
 export default function NotFound() {
-  const [, setLocation] = useLocation();
+  const { locale, getStaticPath } = useLocale();
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="mx-4 w-full max-w-lg rounded-3xl bg-white/85 p-8 text-center shadow-lg backdrop-blur-sm">
-        <div className="mb-6 flex justify-center">
-          <div className="relative">
-            <div className="absolute inset-0 animate-pulse rounded-full bg-red-100" />
-            <AlertCircle className="relative h-16 w-16 text-red-500" />
+    <SiteLayout>
+      <section className="relative overflow-hidden">
+        <div className="ambient-orb ambient-orb-gold left-[10%] top-10 h-44 w-44" />
+        <div className="ambient-orb ambient-orb-soft bottom-0 right-[12%] h-52 w-52" />
+        <div className="container relative py-28 sm:py-36">
+          <div className="font-display text-7xl font-black leading-none text-gold sm:text-9xl">404</div>
+          <div className="mt-6 max-w-2xl">
+            <SectionHeading
+              eyebrow={locale === "en" ? "Page not found" : "Nie znaleziono strony"}
+              title={locale === "en" ? "This page doesn't exist" : "Tej strony nie ma"}
+              description={
+                locale === "en"
+                  ? "The link may be outdated or the page has been moved. Let's get you back on track."
+                  : "Link mógł się zdezaktualizować albo strona została przeniesiona. Wróćmy na właściwe tory."
+              }
+            />
+          </div>
+
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href={getStaticPath("home")}
+              className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-7 py-4 text-sm font-black uppercase tracking-wider text-background"
+            >
+              <Home size={18} />
+              {locale === "en" ? "Back to homepage" : "Wróć na stronę główną"}
+            </Link>
+            <Link
+              href={getStaticPath("portfolio")}
+              className="inline-flex items-center justify-center gap-2 rounded-sm border border-gold/30 px-7 py-4 text-sm font-black uppercase tracking-wider text-gold transition-colors hover:bg-gold/10"
+            >
+              {locale === "en" ? "See portfolio" : "Zobacz portfolio"}
+              <ArrowRight size={18} />
+            </Link>
           </div>
         </div>
-
-        <h1 className="mb-2 text-4xl font-bold text-slate-900">404</h1>
-        <h2 className="mb-4 text-xl font-semibold text-slate-700">Page Not Found</h2>
-        <p className="mb-8 leading-relaxed text-slate-600">
-          Sorry, the page you are looking for doesn&apos;t exist.
-          <br />
-          It may have been moved or deleted.
-        </p>
-
-        <button
-          type="button"
-          onClick={() => setLocation("/")}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg"
-        >
-          <Home className="h-4 w-4" />
-          Go Home
-        </button>
-      </div>
-    </div>
+      </section>
+    </SiteLayout>
   );
 }

@@ -2,6 +2,7 @@ import { CreditCard, FileText, ShoppingBag } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
@@ -41,7 +42,7 @@ export default function CheckoutPage() {
     locale === "en"
       ? "Checkout for DatiVe Design graphic services: selected packages, client details, payment method and the path to the brief after purchase."
       : "Checkout dla usług graficznych DatiVe Design. Podsumowanie pakietów, dane klienta, wybór płatności i przejście do briefu po zakupie.",
-    { locale, path: getStaticPath("checkout") }
+    { locale, path: getStaticPath("checkout"), robots: "noindex, follow" }
   );
 
   if (items.length === 0) {
@@ -112,15 +113,17 @@ export default function CheckoutPage() {
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow="Checkout"
-          title={locale === "en" ? "Finalize the order and move to the brief" : "Domknij zamówienie i przejdź do briefu"}
-          description={
-            locale === "en"
-              ? "This stage should feel like a real purchase path: customer details, payment method, order summary and then the post-purchase brief."
-              : "Ten etap ma już działać jak realna ścieżka zakupu: dane klienta, metoda płatności, podsumowanie zamówienia i przejście do briefu po zakupie."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow="Checkout"
+            title={locale === "en" ? "Finalize the order and move to the brief" : "Domknij zamówienie i przejdź do briefu"}
+            description={
+              locale === "en"
+                ? "Customer details, payment method, order summary - and then the short project brief."
+                : "Dane klienta, metoda płatności, podsumowanie zamówienia - a potem krótki brief projektowy."
+            }
+          />
+        </Reveal>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           <div className="rounded-sm border border-white/8 bg-card px-5 py-4">
@@ -286,18 +289,13 @@ export default function CheckoutPage() {
             <div className="mt-6 grid gap-3 text-sm text-white/60">
               <div>
                 {locale === "en"
-                  ? "This step creates the order record and hands the client off to the detailed brief."
-                  : "Ten krok tworzy rekord zamówienia i przekazuje klienta do szczegółowego briefu."}
+                  ? "After you confirm, you go straight to a short brief where you describe your project."
+                  : "Po potwierdzeniu przejdziesz od razu do krótkiego briefu, w którym opiszesz swój projekt."}
               </div>
               <div>
                 {locale === "en"
-                  ? "Automatic email and real payment confirmation still require backend integration."
-                  : "Automatyczny mail i prawdziwe potwierdzenie płatności dalej wymagają integracji backendowej."}
-              </div>
-              <div>
-                {locale === "en"
-                  ? "Right now the UX is already set up the way the real purchase path should work."
-                  : "Na ten moment UX jest już ustawiony tak, jak powinien działać realny zakup usługi."}
+                  ? "We confirm the scope, price and timeline with you before starting any work."
+                  : "Zakres, cenę i termin potwierdzamy z Tobą, zanim rozpoczniemy pracę."}
               </div>
             </div>
           </aside>

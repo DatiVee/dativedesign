@@ -95,7 +95,7 @@ export const services: Service[] = [
     ],
     featured: false,
     category: "Digital",
-    portfolioSlugs: ["auric-social-launch", "studio-aurora", "atelier-form"],
+    portfolioSlugs: ["chunkserve-post", "studio-aurora", "atelier-form"],
     packages: [
       {
         slug: "karykatura-basic",
@@ -147,7 +147,7 @@ export const services: Service[] = [
     ],
     featured: false,
     category: "Logo",
-    portfolioSlugs: ["atelier-form", "free-premium-beer", "nova-signature"],
+    portfolioSlugs: ["atelier-form", "free-premium-beer", "studio-aurora"],
     packages: [
       {
         slug: "vector-basic",
@@ -199,7 +199,7 @@ export const services: Service[] = [
     ],
     featured: false,
     category: "Druk",
-    portfolioSlugs: ["vero-casa", "mondo-pasta", "vector-flyer-campaign"],
+    portfolioSlugs: ["vero-casa", "mondo-pasta", "royal-customs"],
     packages: [
       {
         slug: "printprep-basic",
@@ -696,7 +696,7 @@ export const services: Service[] = [
     ],
     featured: false,
     category: "Opakowania",
-    portfolioSlugs: ["free-premium-beer", "north-packaging", "bean-to-bite"],
+    portfolioSlugs: ["free-premium-beer", "wul-kam", "bean-to-bite"],
     packages: [
       {
         slug: "etykieta-basic",
@@ -748,7 +748,7 @@ export const services: Service[] = [
     ],
     featured: false,
     category: "Opakowania",
-    portfolioSlugs: ["north-packaging", "free-premium-beer", "bean-to-bite"],
+    portfolioSlugs: ["nord-craft", "free-premium-beer", "bean-to-bite"],
     packages: [
       {
         slug: "opakowanie-basic",
@@ -1008,7 +1008,7 @@ export const services: Service[] = [
     ],
     featured: false,
     category: "Social media",
-    portfolioSlugs: ["studio-aurora", "chunkserve-post", "auric-social-launch"],
+    portfolioSlugs: ["studio-aurora", "chunkserve-post", "phoenix-billboard"],
     packages: [
       {
         slug: "highlight-mini",
@@ -1289,78 +1289,6 @@ export const projects: Project[] = [
     application: "PDF, druk, sprzedaż B2B.",
     image: "/portfolio6.jpg",
     tags: ["katalog", "layout", "premium"],
-  },
-  {
-    slug: "nova-signature",
-    title: "Minimalistyczne logo dla marki premium",
-    category: "Logo",
-    client: "Nova Signature",
-    summary: "Placeholder pod nowy projekt logo z mocnym sygnetem i elegancką typografią.",
-    goal: "Pokazać kierunek nowoczesnej, czystej identyfikacji dla marki usługowej.",
-    outcome: "Projekt buduje profesjonalny pierwszy odbiór i jest gotowy do dalszego rozwinięcia.",
-    application: "Logo, social media, materiały startowe.",
-    image: "/portfolio-placeholder-1.svg",
-    tags: ["logo", "premium", "placeholder"],
-  },
-  {
-    slug: "monte-card",
-    title: "Wizytówki z charakterem marki",
-    category: "Wizytówki",
-    client: "Monte Card",
-    summary: "Placeholder pod wizytówki firmowe z naciskiem na czytelność i estetykę premium.",
-    goal: "Przygotować materiał, który dobrze wygląda w realnym kontakcie z klientem.",
-    outcome: "Projekt wzmacnia wiarygodność marki i daje solidną bazę pod druk.",
-    application: "Spotkania handlowe, wydarzenia, kontakt lokalny.",
-    image: "/portfolio-placeholder-2.svg",
-    tags: ["wizytwki", "druk", "placeholder"],
-  },
-  {
-    slug: "auric-social-launch",
-    title: "Pakiet social media pod premierę oferty",
-    category: "Social media",
-    client: "Auric Launch",
-    summary: "Placeholder pod zestaw postów i stories przygotowanych pod kampanię sprzedażową.",
-    goal: "Zachować spójność marki i podkręcić odbiór nowej oferty w social media.",
-    outcome: "Powstał zestaw kreacji gotowy do publikacji i dalszej rozbudowy kampanii.",
-    application: "Instagram, Facebook, reklamy sponsorowane.",
-    image: "/portfolio-placeholder-3.svg",
-    tags: ["social media", "kampania", "placeholder"],
-  },
-  {
-    slug: "north-packaging",
-    title: "Opakowanie produktowe pod nową linię",
-    category: "Opakowania",
-    client: "North Packaging",
-    summary: "Placeholder pod projekt etykiety i opakowania dla marki produktowej.",
-    goal: "Połączyć czytelność informacji z bardziej dopracowanym wyglądem premium.",
-    outcome: "Projekt nadaje się do dalszego rozwinięcia w pełną serię opakowań.",
-    application: "Produkt, sprzedaż online, materiały launchowe.",
-    image: "/portfolio-placeholder-4.svg",
-    tags: ["opakowanie", "etykieta", "placeholder"],
-  },
-  {
-    slug: "crest-landing",
-    title: "Landing page dla marki usługowej",
-    category: "Strony internetowe",
-    client: "Crest Studio",
-    summary: "Placeholder pod projekt nowoczesnego landing page'a z naciskiem na konwersję.",
-    goal: "Pokazać stronę, która porządkuje ofertę i prowadzi klienta do kontaktu lub zakupu.",
-    outcome: "Powstał kierunek wizualny gotowy do rozbudowy w pełną stronę firmową.",
-    application: "WWW, kampanie reklamowe, SEO landing.",
-    image: "/portfolio-placeholder-1.svg",
-    tags: ["www", "landing page", "placeholder"],
-  },
-  {
-    slug: "vector-flyer-campaign",
-    title: "Ulotka kampanijna dla lokalnej marki",
-    category: "Ulotki",
-    client: "Vector Campaign",
-    summary: "Placeholder pod ulotkę promocyjną z mocnym nagłówkiem i czytelnym układem oferty.",
-    goal: "Zbudować materiał, który klient rozumie od razu i który nadaje się do druku.",
-    outcome: "Projekt wzmacnia komunikację sprzedażową i daje porządną bazę pod dalsze formaty.",
-    application: "Druk, punkt sprzedaży, lokalna dystrybucja.",
-    image: "/portfolio-placeholder-2.svg",
-    tags: ["ulotka", "druk", "placeholder"],
   },
 ];
 

@@ -31,7 +31,7 @@ export const servicesEn: Service[] = [
     ],
     featured: false,
     category: "Digital",
-    portfolioSlugs: ["auric-social-launch", "studio-aurora", "atelier-form"],
+    portfolioSlugs: ["chunkserve-post", "studio-aurora", "atelier-form"],
     packages: [
       {
         slug: "karykatura-basic",
@@ -85,7 +85,7 @@ export const servicesEn: Service[] = [
     ],
     featured: false,
     category: "Logo",
-    portfolioSlugs: ["atelier-form", "free-premium-beer", "nova-signature"],
+    portfolioSlugs: ["atelier-form", "free-premium-beer", "studio-aurora"],
     packages: [
       {
         slug: "vector-basic",
@@ -139,7 +139,7 @@ export const servicesEn: Service[] = [
     ],
     featured: false,
     category: "Print",
-    portfolioSlugs: ["vero-casa", "mondo-pasta", "vector-flyer-campaign"],
+    portfolioSlugs: ["vero-casa", "mondo-pasta", "royal-customs"],
     packages: [
       {
         slug: "printprep-basic",
@@ -648,7 +648,7 @@ export const servicesEn: Service[] = [
     ],
     featured: false,
     category: "Packaging",
-    portfolioSlugs: ["free-premium-beer", "north-packaging", "bean-to-bite"],
+    portfolioSlugs: ["free-premium-beer", "wul-kam", "bean-to-bite"],
     packages: [
       {
         slug: "etykieta-basic",
@@ -700,7 +700,7 @@ export const servicesEn: Service[] = [
     ],
     featured: false,
     category: "Packaging",
-    portfolioSlugs: ["north-packaging", "free-premium-beer", "bean-to-bite"],
+    portfolioSlugs: ["nord-craft", "free-premium-beer", "bean-to-bite"],
     packages: [
       {
         slug: "opakowanie-basic",
@@ -960,7 +960,7 @@ export const servicesEn: Service[] = [
     ],
     featured: false,
     category: "Social media",
-    portfolioSlugs: ["studio-aurora", "chunkserve-post", "auric-social-launch"],
+    portfolioSlugs: ["studio-aurora", "chunkserve-post", "phoenix-billboard"],
     packages: [
       {
         slug: "highlight-mini",
@@ -1277,96 +1277,6 @@ export const projectsEn: Project[] = [
     application: "PDF, print, B2B sales.",
     image: "/portfolio6.jpg",
     tags: ["catalogue", "layout", "premium"],
-  },
-  {
-    slug: "nova-signature",
-    title: "Minimalist logo for a premium brand",
-    category: "Logo",
-    client: "Nova Signature",
-    summary:
-      "A placeholder for a new logo project with a strong symbol and elegant typography.",
-    goal:
-      "Show a clean and modern identity direction for a service-based brand.",
-    outcome:
-      "The concept builds a professional first impression and is ready for further development.",
-    application: "Logo, social media, launch materials.",
-    image: "/portfolio-placeholder-1.svg",
-    tags: ["logo", "premium", "placeholder"],
-  },
-  {
-    slug: "monte-card",
-    title: "Business cards with strong brand character",
-    category: "Business Cards",
-    client: "Monte Card",
-    summary:
-      "A placeholder for business cards focused on readability and a premium look.",
-    goal:
-      "Create a print piece that feels strong in real-world client contact.",
-    outcome:
-      "The project supports trust and gives the brand a clean print foundation.",
-    application: "Sales meetings, events, local networking.",
-    image: "/portfolio-placeholder-2.svg",
-    tags: ["business cards", "print", "placeholder"],
-  },
-  {
-    slug: "auric-social-launch",
-    title: "Social media pack for a new offer launch",
-    category: "Social Media",
-    client: "Auric Launch",
-    summary:
-      "A placeholder set of posts and stories prepared for a sales-driven campaign.",
-    goal:
-      "Keep the brand consistent while making a new offer feel more visible online.",
-    outcome:
-      "The result is a ready-to-publish asset set that can be expanded later.",
-    application: "Instagram, Facebook, paid ads.",
-    image: "/portfolio-placeholder-3.svg",
-    tags: ["social media", "campaign", "placeholder"],
-  },
-  {
-    slug: "north-packaging",
-    title: "Packaging concept for a new product line",
-    category: "Packaging",
-    client: "North Packaging",
-    summary:
-      "A placeholder for product packaging with a more polished premium feel.",
-    goal:
-      "Combine clear information hierarchy with a stronger shelf-ready presentation.",
-    outcome:
-      "The concept is ready to evolve into a full packaging series.",
-    application: "Product, online sales, launch assets.",
-    image: "/portfolio-placeholder-4.svg",
-    tags: ["packaging", "label", "placeholder"],
-  },
-  {
-    slug: "crest-landing",
-    title: "Landing page for a service brand",
-    category: "Websites",
-    client: "Crest Studio",
-    summary:
-      "A placeholder for a modern landing page focused on structure and conversion.",
-    goal:
-      "Show a site that organizes the offer clearly and drives the client toward action.",
-    outcome:
-      "The visual direction is ready to grow into a full company website.",
-    application: "Website, ad campaigns, SEO landing.",
-    image: "/portfolio-placeholder-1.svg",
-    tags: ["website", "landing page", "placeholder"],
-  },
-  {
-    slug: "vector-flyer-campaign",
-    title: "Campaign flyer for a local brand",
-    category: "Flyers",
-    client: "Vector Campaign",
-    summary:
-      "A placeholder flyer with a strong headline and a clean offer layout.",
-    goal:
-      "Build a print asset the client understands instantly and can use right away.",
-    outcome:
-      "The design supports sales communication and works as a base for further formats.",
-    application: "Print, point of sale, local distribution.",
-    image: "/portfolio-placeholder-2.svg",
-    tags: ["flyer", "print", "placeholder"],
   },
 ];
 

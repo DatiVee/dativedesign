@@ -2,6 +2,7 @@ import { ArrowUpRight, Check, Clock3, Layers3, Package2, ShoppingBag, Sparkles }
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Link, useRoute } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
@@ -209,11 +210,11 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
           <div className="grid gap-8 sm:gap-16">
             <div>
               <div className="section-label mb-3 sm:mb-4">{service.category}</div>
-              <h1 className="font-display text-[2.25rem] font-black leading-[1.04] text-white sm:text-5xl lg:text-6xl">
+              <h1 className="font-display text-[1.9rem] font-black leading-[1.06] text-white sm:text-4xl lg:text-5xl">
                 {service.name}
               </h1>
-              <p className="mt-3 text-base leading-relaxed text-gold sm:mt-4 sm:text-xl">{service.tagline}</p>
-              <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/68 sm:mt-6 sm:text-lg">
+              <p className="mt-3 text-base leading-relaxed text-gold sm:mt-4 sm:text-lg">{service.tagline}</p>
+              <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/68 sm:mt-5 sm:text-base">
                 {service.heroDescription}
               </p>
             </div>
@@ -307,16 +308,16 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
 
             <div className="grid gap-5 lg:grid-cols-2 lg:gap-10">
               <div className="rounded-sm border border-white/5 bg-card p-5 sm:p-8">
-                <SectionHeading
-                  eyebrow={locale === "en" ? "Benefits" : "Korzyści"}
-                  title={locale === "en" ? "What the client is actually buying" : "Co realnie kupuje klient"}
-                  description={
-                    locale === "en"
-                      ? "Not just a file. They are buying a process, predictable scope and a design prepared for real use."
-                      : "Nie sam plik. Kupuje uporządkowany proces, przewidywalny zakres i projekt przygotowany pod realne użycie."
-                  }
-                />
-                <div className="mt-8 grid gap-4">
+                <div className="section-label mb-3">{locale === "en" ? "Benefits" : "Korzyści"}</div>
+                <h3 className="font-display text-xl font-black text-white sm:text-2xl">
+                  {locale === "en" ? "What you're actually buying" : "Co realnie kupujesz"}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  {locale === "en"
+                    ? "Not just a file. A clear process, predictable scope and a design ready for real use."
+                    : "Nie sam plik. Uporządkowany proces, przewidywalny zakres i projekt gotowy do realnego użycia."}
+                </p>
+                <div className="mt-6 grid gap-4">
                   {service.benefits.map((benefit) => (
                     <div key={benefit} className="inline-flex items-center gap-3 text-sm text-white/68">
                       <Check size={16} className="text-gold" />
@@ -327,16 +328,16 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
               </div>
 
               <div className="rounded-sm border border-white/5 bg-card p-5 sm:p-8">
-                <SectionHeading
-                  eyebrow={locale === "en" ? "Deliverables" : "Pliki końcowe"}
-                  title={locale === "en" ? "What you get at the end" : "Co dostajesz na końcu"}
-                  description={
-                    locale === "en"
-                      ? "The scope depends on the package, but the client should see right away which files and assets are delivered."
-                      : "Zakres zależy od pakietu, ale klient od razu widzi, jakie pliki i materiały będą przekazane."
-                  }
-                />
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="section-label mb-3">{locale === "en" ? "Deliverables" : "Pliki końcowe"}</div>
+                <h3 className="font-display text-xl font-black text-white sm:text-2xl">
+                  {locale === "en" ? "What you get at the end" : "Co dostajesz na końcu"}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  {locale === "en"
+                    ? "The scope depends on the package - you can see right away which files and assets are delivered."
+                    : "Zakres zależy od pakietu - od razu widzisz, jakie pliki i materiały otrzymasz."}
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
                   {service.deliverables.map((item) => (
                     <span
                       key={item}
@@ -602,21 +603,23 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
       </section>
 
       <section className="container content-auto-section py-16">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Related portfolio" : "Powiązane portfolio"}
-          title={locale === "en" ? "Projects related to this product" : "Realizacje powiązane z tym produktem"}
-          description={
-            locale === "en"
-              ? "This is where the product stops being abstract. The client sees concrete examples and real-world use."
-              : "Tutaj produkt przestaje być abstrakcją. Klient widzi konkretne przykłady i realne zastosowanie."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Related portfolio" : "Powiązane portfolio"}
+            title={locale === "en" ? "Projects related to this product" : "Realizacje powiązane z tym produktem"}
+            description={
+              locale === "en"
+                ? "Concrete examples so you can see this product in real-world use, not just in theory."
+                : "Konkretne przykłady, żebyś zobaczył ten produkt w realnym zastosowaniu, a nie tylko w teorii."
+            }
+          />
+        </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {relatedProjects.map((project) => (
+          {relatedProjects.map((project, index) => (
+            <Reveal key={project.slug} delay={(index % 3) * 80}>
             <Link
-              key={project.slug}
               href={getPortfolioDetailPath(project.slug)}
-              className="group overflow-hidden rounded-sm border border-white/5 bg-card"
+              className="group block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
             >
               <div className="aspect-square overflow-hidden">
                 <img
@@ -633,40 +636,45 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
                 <p className="mt-2 text-sm leading-relaxed text-white/60">{project.summary}</p>
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
       </section>
 
       <section className="container content-auto-section py-16">
-        <SectionHeading
-          eyebrow="FAQ"
-          title={locale === "en" ? "Questions before buying the product" : "Pytania przed zakupem produktu"}
-          description={
-            locale === "en"
-              ? "A section that supports both conversion and SEO by closing common objections."
-              : "Sekcja, która wspiera sprzedaż i SEO, bo zamyka najczęstsze obiekcje przed zakupem."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow="FAQ"
+            title={locale === "en" ? "Questions before buying the product" : "Pytania przed zakupem produktu"}
+            description={
+              locale === "en"
+                ? "Answers to the questions that come up most often before ordering this product."
+                : "Odpowiedzi na pytania, które najczęściej pojawiają się przed zamówieniem tego produktu."
+            }
+          />
+        </Reveal>
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
-          {faqs.map((faq) => (
-            <article key={faq.id} className="rounded-sm border border-white/5 bg-card p-6">
+          {faqs.map((faq, index) => (
+            <Reveal key={faq.id} delay={(index % 2) * 80} as="article" className="rounded-sm border border-white/5 bg-card p-6">
               <h3 className="font-display text-xl font-black text-white">{faq.question}</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/65">{faq.answer}</p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </section>
 
       <section className="container content-auto-section py-16">
-        <SectionHeading
-          eyebrow="SEO"
-          title={locale === "en" ? "Long-form service copy" : "Rozbudowany opis usługi"}
-          description={
-            locale === "en"
-              ? "Longer copy for search and for the client who needs more context before buying."
-              : "Miejsce na dłuższy opis pod wyszukiwarkę i pod klienta, który chce więcej konkretu przed zakupem."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Details" : "Szczegóły"}
+            title={locale === "en" ? "More about this service" : "Więcej o tej usłudze"}
+            description={
+              locale === "en"
+                ? "A closer look for when you want more context before deciding."
+                : "Więcej kontekstu dla tych, którzy chcą dowiedzieć się więcej przed decyzją."
+            }
+          />
+        </Reveal>
         <div className="mt-8 grid gap-5">
           {service.seoText.map((paragraph) => (
             <div
@@ -683,7 +691,7 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
         <div className="rounded-sm border border-gold/20 bg-gradient-to-r from-gold/12 via-card to-card p-8 sm:p-10">
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="section-label mb-3">CTA</div>
+              <div className="section-label mb-3">{locale === "en" ? "Shop" : "Sklep"}</div>
               <h2 className="font-display text-3xl font-black text-white sm:text-4xl">
                 {locale === "en" ? "Want to compare other products" : "Chcesz porównać inne produkty"}
               </h2>

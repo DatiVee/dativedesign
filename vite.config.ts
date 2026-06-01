@@ -6,6 +6,16 @@ import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import { defineConfig, type Plugin } from "vite";
 
+// Wczytujemy .env do process.env (dev API: zamówienia, maile) - tylko gdy
+// host nie ustawił już klucza, żeby zmienne z systemu miały pierwszeństwo.
+if (!process.env.RESEND_API_KEY) {
+  try {
+    process.loadEnvFile?.();
+  } catch {
+    // brak .env - dev API po prostu pominie wysyłkę maili
+  }
+}
+
 const PROJECT_ROOT = import.meta.dirname;
 const REACTIONS_FILE = path.join(PROJECT_ROOT, "reactions.json");
 const DEV_ORDERS_FILE = path.join(PROJECT_ROOT, "server", "orders.json");

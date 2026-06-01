@@ -1,5 +1,6 @@
 import { ArrowRight, Star } from "lucide-react";
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -24,26 +25,28 @@ export default function ReviewsPage() {
   const reviewHighlights =
     locale === "en" ? [
           "Clients most often mention process clarity, fast feedback and visuals that actually match the brand.",
-          "The review section is here to build trust, not to simulate a CMS with a fake form.",
-          "If needed later, this page can be connected to real reviews from Google, Facebook or a custom CMS.",
+          "You work directly with the designer, so nothing gets lost between briefs, calls and revisions.",
+          "Every project ends with ready-to-use files and a result the client can build on.",
         ]
       : [
           "Klienci najczęściej chwalą klarowny proces, szybki kontakt i projekty, które realnie pasują do marki.",
-          "Ta podstrona ma budować zaufanie, a nie udawać panel opinii z losowym formularzem.",
-          "Jeśli będzie trzeba, później można ją spiąć z prawdziwymi opiniami z Google, Facebooka albo CMS-a.",
+          "Pracujesz bezpośrednio z projektantem, więc nic nie gubi się między briefem, rozmową a poprawkami.",
+          "Każdy projekt kończy się gotowymi plikami i efektem, na którym klient może budować dalej.",
         ];
 
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Reviews" : "Opinie"}
-          title={locale === "en" ? "Proof that the process works" : "Dowód, że ten proces działa"}
-          description={
-            locale === "en" ? "This page should show real post-project confidence: ratings, recommendations and feedback after collaboration."
-              : "Ta podstrona ma pokazywać realne zaufanie po współpracy: oceny, rekomendacje i konkretne komentarze po projekcie."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Reviews" : "Opinie"}
+            title={locale === "en" ? "Proof that the process works" : "Dowód, że ten proces działa"}
+            description={
+              locale === "en" ? "Real feedback after finished projects: ratings, recommendations and what clients say after working together."
+                : "Realne opinie po skończonych projektach: oceny, rekomendacje i to, co klienci mówią po współpracy."
+            }
+          />
+        </Reveal>
 
         <div className="mt-8 flex flex-wrap gap-3">
           {trustBadges.map((item) => (
@@ -58,18 +61,18 @@ export default function ReviewsPage() {
 
         <div className="mt-10 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <div className="grid gap-6 lg:grid-cols-2">
-            {reviews.map((review) => (
-              <article key={review.id} className="rounded-sm border border-white/5 bg-card p-6">
+            {reviews.map((review, index) => (
+              <Reveal key={review.id} delay={(index % 2) * 80} as="article" className="rounded-sm border border-white/5 bg-card p-6">
                 <div className="mb-4 flex gap-1">
-                  {Array.from({ length: review.rating }).map((_, index) => (
-                    <Star key={`${review.id}-${index}`} size={16} className="fill-gold text-gold" />
+                  {Array.from({ length: review.rating }).map((_, starIndex) => (
+                    <Star key={`${review.id}-${starIndex}`} size={16} className="fill-gold text-gold" />
                   ))}
                 </div>
                 <p className="text-lg italic leading-relaxed text-white/72">"{review.quote}"</p>
                 <div className="mt-5 text-sm text-white/50">
                   <span className="font-bold text-white">{review.name}</span> · {review.company} · {review.service}
                 </div>
-              </article>
+              </Reveal>
             ))}
           </div>
 

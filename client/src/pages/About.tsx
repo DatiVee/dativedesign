@@ -1,5 +1,6 @@
 import { ArrowRight, Check } from "lucide-react";
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -20,18 +21,20 @@ export default function About() {
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow={locale === "en" ? "About" : "O nas"}
-          title={locale === "en" ? "Graphic design built for real business use" : "Projektowanie graficzne tworzone pod realny biznes"}
-          description={
-            locale === "en" ? "DatiVe Design combines premium aesthetics with practical thinking. The goal is not only to make things look good, but to give the brand materials that sell, build trust and stay consistent everywhere."
-              : "DatiVe Design łączy premium estetykę z praktycznym podejściem. Tu nie chodzi tylko o to, żeby projekt dobrze wyglądał, ale żeby wspierał sprzedaż, budował zaufanie i trzymał spójność marki."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "About" : "O nas"}
+            title={locale === "en" ? "Graphic design built for real business use" : "Projektowanie graficzne tworzone pod realny biznes"}
+            description={
+              locale === "en" ? "DatiVe Design combines premium aesthetics with practical thinking. The goal is not only to make things look good, but to give the brand materials that sell, build trust and stay consistent everywhere."
+                : "DatiVe Design łączy premium estetykę z praktycznym podejściem. Tu nie chodzi tylko o to, żeby projekt dobrze wyglądał, ale żeby wspierał sprzedaż, budował zaufanie i trzymał spójność marki."
+            }
+          />
+        </Reveal>
       </section>
 
       <section className="container grid gap-12 py-10 lg:grid-cols-2">
-        <div className="rounded-sm border border-white/5 bg-card p-8">
+        <Reveal as="div" className="rounded-sm border border-white/5 bg-card p-8 gold-border-hover">
           <h2 className="font-display text-3xl font-black text-white">
             {locale === "en" ? "Who we are" : "Kim jesteśmy"}
           </h2>
@@ -43,8 +46,8 @@ export default function About() {
             {locale === "en" ? "Every project is handled directly, with a structured process and a clear scope. No random agency-style relay, no unnecessary layers, just focused collaboration and a result that makes sense in practice."
               : "Każdy projekt prowadzony jest bezpośrednio, w uporządkowanym procesie i z jasnym zakresem. Bez agencyjnego chaosu, bez zbędnych warstw po drodze, tylko konkretna współpraca i projekt, który działa w praktyce."}
           </p>
-        </div>
-        <div className="rounded-sm border border-white/5 bg-card p-8">
+        </Reveal>
+        <Reveal as="div" delay={100} className="rounded-sm border border-white/5 bg-card p-8 gold-border-hover">
           <h2 className="font-display text-3xl font-black text-white">
             {locale === "en" ? "Why work with us" : "Dlaczego warto z nami współpracować"}
           </h2>
@@ -67,14 +70,16 @@ export default function About() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <section className="container py-16">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Process" : "Proces realizacji"}
-          title={locale === "en" ? "How collaboration works" : "Jak wygląda współpraca"}
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Process" : "Proces realizacji"}
+            title={locale === "en" ? "How collaboration works" : "Jak wygląda współpraca"}
+          />
+        </Reveal>
         <div className="mt-10 grid gap-6 lg:grid-cols-4">
           {(locale === "en" ? [
                 ["01", "Brief and goal", "We define the service, the scope, the deadline and what the project should achieve."],
@@ -87,27 +92,29 @@ export default function About() {
                 ["02", "Kierunek", "Budujemy koncepcję wizualną dopasowaną do marki, odbiorcy i realnego zastosowania."],
                 ["03", "Dopracowanie", "Projekt jest szlifowany w ramach pakietu, ale na bazie uwag, które faktycznie go rozwijają."],
                 ["04", "Przekazanie", "Na końcu klient dostaje gotowe pliki przygotowane do użycia w druku, online albo dalszym wdrożeniu."],
-              ]).map(([step, title, text]) => (
-            <article key={step} className="rounded-sm border border-white/5 bg-card p-6">
+              ]).map(([step, title, text], index) => (
+            <Reveal key={step} delay={(index % 4) * 80} as="article" className="rounded-sm border border-white/5 bg-card p-6 gold-border-hover">
               <div className="font-display text-sm font-black tracking-widest text-gold">{step}</div>
               <h3 className="mt-3 font-display text-2xl font-black text-white">{title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/65">{text}</p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </section>
 
       <section className="container py-16">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Numbers" : "Liczby"}
-          title={locale === "en" ? "Data that builds trust" : "Dane, które budują zaufanie"}
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Numbers" : "Liczby"}
+            title={locale === "en" ? "Data that builds trust" : "Dane, które budują zaufanie"}
+          />
+        </Reveal>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {companyStats.map((stat) => (
-            <div key={stat.label} className="rounded-sm border border-white/5 bg-card p-6">
+          {companyStats.map((stat, index) => (
+            <Reveal key={stat.label} delay={(index % 4) * 80} as="div" className="rounded-sm border border-white/5 bg-card p-6">
               <div className="font-display text-4xl font-black text-gold">{stat.value}</div>
               <div className="mt-2 text-sm text-white/65">{stat.label}</div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -116,7 +123,7 @@ export default function About() {
         <div className="rounded-sm border border-gold/20 bg-gradient-to-r from-gold/10 to-card p-8 sm:p-10">
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="section-label mb-3">CTA</div>
+              <div className="section-label mb-3">{locale === "en" ? "Start" : "Zacznij"}</div>
               <h2 className="font-display text-3xl font-black text-white sm:text-4xl">
                 {locale === "en" ? "Want to move from inspiration to a real order"
                   : "Chcesz przejść od inspiracji do konkretnego zamówienia"}

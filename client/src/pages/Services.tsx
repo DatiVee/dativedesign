@@ -1,4 +1,6 @@
+import { ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -19,17 +21,19 @@ export default function Services() {
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow={locale === "en" ? "Services" : "Usługi"}
-          title={locale === "en" ? "Services ready for ordering and growth" : "Usługi gotowe do zamówienia i dalszej rozbudowy"}
-          description={
-            locale === "en" ? "Each service has its own URL, scope, packages, supporting portfolio and a direct path to the store."
-              : "Każda usługa ma własny URL, opis, pakiety, powiązane portfolio i bezpośrednie przejście do sklepu."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow={locale === "en" ? "Services" : "Usługi"}
+            title={locale === "en" ? "All graphic design services in one place" : "Wszystkie usługi graficzne w jednym miejscu"}
+            description={
+              locale === "en" ? "Clear scope, examples and packages with pricing - everything you need to order with confidence."
+                : "Jasny zakres, przykłady i pakiety z cenami - wszystko, czego potrzebujesz, żeby zamówić bez wahania."
+            }
+          />
+        </Reveal>
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          {services.map((service) => (
-            <article key={service.slug} className="content-auto-card overflow-hidden rounded-sm border border-white/5 bg-card">
+          {services.map((service, index) => (
+            <Reveal key={service.slug} delay={(index % 2) * 90} as="article" className="content-auto-card overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover">
               <div className="grid h-full gap-0 md:grid-cols-[0.9fr_1.1fr]">
                 <div className="relative min-h-64 overflow-hidden border-b border-white/5 bg-background md:min-h-full md:border-b-0 md:border-r">
                   <img
@@ -56,17 +60,15 @@ export default function Services() {
                       </span>
                     ))}
                   </div>
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <Link href={getServicePath(service.slug)} className="text-sm font-bold uppercase tracking-wider text-gold">
-                      {locale === "en" ? "Open service page" : "Zobacz podstronę usługi"}
-                    </Link>
-                    <Link href={getStaticPath("order")} className="text-sm font-bold uppercase tracking-wider text-white/55">
-                      {locale === "en" ? "Go to shop" : "Przejdź do sklepu"}
+                  <div className="mt-6">
+                    <Link href={getServicePath(service.slug)} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
+                      {locale === "en" ? "View and order" : "Zobacz i zamów"}
+                      <ArrowRight size={16} />
                     </Link>
                   </div>
                 </div>
               </div>
-            </article>
+            </Reveal>
           ))}
         </div>
       </section>

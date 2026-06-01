@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -18,31 +19,34 @@ export default function Blog() {
   usePageMeta(
     "Blog | DatiVe Design",
     locale === "en"
-      ? "DatiVe Design blog supports SEO and online service sales with content about logo design, branding, visual identity, business cards and project preparation."
-      : "Blog DatiVe Design wspiera SEO i sprzedaż usług graficznych. Artykuły o logo, brandingu, identyfikacji wizualnej, wizytówkach i przygotowaniu firmy do projektów.",
+      ? "The DatiVe Design blog: practical articles about logo design, branding, visual identity, business cards and preparing your company for a design project."
+      : "Blog DatiVe Design: praktyczne artykuły o logo, brandingu, identyfikacji wizualnej, wizytówkach i przygotowaniu firmy do projektu graficznego.",
     { locale, path: getStaticPath("blog") }
   );
 
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
-        <SectionHeading
-          eyebrow="Blog"
-          title={
-            locale === "en"
-              ? "Articles that support SEO and real buying intent"
-              : "Artykuły, które wspierają SEO i realną decyzję zakupową"
-          }
-          description={
-            locale === "en"
-              ? "The blog should answer actual client questions, build trust and help service pages rank with stronger supporting content."
-              : "Blog ma odpowiadać na realne pytania klientów, budować zaufanie i wzmacniać pozycjonowanie podstron usługowych sensownym contentem."
-          }
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow="Blog"
+            title={
+              locale === "en"
+                ? "Articles on branding, design and visual identity"
+                : "Artykuły o brandingu, projektowaniu i identyfikacji wizualnej"
+            }
+            description={
+              locale === "en"
+                ? "Practical reads that answer the questions clients ask most - and help you get more out of your brand."
+                : "Praktyczne teksty, które odpowiadają na najczęstsze pytania klientów - i pomagają wycisnąć więcej z marki."
+            }
+          />
+        </Reveal>
 
         {featuredPost ? (
           <div className="mt-10 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-            <Link href={getBlogPostPath(featuredPost.slug)} className="group overflow-hidden rounded-sm border border-gold/15 bg-card">
+            <Reveal>
+            <Link href={getBlogPostPath(featuredPost.slug)} className="group block overflow-hidden rounded-sm border border-gold/15 bg-card gold-border-hover">
               <div className="grid h-full gap-0 lg:grid-cols-[1fr_0.9fr]">
                 <div className="relative min-h-80 overflow-hidden">
                   <img
@@ -71,18 +75,15 @@ export default function Blog() {
                     <span>{formatter.format(new Date(featuredPost.publishedAt))}</span>
                     <span>{featuredPost.readTime}</span>
                   </div>
-                  <div className="mt-8 rounded-sm border border-white/5 bg-background/50 p-5 text-sm leading-relaxed text-white/62">
-                    {locale === "en"
-                      ? "A strong blog post should explain the topic clearly, show real design thinking and naturally support service pages."
-                      : "Dobry wpis blogowy powinien jasno tłumaczyć temat, pokazywać realne podejście projektowe i naturalnie wzmacniać podstrony usługowe."}
-                  </div>
                 </div>
               </div>
             </Link>
+            </Reveal>
 
             <div className="grid gap-6">
-              {otherPosts.map((post) => (
-                <Link key={post.slug} href={getBlogPostPath(post.slug)} className="overflow-hidden rounded-sm border border-white/5 bg-card">
+              {otherPosts.map((post, index) => (
+                <Reveal key={post.slug} delay={(index % 3) * 80}>
+                <Link href={getBlogPostPath(post.slug)} className="block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover">
                   <div className="grid h-full gap-0 sm:grid-cols-[0.42fr_0.58fr]">
                     <div className="aspect-[4/3] overflow-hidden sm:aspect-auto">
                       <img src={post.image} alt={post.title} loading="lazy" className="h-full w-full object-cover" />
@@ -98,6 +99,7 @@ export default function Blog() {
                     </div>
                   </div>
                 </Link>
+                </Reveal>
               ))}
             </div>
           </div>
