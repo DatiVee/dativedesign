@@ -133,12 +133,12 @@ export default function OrderPage() {
                     <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/35">
                       {service.category}
                     </div>
-                    <h3 className="mt-2 font-display text-xl font-black text-white sm:mt-3 sm:min-h-[5.25rem] sm:text-2xl">
+                    <h3 className="mt-2 font-display text-xl font-black text-white sm:mt-3 sm:text-2xl">
                       {service.name}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gold sm:min-h-[3.5rem]">{service.tagline}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-gold">{service.tagline}</p>
 
-                    <div className="mt-4 sm:mt-5 sm:min-h-[4.5rem]">
+                    <div className="mt-4 sm:mt-5">
                       <div className="flex items-end justify-between gap-4">
                         <div>
                           <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
@@ -236,15 +236,15 @@ export default function OrderPage() {
                   <div className="text-xs font-bold uppercase tracking-[0.22em] text-white/35">
                     {locale === "en" ? "Product" : "Produkt"}
                   </div>
-                  <h2 className="mt-2 font-display text-xl font-black text-white sm:mt-3 sm:min-h-[4.5rem] sm:text-3xl">
+                  <h2 className="mt-2 font-display text-xl font-black text-white sm:mt-3 sm:text-3xl">
                     {service.name}
                   </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-gold sm:min-h-[2.8rem] sm:text-base">{service.tagline}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-white/65 sm:mt-4 sm:min-h-[3.5rem]">
+                  <p className="mt-2 text-sm leading-relaxed text-gold sm:text-base">{service.tagline}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65 sm:mt-4">
                     {service.shortDescription}
                   </p>
 
-                  <div className="mt-4 sm:mt-5 sm:min-h-[4rem]">
+                  <div className="mt-4 sm:mt-5">
                     <div className="flex items-end justify-between gap-3">
                       <div>
                         <div className="text-xs font-bold uppercase tracking-wider text-white/35">
@@ -261,7 +261,7 @@ export default function OrderPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4 sm:mt-5 sm:min-h-[3.5rem]">
+                  <div className="mt-4 sm:mt-5">
                     <div className="flex flex-wrap gap-2">
                       {service.deliverables.slice(0, 2).map((item) => (
                         <span key={item} className="rounded-full bg-white/5 px-3 py-1 text-xs text-white/50">
