@@ -39,6 +39,7 @@ export default function ReviewsPage() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow={locale === "en" ? "Reviews" : "Opinie"}
             title={locale === "en" ? "Proof that the process works" : "Dowód, że ten proces działa"}
             description={

@@ -34,6 +34,7 @@ export default function Portfolio() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow="Portfolio"
             title={locale === "en" ? "Case studies, not just a gallery" : "Case studies, nie tylko galeria"}
             description={
@@ -51,6 +52,7 @@ export default function Portfolio() {
               <button
                 key={category}
                 type="button"
+                aria-pressed={active}
                 onClick={() => setActiveCategory(category)}
                 className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wide transition-colors ${
                   active

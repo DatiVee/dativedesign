@@ -15,7 +15,7 @@ export type BriefPrompt = {
 const briefPromptsPl: Record<string, BriefPrompt> = {
   "projekt-logo": {
     title: "Brief pod logo",
-    description: "Tu klient zostawia konkrety o marce, rynku i kierunku wizualnym.",
+    description: "Zostaw konkrety o swojej marce, rynku i kierunku wizualnym.",
     goalPlaceholder: "Co logo ma osiągnąć? Np. wejście na rynek, odświeżenie marki, premium odbiór.",
     audiencePlaceholder: "Kto ma zobaczyć markę? Branża, typ klienta, grupa docelowa.",
     visualPlaceholder: "Jaki klimat ma mieć projekt? Minimal, premium, technicznie, odważnie.",
@@ -50,7 +50,7 @@ const briefPromptsPl: Record<string, BriefPrompt> = {
 
 const fallbackPl: BriefPrompt = {
   title: "Brief projektowy",
-  description: "Tu klient doprecyzowuje zakres, styl i wszystko, co ma znaczenie przed startem projektu.",
+  description: "Doprecyzuj zakres, styl i wszystko, co ma znaczenie przed startem projektu.",
   goalPlaceholder: "Jaki jest główny cel projektu?",
   audiencePlaceholder: "Do kogo ma trafiać projekt?",
   visualPlaceholder: "Jaki klimat wizualny ma mieć realizacja?",
@@ -63,7 +63,7 @@ const fallbackPl: BriefPrompt = {
 const briefPromptsEn: Record<string, BriefPrompt> = {
   "projekt-logo": {
     title: "Logo brief",
-    description: "This is where the client leaves concrete input about the brand, market and visual direction.",
+    description: "Leave concrete input about your brand, market and visual direction.",
     goalPlaceholder: "What should the logo achieve? Launch, refresh, premium perception, stronger recall.",
     audiencePlaceholder: "Who should notice the brand? Industry, client type, target audience.",
     visualPlaceholder: "What kind of tone should the logo have? Minimal, premium, technical, bold.",
@@ -98,7 +98,7 @@ const briefPromptsEn: Record<string, BriefPrompt> = {
 
 const fallbackEn: BriefPrompt = {
   title: "Project brief",
-  description: "This is the stage where the client defines the scope, tone and all practical details before production starts.",
+  description: "Define the scope, tone and all practical details before production starts.",
   goalPlaceholder: "What is the main goal of the project?",
   audiencePlaceholder: "Who should the design speak to?",
   visualPlaceholder: "What kind of visual tone should the project have?",

@@ -60,6 +60,11 @@ export function usePageMeta(title: string, description: string, options: PageMet
       canonical.setAttribute("href", `${SITE_URL}${options.path}`);
     }
 
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl && options.path) {
+      ogUrl.setAttribute("content", `${SITE_URL}${options.path}`);
+    }
+
     let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (!robots) {
       robots = document.createElement("meta");

@@ -27,7 +27,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "A photo caricature is a service for people who want a personalized graphic with more character and humor than a regular portrait. The key is not only likeness, but also a memorable visual twist.",
       "This kind of design works well as a gift, a social media graphic, a keepsake or a lighter visual asset for a personal brand.",
-      "The product page should make the flow clear: upload a photo, choose the style, confirm the file scope and receive the finished caricature in the selected format.",
+      "Ordering is simple: you upload a photo, choose the style, confirm the file scope and receive the finished caricature in the format you selected.",
     ],
     featured: false,
     category: "Digital",
@@ -263,7 +263,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "Branding is not just a logo. It is the full visual system that makes a company look consistent and professional in the eyes of clients.",
       "A well-designed identity makes it easier to grow the brand, run marketing campaigns and produce both digital and print sales materials.",
-      "A strong branding page should frame the service as a business tool: clearer communication, stronger perception and a simpler rollout of future design assets across web, print and campaigns.",
+      "Branding is a practical business tool: clearer communication, stronger brand perception and a simpler rollout of future design assets across web, print and campaigns.",
     ],
     featured: true,
     category: "Branding",
@@ -380,7 +380,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "A flyer only makes sense when it works as a sales tool rather than a random graphic. Content structure, information hierarchy and fit to the target audience all affect performance.",
       "A good flyer works in local campaigns, at events, in service points and anywhere a client needs to understand the offer quickly.",
-      "A service page for flyer design should make it clear that the asset is built to support communication and action. The goal is not just to look clean, but to organize the message and drive response.",
+      "A flyer is built to support communication and action. The goal is not just to look clean, but to organize your message and drive a real response from the audience.",
     ],
     featured: false,
     category: "Print",
@@ -488,7 +488,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "Social media graphics should feel light and clear, but still carry a strong message. If a brand publishes in a chaotic visual style, it loses trust and recognition.",
       "A social media pack organizes communication, shortens campaign rollout time and gives the brand ready-to-use materials for regular publishing.",
-      "A well-built social media service page should show that the client is buying more than isolated images. The real value is a consistent set of assets matched to the brand, the campaign and the publishing rhythm.",
+      "With a social media pack you get more than isolated images — you know exactly how many assets you receive and in which formats: a consistent set matched to your brand, campaign and publishing rhythm.",
     ],
     featured: true,
     category: "Social media",
@@ -540,7 +540,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "An email signature is a small asset, but it works every day and often appears in one of the first direct brand touchpoints. If it looks random, the whole company can feel less professional.",
       "A strong signature organizes contact details, reinforces brand consistency and improves the quality of sales and support communication.",
-      "A service page for email signatures should show that this is not a gimmick. It is a practical brand asset that works in every message sent to a client.",
+      "An email signature is not a gimmick. It is a practical brand asset that works for you in every message your team sends to a client.",
     ],
     featured: false,
     category: "Digital",
@@ -592,7 +592,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "Letterhead still matters wherever a company sends offers, agreements, documents or formal communication. It is one of the simplest ways to make the business look more polished and consistent.",
       "A well-designed document does not distract. It organizes the content and supports a more reliable, more premium perception of the company.",
-      "A service page for letterhead should show that this is not only for corporations. It is a practical asset for any business that wants its offers and documents to look properly branded.",
+      "Letterhead is not only for corporations. It is a practical asset for any business that wants its offers and documents to look properly branded.",
     ],
     featured: false,
     category: "Print",
@@ -644,7 +644,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "Label design directly affects how a product is perceived on the shelf. In many industries, the label shapes the first impression, readability and the sense of quality.",
       "A strong label combines aesthetics, information hierarchy and alignment with the character of the brand. It should not only look good on a mockup. It needs to work on the real package and in a real buying situation.",
-      "A service page for label design should frame the work as a sales tool that helps products stand out, elevates the brand and organizes visual communication on the packaging.",
+      "Label design works as a sales tool: it helps your product stand out, elevates the brand and organizes visual communication on the packaging.",
     ],
     featured: false,
     category: "Packaging",
@@ -696,7 +696,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "Packaging design is one of the most sales-driven graphic design services. Strong packaging shapes quality perception, product positioning and purchase decisions before the client reads the details.",
       "Packaging needs to work not only visually, but communicatively. Information hierarchy, contrast, brand style and product fit all matter.",
-      "A packaging service page should make it clear that packaging is not a side element of the product. It is part of the sales process and one of the strongest brand touchpoints.",
+      "Packaging is not a side element of the product. It is part of the sales process and one of the strongest touchpoints between your brand and the client.",
     ],
     featured: false,
     category: "Packaging",
@@ -748,7 +748,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "Voucher design matters wherever a brand sells services or products as a gift, a package or a limited-time offer. The design influences how valuable the offer feels.",
       "A good voucher should match the brand and stay easy to use. Layout, hierarchy and production quality all matter.",
-      "A service page for voucher design should present it as a real sales asset. It is not just a decorative card. It can increase basket value and strengthen brand image.",
+      "A voucher is a real sales asset. It is not just a decorative card. It can increase basket value and strengthen the image of your brand.",
     ],
     featured: false,
     category: "Print",
@@ -800,7 +800,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "Menu design is not only about restaurant aesthetics. It is also a sales tool that shapes how dishes, seasonal offers and combos are perceived.",
       "A strong menu organizes content, builds the venue atmosphere and helps clients decide faster. A chaotic layout can weaken the perception of the entire offer.",
-      "A menu design page should show that the service combines graphic quality, usability and sales thinking. It needs to work in a real venue and influence real purchase decisions.",
+      "Menu design combines graphic quality, usability and sales thinking. The result needs to work in a real venue and influence real purchase decisions.",
     ],
     featured: false,
     category: "Gastro",
@@ -852,7 +852,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "A sales PDF offer is one of the most frequently used materials in service businesses and B2B sales. If it looks chaotic, it reduces trust and makes the offer harder to understand.",
       "A good sales document organizes the scope, pricing, process and key benefits. That helps the client understand the proposal faster and makes decision-making easier.",
-      "A service page for a sales PDF should position it as a practical business asset. It is not decoration. It is a document that directly supports daily sales work.",
+      "A sales PDF is a practical business asset. It is not decoration. It is a document that directly supports your daily sales work.",
     ],
     featured: false,
     category: "Sales",
@@ -904,7 +904,7 @@ export const servicesEn: Service[] = [
     seoText: [
       "A Facebook cover still matters because it is often the first large visual block a client sees after opening the brand profile. If it feels random, the whole communication feels less professional.",
       "A well-designed cover organizes the message, reinforces the branding and can immediately highlight the main offer, promotion or contact path.",
-      "On a service store page, this kind of product should be framed as a fast online buy: simple to implement, but very visible in day-to-day brand communication.",
+      "This is a quick service with a big payoff: simple to implement, but very visible in the day-to-day communication of your brand.",
     ],
     featured: false,
     category: "Social media",
@@ -1352,7 +1352,7 @@ export const faqsEn: FaqItem[] = [
     id: "brief-start",
     question: "Do I need a finished brief before I buy",
     answer:
-      "No. Even a general direction is enough to start. After checkout, the brief collects goals, style references, materials and practical details needed to begin the project.",
+      "No. Even a general direction is enough to start. After sending your quote request, the optional brief collects goals, style references, materials and practical details needed to begin the project.",
     category: "process",
   },
   {
@@ -1401,14 +1401,14 @@ export const faqsEn: FaqItem[] = [
     id: "platnosci",
     question: "How do payments work",
     answer:
-      "The site is prepared for online checkout. The target setup can include Stripe, Przelewy24, BLIK and PayPal.",
+      "Requesting a quote is free. You add services to the cart and send an inquiry, then we agree on the price and payment details by email — usually a bank transfer based on an invoice.",
     category: "payments",
   },
   {
     id: "faktura",
     question: "Can the order be invoiced to a company",
     answer:
-      "Yes. The order can be completed with company billing details. The cleanest option is to provide invoicing data during checkout or in the post-purchase brief.",
+      "Yes. The order can be completed with company billing details. The easiest option is to provide invoicing data in the inquiry form or in the brief once the quote is approved.",
     category: "payments",
   },
   {
@@ -1422,7 +1422,7 @@ export const faqsEn: FaqItem[] = [
     id: "brief",
     question: "What happens after buying the service",
     answer:
-      "After checkout, the client moves to a brief form where all information needed to start the project is collected.",
+      "After sending a quote request, you can fill in a short brief with all the information needed to start the project.",
     category: "process",
   },
   {

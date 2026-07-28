@@ -29,6 +29,7 @@ export default function Blog() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow="Blog"
             title={
               locale === "en"

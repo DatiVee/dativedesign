@@ -23,6 +23,7 @@ export default function Services() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow={locale === "en" ? "Services" : "Usługi"}
             title={locale === "en" ? "All graphic design services in one place" : "Wszystkie usługi graficzne w jednym miejscu"}
             description={

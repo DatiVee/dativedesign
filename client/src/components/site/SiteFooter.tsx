@@ -83,7 +83,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="container mt-10 border-t border-white/5 pt-6 text-xs tracking-wide text-white/30">
+      <div className="container mt-10 border-t border-white/5 pt-6 text-xs tracking-wide text-white/55">
         © 2025-2026 DatiVe Design -{" "}
         {locale === "en"
           ? "Professional graphic design services for your business."

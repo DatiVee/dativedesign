@@ -1,4 +1,5 @@
-import express from "express";
+import compression from "compression";
+import express, { type NextFunction, type Request, type Response } from "express";
 import { existsSync } from "fs";
 import fs from "fs/promises";
 import { createServer } from "http";
@@ -23,6 +24,36 @@ if (!process.env.RESEND_API_KEY) {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Prosty limiter żądań per IP+ścieżka (ochrona przed spamem formularzy).
+const rateBuckets = new Map<string, { count: number; reset: number }>();
+function rateLimit(limit: number, windowMs: number) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const key = `${req.ip}:${req.path}`;
+    const now = Date.now();
+    const bucket = rateBuckets.get(key);
+
+    if (!bucket || bucket.reset < now) {
+      if (rateBuckets.size > 5000) rateBuckets.clear();
+      rateBuckets.set(key, { count: 1, reset: now + windowMs });
+      next();
+      return;
+    }
+
+    bucket.count += 1;
+    if (bucket.count > limit) {
+      res.status(429).json({ error: "Zbyt wiele żądań. Spróbuj za chwilę." });
+      return;
+    }
+    next();
+  };
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function trimmedString(value: unknown, max: number) {
+  return typeof value === "string" ? value.slice(0, max).trim() : "";
+}
 
 // Serializuje operacje read-modify-write na plikach JSON, żeby równoczesne
 // żądania nie nadpisywały sobie nawzajem danych (race condition).
@@ -476,54 +507,52 @@ async function sendNewOrderNotification(order: OrderRecord) {
   try {
     await sendResendEmail(config, {
       to: config.notifyEmail,
-      subject: `Nowe zamówienie ${order.number} - ${order.customer.company || order.customer.name}`,
+      subject: `Zapytanie o wycenę ${order.number} - ${order.customer.company || order.customer.name}`,
       text:
-        `NOWE ZAMÓWIENIE - CHECKOUT\n\n` +
-        `Numer zamówienia: ${order.number}\n` +
+        `NOWE ZAPYTANIE O WYCENĘ\n\n` +
+        `Numer zapytania: ${order.number}\n` +
         `Data: ${order.createdAt}\n` +
         `Klient: ${order.customer.name}\n` +
         `Email: ${order.customer.email}\n` +
-        `Telefon: ${order.customer.phone}\n` +
-        `Firma: ${order.customer.company}\n` +
+        `Telefon: ${order.customer.phone || "-"}\n` +
+        `Firma: ${order.customer.company || "-"}\n` +
         `NIP: ${order.customer.taxId || "-"}\n` +
-        `Płatność: ${order.customer.paymentMethod}\n` +
-        `Notatki: ${order.customer.notes || "-"}\n\n` +
+        `Wiadomość: ${order.customer.notes || "-"}\n\n` +
         `Pozycje:\n${formatOrderItems(order.items)}\n\n` +
-        `Łącznie: ${order.subtotal} zł\n\n` +
-        `Brief zostanie dosłany po kolejnym kroku formularza.`,
+        `Suma wg cennika: ${order.subtotal} zł\n\n` +
+        `Klient może jeszcze dosłać brief projektowy w osobnym mailu.`,
       html: emailShell({
-        eyebrow: "Nowe zamówienie",
-        title: `Zamówienie ${order.number}`,
-        intro: "Klient przeszedł checkout. Brief projektowy powinien przyjść w kolejnym mailu po uzupełnieniu formularza.",
-        badge: "Brief oczekuje",
+        eyebrow: "Zapytanie o wycenę",
+        title: `Zapytanie ${order.number}`,
+        intro: "Klient wysłał zapytanie o wycenę przez koszyk. Jeśli uzupełni brief, przyjdzie on w osobnym mailu.",
+        badge: "Do wyceny",
         content:
           contactHighlight(order) +
           infoBox(
             "Co dalej?",
-            "To jest pierwszy mail po checkoutcie. Poczekaj na drugi mail z briefem albo skontaktuj się z klientem, jeśli brief nie przyjdzie."
+            "Przejrzyj zakres, przygotuj wycenę i odpisz klientowi na maila. Jeśli dojdzie brief, będzie podpięty pod ten sam numer zapytania."
           ) +
           sectionCard(
             "Dane klienta",
             keyValueTable([
-              ["Numer zamówienia", order.number],
+              ["Numer zapytania", order.number],
               ["Data", new Date(order.createdAt).toLocaleString("pl-PL")],
               ["Klient", order.customer.name],
               ["Email", order.customer.email],
-              ["Telefon", order.customer.phone],
-              ["Firma", order.customer.company],
+              ["Telefon", order.customer.phone || "-"],
+              ["Firma", order.customer.company || "-"],
               ["NIP", order.customer.taxId || "-"],
-              ["Płatność", order.customer.paymentMethod],
-              ["Notatki", order.customer.notes || "-"],
+              ["Wiadomość", order.customer.notes || "-"],
             ])
           ) +
           sectionCard(
-            "Pozycje zamówienia",
+            "Wybrane pozycje",
             `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${formatOrderItemsHtml(
               order.items
             )}</table>`
           ) +
           `<div style="margin-top:18px;padding:18px;border-radius:14px;background:#d4aa3f;color:#050507;text-align:right;font-size:24px;font-weight:900;">
-            Łącznie: ${formatPrice(order.subtotal)}
+            Suma wg cennika: ${formatPrice(order.subtotal)}
           </div>`,
       }),
     });
@@ -533,6 +562,61 @@ async function sendNewOrderNotification(order: OrderRecord) {
     return {
       adminEmail: "failed" as DeliveryState,
       message: `Admin email error: ${String(error)}`,
+    };
+  }
+}
+
+async function sendInquiryCustomerConfirmation(order: OrderRecord) {
+  const config = getEmailConfig();
+  if (!config || !order.customer?.email) {
+    return { customerEmail: "skipped" as DeliveryState };
+  }
+
+  try {
+    await sendResendEmail(config, {
+      to: order.customer.email,
+      subject: `Potwierdzenie zapytania ${order.number} - DatiVe Design`,
+      text:
+        `Dziękujemy za zapytanie o wycenę w DatiVe Design.\n\n` +
+        `Numer zapytania: ${order.number}\n` +
+        `Suma wg cennika: ${order.subtotal} zł\n\n` +
+        `Pozycje:\n${formatOrderItems(order.items)}\n\n` +
+        `Sprawdzimy zakres i odpowiemy z dopasowaną wyceną - zwykle do 24h w dni robocze.\n` +
+        `To zapytanie jest bezpłatne i nie jest zobowiązaniem do zakupu.`,
+      html: emailShell({
+        eyebrow: "Zapytanie o wycenę",
+        title: "Dziękujemy za zapytanie",
+        intro:
+          "Twoje zapytanie o wycenę do nas dotarło. Sprawdzimy zakres i odpowiemy z dopasowaną wyceną - zwykle do 24h w dni robocze.",
+        badge: "Przyjęte",
+        content:
+          sectionCard(
+            "Podsumowanie",
+            keyValueTable([
+              ["Numer zapytania", order.number],
+              ["Suma wg cennika", formatPrice(order.subtotal)],
+              ["Status", "Zapytanie wysłane"],
+            ])
+          ) +
+          sectionCard(
+            "Wybrane pozycje",
+            `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${formatOrderItemsHtml(
+              order.items
+            )}</table>`
+          ) +
+          infoBox(
+            "Bez zobowiązań",
+            "Zapytanie jest bezpłatne. Ostateczną cenę i termin potwierdzamy wspólnie, zanim ruszy jakakolwiek praca."
+          ),
+        footer: "DatiVe Design - dziękujemy za zainteresowanie.",
+      }),
+    });
+
+    return { customerEmail: "sent" as DeliveryState };
+  } catch (error) {
+    return {
+      customerEmail: "failed" as DeliveryState,
+      message: `Customer email error: ${String(error)}`,
     };
   }
 }
@@ -556,10 +640,10 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
 
     await sendResendEmail(config, {
       to: config.notifyEmail,
-      subject: `Brief do zamówienia ${order.number} - ${order.customer.company || order.customer.name}`,
+      subject: `Brief do zapytania ${order.number} - ${order.customer.company || order.customer.name}`,
       text:
-        `BRIEF DO ZAMÓWIENIA\n\n` +
-        `Numer zamówienia: ${order.number}\n` +
+        `BRIEF DO ZAPYTANIA O WYCENĘ\n\n` +
+        `Numer zapytania: ${order.number}\n` +
         `Klient: ${order.customer.name}\n` +
         `Email: ${order.customer.email}\n` +
         `Telefon: ${order.customer.phone}\n` +
@@ -567,20 +651,20 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
         `Pozycje:\n${formatOrderItems(order.items)}\n\n` +
         `Brief:\n${formatBriefAnswersText(order.briefAnswers)}`,
       html: emailShell({
-        eyebrow: "Brief do zamówienia",
+        eyebrow: "Brief do zapytania",
         title: `Brief ${order.number}`,
-        intro: "Klient uzupełnił dane potrzebne do rozpoczęcia realizacji projektu.",
+        intro: "Klient uzupełnił brief projektowy do swojego zapytania o wycenę.",
         badge: "Brief wysłany",
         content:
           contactHighlight(order) +
           infoBox(
             "Co dalej?",
-            "Ten mail zawiera komplet informacji z briefu. Możesz zweryfikować zakres, potwierdzić cenę/termin i przejść do realizacji."
+            "Ten mail zawiera komplet informacji z briefu. Możesz doprecyzować wycenę, potwierdzić termin i odpisać klientowi."
           ) +
           sectionCard(
             "Dane klienta",
             keyValueTable([
-              ["Numer zamówienia", order.number],
+              ["Numer zapytania", order.number],
               ["Klient", order.customer.name],
               ["Email", order.customer.email],
               ["Telefon", order.customer.phone],
@@ -606,31 +690,32 @@ async function sendBriefSubmittedEmails(order: OrderRecord) {
   try {
     await sendResendEmail(config, {
       to: order.customer.email,
-      subject: `Potwierdzenie zamówienia ${order.number}`,
+      subject: `Brief przyjęty - zapytanie ${order.number}`,
       text:
-        `Dziękujemy za zamówienie w DatiVe Design.\n\n` +
-        `Numer zamówienia: ${order.number}\n` +
-        `Kwota: ${order.subtotal} zł\n` +
-        `Status: brief wysłany.\n\n` +
-        `Skontaktujemy się po weryfikacji briefu i potwierdzeniu zakresu realizacji.`,
+        `Dziękujemy za uzupełnienie briefu w DatiVe Design.\n\n` +
+        `Numer zapytania: ${order.number}\n` +
+        `Suma wg cennika: ${order.subtotal} zł\n` +
+        `Status: zapytanie + brief wysłane.\n\n` +
+        `Na tej podstawie przygotujemy dopasowaną wycenę i odpowiemy mailem - zwykle do 24h w dni robocze.`,
       html: emailShell({
-        eyebrow: "Potwierdzenie zamówienia",
+        eyebrow: "Brief przyjęty",
         title: "Dziękujemy za przesłanie briefu",
-        intro: "Twoje zamówienie i brief projektowy zostały zapisane. Kolejny krok to weryfikacja zakresu i kontakt w sprawie realizacji.",
+        intro:
+          "Twoje zapytanie i brief projektowy do nas dotarły. Na tej podstawie przygotujemy dopasowaną wycenę i odpowiemy mailem.",
         badge: "Przyjęte",
         content:
           sectionCard(
             "Podsumowanie",
             keyValueTable([
-              ["Numer zamówienia", order.number],
-              ["Kwota", formatPrice(order.subtotal)],
-              ["Status", "Brief wysłany"],
+              ["Numer zapytania", order.number],
+              ["Suma wg cennika", formatPrice(order.subtotal)],
+              ["Status", "Zapytanie + brief wysłane"],
             ])
           ) +
           sectionCard(
             "Co dalej?",
             `<p style="margin:0;color:#c8c2d1;font-size:15px;line-height:1.7;">
-              Przejrzę przesłane informacje, sprawdzę zakres projektu i odezwę się z potwierdzeniem dalszych kroków.
+              Przejrzymy przesłane informacje, przygotujemy wycenę i odezwiemy się z dalszymi krokami - zwykle do 24h w dni robocze.
             </p>`
           ),
         footer: "DatiVe Design - dziękujemy za zaufanie.",
@@ -651,6 +736,7 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
+  app.use(compression());
   app.use(express.json({ limit: "35mb" }));
   await ensureFile(REACTIONS_FILE, defaultReactions);
   await ensureFile(ORDERS_FILE, []);
@@ -673,7 +759,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/reactions/:title", async (req, res) => {
+  app.post("/api/reactions/:title", rateLimit(30, 60_000), async (req, res) => {
     const { title } = req.params;
 
     try {
@@ -681,11 +767,21 @@ async function startServer() {
         const data = await fs.readFile(REACTIONS_FILE, "utf-8");
         const reactions = JSON.parse(data);
 
+        // tylko istniejące pozycje - bez tworzenia dowolnych kluczy z URL-a
+        if (!Object.prototype.hasOwnProperty.call(reactions, title)) {
+          return null;
+        }
+
         reactions[title] = (reactions[title] || 0) + 1;
         await fs.writeFile(REACTIONS_FILE, JSON.stringify(reactions, null, 2), "utf-8");
 
         return reactions[title] as number;
       });
+
+      if (count === null) {
+        res.status(404).json({ error: "Nieznana pozycja." });
+        return;
+      }
 
       res.json({ success: true, count });
     } catch (error) {
@@ -694,9 +790,24 @@ async function startServer() {
     }
   });
 
-  app.post("/api/orders", async (req, res) => {
+  app.post("/api/orders", rateLimit(10, 10 * 60_000), async (req, res) => {
     try {
       const payload = req.body;
+
+      // Walidacja wejścia - przyjmujemy tylko sensowne zapytania
+      const rawCustomer = payload?.customer;
+      const name = trimmedString(rawCustomer?.name, 120);
+      const email = trimmedString(rawCustomer?.email, 160);
+      const items = Array.isArray(payload?.items) ? payload.items.slice(0, 30) : [];
+
+      if (!name || !EMAIL_RE.test(email)) {
+        res.status(400).json({ error: "Podaj poprawne imię i adres e-mail." });
+        return;
+      }
+      if (items.length === 0) {
+        res.status(400).json({ error: "Zapytanie nie zawiera żadnych pozycji." });
+        return;
+      }
 
       const order: OrderRecord = {
         id: randomUUID(),
@@ -704,9 +815,17 @@ async function startServer() {
         locale: payload?.locale === "en" ? "en" : "pl",
         status: "brief_pending",
         createdAt: new Date().toISOString(),
-        items: payload?.items ?? [],
-        subtotal: Number(payload?.subtotal ?? 0),
-        customer: payload?.customer,
+        items,
+        subtotal: Number.isFinite(Number(payload?.subtotal)) ? Number(payload.subtotal) : 0,
+        customer: {
+          name,
+          email,
+          phone: trimmedString(rawCustomer?.phone, 40),
+          company: trimmedString(rawCustomer?.company, 160),
+          taxId: trimmedString(rawCustomer?.taxId, 32),
+          paymentMethod: trimmedString(rawCustomer?.paymentMethod, 60),
+          notes: trimmedString(rawCustomer?.notes, 2000),
+        },
         briefAnswers: [],
         delivery: {
           savedToServer: true,
@@ -715,11 +834,13 @@ async function startServer() {
         },
       };
 
-      const emailState = await sendNewOrderNotification(order);
+      const adminState = await sendNewOrderNotification(order);
+      const customerState = await sendInquiryCustomerConfirmation(order);
       order.delivery = {
         ...order.delivery,
-        adminEmail: emailState.adminEmail,
-        message: emailState.message,
+        adminEmail: adminState.adminEmail,
+        customerEmail: customerState.customerEmail,
+        message: adminState.message || customerState.message,
       };
 
       await withFileLock(async () => {
@@ -733,7 +854,7 @@ async function startServer() {
     }
   });
 
-  app.patch("/api/orders/:id/brief", async (req, res) => {
+  app.patch("/api/orders/:id/brief", rateLimit(10, 10 * 60_000), async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -782,7 +903,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/orders/:id", async (req, res) => {
+  app.get("/api/orders/:id", rateLimit(60, 60_000), async (req, res) => {
     try {
       const orders = await readOrders();
       const order = orders.find((entry) => entry.id === req.params.id);
@@ -799,6 +920,11 @@ async function startServer() {
     }
   });
 
+  // Nieznane trasy /api/* dostają 404 JSON, a nie index.html ze statusem 200.
+  app.use("/api", (_req, res) => {
+    res.status(404).json({ error: "Nie znaleziono zasobu API." });
+  });
+
   // Wybieramy katalog ze zbudowanym frontem po tym, co realnie istnieje na dysku,
   // zamiast polegać wyłącznie na NODE_ENV (odporne na różne układy build/deploy).
   const staticCandidates = [
@@ -807,10 +933,30 @@ async function startServer() {
   ];
   const staticPath = staticCandidates.find((candidate) => existsSync(candidate)) ?? staticCandidates[0];
 
-  app.use(express.static(staticPath));
+  app.use(
+    express.static(staticPath, {
+      setHeaders(res, filePath) {
+        // Hashowane assety Vite - cache na rok; reszta (obrazki itd.) - doba.
+        if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        } else if (/\.(jpe?g|png|webp|avif|svg|ico|woff2?)$/i.test(filePath)) {
+          res.setHeader("Cache-Control", "public, max-age=86400");
+        }
+      },
+    })
+  );
 
   app.get("*", (_req, res) => {
+    res.setHeader("Cache-Control", "no-cache");
     res.sendFile(path.join(staticPath, "index.html"));
+  });
+
+  // Globalna siatka bezpieczeństwa - błąd w handlerze nie zabija procesu.
+  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("Nieobsłużony błąd żądania:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Błąd serwera." });
+    }
   });
 
   const port = process.env.PORT || 3000;
@@ -819,5 +965,12 @@ async function startServer() {
     console.log(`Server running on http://localhost:${port}/`);
   });
 }
+
+process.on("unhandledRejection", (reason) => {
+  console.error("unhandledRejection:", reason);
+});
+process.on("uncaughtException", (error) => {
+  console.error("uncaughtException:", error);
+});
 
 startServer().catch(console.error);

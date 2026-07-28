@@ -56,6 +56,7 @@ export default function OrderPage() {
       <section className="container py-14 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow={locale === "en" ? "Shop" : "Sklep"}
             title={locale === "en" ? "Graphic design store" : "Sklep z usługami graficznymi"}
             description={
@@ -73,7 +74,7 @@ export default function OrderPage() {
               : `${services.length} produktów w ofercie. Otwórz kartę, żeby zobaczyć galerię, pakiety i konfigurację.`}
           </div>
           <div className="text-xs font-bold uppercase tracking-[0.2em] text-gold">
-            {locale === "en" ? "From 149 PLN" : "Od 149 zł"}
+            {locale === "en" ? "From 99 PLN" : "Od 99 zł"}
           </div>
         </div>
 
@@ -182,6 +183,7 @@ export default function OrderPage() {
               <button
                 key={category}
                 type="button"
+                aria-pressed={isActive}
                 onClick={() => {
                   startTransition(() => {
                     setActiveCategory(nextValue);

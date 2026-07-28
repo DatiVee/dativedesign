@@ -185,7 +185,10 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
 
   const handleAddToCart = () => {
     addItem({
-      id: crypto.randomUUID(),
+      id:
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `item-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
       serviceSlug: service.slug,
       serviceName: service.name,
       packageSlug: selectedPackage.slug,
@@ -253,15 +256,6 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
                   {service.deliverables.length} {locale === "en" ? "deliverables listed" : "pozycji w pakiecie"}
                 </div>
               </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {service.benefits.map((benefit) => (
-                <div key={benefit} className="inline-flex items-start gap-3 text-sm text-white/68">
-                  <Check size={16} className="mt-0.5 shrink-0 text-gold" />
-                  <span>{benefit}</span>
-                </div>
-              ))}
             </div>
 
             <div className="product-media-frame overflow-hidden rounded-sm border border-white/5 bg-card">
@@ -392,6 +386,7 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
                   <button
                     key={item.slug}
                     type="button"
+                    aria-pressed={isActive}
                     onClick={() => handlePackageChange(item.slug)}
                     className={`rounded-sm border p-3 text-left transition-colors sm:p-4 ${
                       isActive ? "border-gold bg-gold/10" : "border-white/10 bg-background hover:border-gold/30"
@@ -440,6 +435,7 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
                           <button
                             key={choice.value}
                             type="button"
+                            aria-pressed={isActive}
                             onClick={() => handleConfigChange(field.id, choice.value)}
                             className={`flex items-center justify-between gap-3 rounded-sm border px-3 py-2.5 text-left text-sm transition-colors sm:gap-4 sm:px-4 sm:py-3 ${
                               isActive
@@ -465,35 +461,50 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
             ) : null}
 
             <div className="mt-8 grid gap-4">
-              <div className="text-xs font-bold uppercase tracking-wider text-white/35">
+              <div className="text-xs font-bold uppercase tracking-wider text-white/45">
                 {locale === "en" ? "Project parameters" : "Parametry projektu"}
               </div>
-              <input
-                value={brandName}
-                onChange={(event) => setBrandName(event.target.value)}
-                placeholder={locale === "en" ? "Brand / company name" : "Nazwa marki / firmy"}
-                className="h-11 rounded-sm border border-white/10 bg-background px-3 text-sm text-white outline-none sm:h-12 sm:px-4"
-              />
-              <input
-                value={scopeDetails}
-                onChange={(event) => setScopeDetails(event.target.value)}
-                placeholder={
-                  locale === "en"
-                    ? "Format, dimensions, quantity or basic project scope"
-                    : "Format, wymiary, ilość albo podstawowy zakres projektu"
-                }
-                className="h-11 rounded-sm border border-white/10 bg-background px-3 text-sm text-white outline-none sm:h-12 sm:px-4"
-              />
-              <textarea
-                value={notes}
-                onChange={(event) => setNotes(event.target.value)}
-                placeholder={
-                  locale === "en"
-                    ? "Add notes, inspiration or what should definitely be included."
-                    : "Dodaj notatki, inspiracje albo to, co ma się koniecznie znaleźć w projekcie."
-                }
-                className="min-h-24 rounded-sm border border-white/10 bg-background px-3 py-3 text-sm text-white outline-none sm:min-h-28 sm:px-4"
-              />
+              <label className="grid gap-1.5">
+                <span className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/45">
+                  {locale === "en" ? "Brand / company name" : "Nazwa marki / firmy"}
+                </span>
+                <input
+                  value={brandName}
+                  onChange={(event) => setBrandName(event.target.value)}
+                  placeholder={locale === "en" ? "e.g. DatiVe Design" : "np. DatiVe Design"}
+                  className="h-11 rounded-sm border border-white/10 bg-background px-3 text-sm text-white outline-none transition focus:border-gold/45 sm:h-12 sm:px-4"
+                />
+              </label>
+              <label className="grid gap-1.5">
+                <span className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/45">
+                  {locale === "en" ? "Scope / dimensions" : "Zakres / wymiary"}
+                </span>
+                <input
+                  value={scopeDetails}
+                  onChange={(event) => setScopeDetails(event.target.value)}
+                  placeholder={
+                    locale === "en"
+                      ? "Format, dimensions, quantity or basic project scope"
+                      : "Format, wymiary, ilość albo podstawowy zakres projektu"
+                  }
+                  className="h-11 rounded-sm border border-white/10 bg-background px-3 text-sm text-white outline-none transition focus:border-gold/45 sm:h-12 sm:px-4"
+                />
+              </label>
+              <label className="grid gap-1.5">
+                <span className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/45">
+                  {locale === "en" ? "Notes (optional)" : "Notatki (opcjonalnie)"}
+                </span>
+                <textarea
+                  value={notes}
+                  onChange={(event) => setNotes(event.target.value)}
+                  placeholder={
+                    locale === "en"
+                      ? "Add notes, inspiration or what should definitely be included."
+                      : "Dodaj notatki, inspiracje albo to, co ma się koniecznie znaleźć w projekcie."
+                  }
+                  className="min-h-24 rounded-sm border border-white/10 bg-background px-3 py-3 text-sm text-white outline-none transition focus:border-gold/45 sm:min-h-28 sm:px-4"
+                />
+              </label>
             </div>
 
             <div className="mt-6 rounded-sm border border-white/10 bg-background p-4 sm:mt-8 sm:p-5">
@@ -507,7 +518,7 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
                     {locale === "en" ? `${orderTotal} PLN` : `${orderTotal} zł`}
                   </div>
                   <div className="text-xs uppercase tracking-wide text-white/35">
-                    {locale === "en" ? "Current preview" : "Aktualna wycena"}
+                    {locale === "en" ? "Price-list total" : "Suma wg cennika"}
                   </div>
                 </div>
               </div>
@@ -697,8 +708,8 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">
                 {locale === "en"
-                  ? "Go back to the shop feed or jump straight to the cart if this product already fits."
-                  : "Wróć do feedu sklepu albo przejdź od razu do koszyka, jeśli ten produkt już Ci pasuje."}
+                  ? "Go back to the shop or jump straight to the cart if this product already fits."
+                  : "Wróć do sklepu albo przejdź od razu do koszyka, jeśli ten produkt już Ci pasuje."}
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">

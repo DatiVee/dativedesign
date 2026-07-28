@@ -1,6 +1,5 @@
-import { cn } from "@/lib/utils";
 import { AlertTriangle, RotateCcw } from "lucide-react";
-import { Component, ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -8,47 +7,37 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error: Error | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
-            <AlertTriangle
-              size={48}
-              className="text-destructive mb-6 flex-shrink-0"
-            />
-
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error.stack}
-              </pre>
-            </div>
-
+        <div className="flex min-h-screen items-center justify-center bg-background p-8">
+          <div className="flex w-full max-w-xl flex-col items-center text-center">
+            <AlertTriangle size={44} className="mb-6 shrink-0 text-gold" />
+            <h1 className="font-display text-2xl font-black text-white">
+              Coś poszło nie tak
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-white/60">
+              Wystąpił nieoczekiwany błąd. Odśwież stronę - jeśli problem się powtarza,
+              napisz do nas: kontakt@dativedesign.com
+            </p>
             <button
               onClick={() => window.location.reload()}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
-                "hover:opacity-90 cursor-pointer"
-              )}
+              className="gold-button-shimmer mt-7 inline-flex items-center gap-2 rounded-sm px-6 py-3 text-sm font-black uppercase tracking-wider text-background"
             >
               <RotateCcw size={16} />
-              Reload Page
+              Odśwież stronę
             </button>
           </div>
         </div>

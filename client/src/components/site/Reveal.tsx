@@ -59,7 +59,8 @@ export function Reveal({ children, className = "", delay = 0, as = "div" }: Reve
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(28px)",
         transition: `opacity 0.7s ease-out ${delay}ms, transform 0.7s ease-out ${delay}ms`,
-        willChange: "opacity, transform",
+        // will-change tylko przed animacją; po ujawnieniu zwalniamy warstwę kompozytora
+        willChange: visible ? "auto" : "opacity, transform",
       }}
     >
       {children}

@@ -225,21 +225,20 @@ async function sendDevNewOrderNotification(order: DevOrderRecord) {
   try {
     await sendDevResendEmail(config, {
       to: config.notifyEmail,
-      subject: `Nowe zamówienie ${order.number} - ${order.customer.company || order.customer.name}`,
+      subject: `Zapytanie o wycenę ${order.number} - ${order.customer.company || order.customer.name}`,
       text:
-        `NOWE ZAMÓWIENIE - CHECKOUT\n\n` +
-        `Numer zamówienia: ${order.number}\n` +
+        `NOWE ZAPYTANIE O WYCENĘ\n\n` +
+        `Numer zapytania: ${order.number}\n` +
         `Data: ${order.createdAt}\n` +
         `Klient: ${order.customer.name}\n` +
         `Email: ${order.customer.email}\n` +
-        `Telefon: ${order.customer.phone}\n` +
-        `Firma: ${order.customer.company}\n` +
+        `Telefon: ${order.customer.phone || "-"}\n` +
+        `Firma: ${order.customer.company || "-"}\n` +
         `NIP: ${order.customer.taxId || "-"}\n` +
-        `Płatność: ${order.customer.paymentMethod}\n` +
-        `Notatki: ${order.customer.notes || "-"}\n\n` +
+        `Wiadomość: ${order.customer.notes || "-"}\n\n` +
         `Pozycje:\n${formatDevOrderItems(order.items)}\n\n` +
-        `Łącznie: ${order.subtotal} zł\n\n` +
-        `Brief zostanie dosłany po kolejnym kroku formularza.`,
+        `Suma wg cennika: ${order.subtotal} zł\n\n` +
+        `Klient może jeszcze dosłać brief projektowy w osobnym mailu.`,
     });
 
     return { adminEmail: "sent" as DevDeliveryState };
@@ -268,10 +267,10 @@ async function sendDevBriefSubmittedEmails(order: DevOrderRecord) {
   try {
     await sendDevResendEmail(config, {
       to: config.notifyEmail,
-      subject: `Brief do zamówienia ${order.number} - ${order.customer.company || order.customer.name}`,
+      subject: `Brief do zapytania ${order.number} - ${order.customer.company || order.customer.name}`,
       text:
-        `BRIEF DO ZAMÓWIENIA\n\n` +
-        `Numer zamówienia: ${order.number}\n` +
+        `BRIEF DO ZAPYTANIA O WYCENĘ\n\n` +
+        `Numer zapytania: ${order.number}\n` +
         `Klient: ${order.customer.name}\n` +
         `Email: ${order.customer.email}\n` +
         `Telefon: ${order.customer.phone}\n` +
@@ -288,13 +287,13 @@ async function sendDevBriefSubmittedEmails(order: DevOrderRecord) {
   try {
     await sendDevResendEmail(config, {
       to: order.customer.email,
-      subject: `Potwierdzenie zamówienia ${order.number}`,
+      subject: `Brief przyjęty - zapytanie ${order.number}`,
       text:
-        `Dziękujemy za zamówienie w DatiVe Design.\n\n` +
-        `Numer zamówienia: ${order.number}\n` +
-        `Kwota: ${order.subtotal} zł\n` +
-        `Status: brief wysłany.\n\n` +
-        `Skontaktujemy się po weryfikacji briefu i potwierdzeniu zakresu realizacji.`,
+        `Dziękujemy za uzupełnienie briefu w DatiVe Design.\n\n` +
+        `Numer zapytania: ${order.number}\n` +
+        `Suma wg cennika: ${order.subtotal} zł\n` +
+        `Status: zapytanie + brief wysłane.\n\n` +
+        `Na tej podstawie przygotujemy dopasowaną wycenę i odpowiemy mailem - zwykle do 24h w dni robocze.`,
     });
     customerEmail = "sent";
   } catch (error) {
@@ -336,9 +335,29 @@ function vitePluginOrdersAPI(): Plugin {
             };
 
             const emailState = await sendDevNewOrderNotification(order);
+            let customerEmail: DevDeliveryState = "skipped";
+            const customerConfig = getEmailConfig();
+            if (customerConfig && order.customer?.email) {
+              try {
+                await sendDevResendEmail(customerConfig, {
+                  to: order.customer.email,
+                  subject: `Potwierdzenie zapytania ${order.number} - DatiVe Design`,
+                  text:
+                    `Dziękujemy za zapytanie o wycenę w DatiVe Design.\n\n` +
+                    `Numer zapytania: ${order.number}\n` +
+                    `Suma wg cennika: ${order.subtotal} zł\n\n` +
+                    `Pozycje:\n${formatDevOrderItems(order.items)}\n\n` +
+                    `Sprawdzimy zakres i odpowiemy z dopasowaną wyceną - zwykle do 24h w dni robocze.`,
+                });
+                customerEmail = "sent";
+              } catch {
+                customerEmail = "failed";
+              }
+            }
             order.delivery = {
               ...order.delivery,
               adminEmail: emailState.adminEmail,
+              customerEmail,
               message: emailState.message,
             };
 
@@ -380,6 +399,18 @@ function vitePluginOrdersAPI(): Plugin {
               message: emailState.message,
             };
 
+            // Jak na produkcji: na dysku tylko metadane załączników, bez base64.
+            updatedOrder.briefAnswers = (updatedOrder.briefAnswers as any[]).map((answer: any) => ({
+              ...answer,
+              attachments: Array.isArray(answer?.attachments)
+                ? answer.attachments.map((file: any) => ({
+                    name: file?.name,
+                    type: file?.type,
+                    size: file?.size,
+                  }))
+                : [],
+            }));
+
             orders[index] = updatedOrder;
             writeOrdersFile(orders);
 
@@ -416,10 +447,14 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
-          if (id.includes("react") || id.includes("scheduler")) return "react-vendor";
-          if (id.includes("framer-motion")) return "motion";
+          // Dokładne dopasowanie ścieżek - "react" jako substring łapałby też
+          // lucide-react, @radix-ui/react-* itd. i wsysał wszystko do jednego chunka.
+          if (
+            /node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)
+          ) {
+            return "react-vendor";
+          }
           if (id.includes("lucide-react")) return "icons";
-          if (id.includes("@radix-ui")) return "radix";
         },
       },
     },

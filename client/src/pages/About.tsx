@@ -23,6 +23,7 @@ export default function About() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow={locale === "en" ? "About" : "O nas"}
             title={locale === "en" ? "Graphic design built for real business use" : "Projektowanie graficzne tworzone pod realny biznes"}
             description={

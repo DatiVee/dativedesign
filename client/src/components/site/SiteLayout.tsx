@@ -12,8 +12,14 @@ export function SiteLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-sm focus:bg-gold focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-background"
+      >
+        {locale === "en" ? "Skip to content" : "Przejdź do treści"}
+      </a>
       <SiteHeader />
-      <main>{children}</main>
+      <main id="main">{children}</main>
       <div className="fixed inset-x-2 bottom-2 z-50 lg:hidden">
         <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-card/95 p-2 shadow-2xl backdrop-blur-xl">
           <Link

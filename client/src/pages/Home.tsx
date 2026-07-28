@@ -529,8 +529,8 @@ export default function Home() {
                   </h2>
                   <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/65 sm:text-base">
                     {locale === "en"
-                      ? "Compare services, add extras to the cart and move to checkout - a clean, structured buying flow from start to finish."
-                      : "Porównaj usługi, dodaj dodatki do koszyka i przejdź do checkoutu - prosty, uporządkowany proces od początku do końca."}
+                      ? "Compare services, add extras to the cart and send a free quote request - the tailored quote lands in your inbox."
+                      : "Porównaj usługi, dodaj dodatki do koszyka i wyślij bezpłatne zapytanie - dopasowana wycena przyjdzie na maila."}
                   </p>
                 </div>
                 <Link

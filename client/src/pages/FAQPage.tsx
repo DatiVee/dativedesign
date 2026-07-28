@@ -15,14 +15,14 @@ export default function FAQPage() {
           delivery: "Delivery & timeline",
           files: "Files & handoff",
           legal: "Rights & formalities",
-          payments: "Payments & checkout",
+          payments: "Payments & billing",
           process: "Process & brief",
         }
       : {
           realizacja: "Realizacja i terminy",
           pliki: "Pliki i przekazanie projektu",
           formalnosci: "Prawa i formalności",
-          platnosci: "Płatności i checkout",
+          platnosci: "Płatności i rozliczenia",
           proces: "Proces i brief",
         };
 
@@ -47,6 +47,7 @@ export default function FAQPage() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow="FAQ"
             title={locale === "en" ? "Questions before ordering a service" : "Pytania przed zamówieniem usługi"}
             description={

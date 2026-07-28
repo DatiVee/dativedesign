@@ -1,17 +1,6 @@
 {
   "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
-  "exclude": [
-    "node_modules",
-    "build",
-    "dist",
-    "**/*.test.ts",
-    "client/src/components/ui/**/*",
-    "client/src/components/ManusDialog.tsx",
-    "client/src/components/Map.tsx",
-    "client/src/components/ErrorBoundary.tsx",
-    "client/src/contexts/ThemeContext.tsx",
-    "client/src/hooks/useComposition.ts"
-  ],
+  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",

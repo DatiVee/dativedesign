@@ -14,8 +14,8 @@ export default function CartPage() {
   usePageMeta(
     locale === "en" ? "Cart | DatiVe Design" : "Koszyk | DatiVe Design",
     locale === "en"
-      ? "Cart for DatiVe Design graphic services. Review selected packages, extras, pricing and move to checkout."
-      : "Koszyk usług graficznych DatiVe Design. Sprawdź wybrane pakiety, dodatki, cenę i przejdź do checkoutu.",
+      ? "Cart for DatiVe Design graphic services. Review selected packages and send them as a free quote request."
+      : "Koszyk usług graficznych DatiVe Design. Sprawdź wybrane pakiety i wyślij je jako bezpłatne zapytanie o wycenę.",
     { locale, path: getStaticPath("cart"), robots: "noindex, follow" }
   );
 
@@ -24,12 +24,13 @@ export default function CartPage() {
       <SiteLayout>
         <section className="container py-24">
           <SectionHeading
+            as="h1"
             eyebrow={locale === "en" ? "Cart" : "Koszyk"}
             title={locale === "en" ? "Your cart is empty" : "Koszyk jest pusty"}
             description={
               locale === "en"
-                ? "Choose a service or package first. Then you can move to checkout and the project brief."
-                : "Najpierw wybierz usługę albo gotowy pakiet. Potem przejdziesz do checkoutu i briefu projektowego."
+                ? "Choose a service or package first. Then you can send everything as one free quote request."
+                : "Najpierw wybierz usługę albo gotowy pakiet. Potem wyślesz wszystko jako jedno bezpłatne zapytanie o wycenę."
             }
           />
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -57,12 +58,13 @@ export default function CartPage() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
+            as="h1"
             eyebrow={locale === "en" ? "Cart" : "Koszyk"}
-            title={locale === "en" ? "Order summary" : "Podsumowanie zamówienia"}
+            title={locale === "en" ? "Your selection" : "Twój wybór"}
             description={
               locale === "en"
-                ? "A clear view of what you're buying, what affects the price and what happens right after checkout."
-                : "Przejrzysty widok tego, co kupujesz, co wpływa na cenę i co wydarzy się zaraz po checkoutcie."
+                ? "A clear view of what you picked, what affects the price and what happens after you send the request."
+                : "Przejrzysty widok tego, co wybrałeś, co wpływa na cenę i co wydarzy się po wysłaniu zapytania."
             }
           />
         </Reveal>
@@ -70,14 +72,14 @@ export default function CartPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {(locale === "en"
             ? [
-                "1. Review the selected product and package.",
-                "2. Move to checkout and confirm customer details.",
-                "3. After checkout, complete the project brief.",
+                "1. Review the selected services and packages.",
+                "2. Send them as a free quote request with your contact details.",
+                "3. You get the quote and next steps by email.",
               ]
             : [
-                "1. Sprawdź wybrany produkt i pakiet.",
-                "2. Przejdź do checkoutu i potwierdź dane klienta.",
-                "3. Po checkoutcie uzupełnij brief projektowy.",
+                "1. Sprawdź wybrane usługi i pakiety.",
+                "2. Wyślij je jako bezpłatne zapytanie o wycenę ze swoimi danymi.",
+                "3. Wycenę i dalsze kroki dostaniesz na maila.",
               ]).map((item, index) => (
             <Reveal key={item} delay={index * 80} as="div" className="rounded-sm border border-white/8 bg-card px-5 py-4">
               <div className="text-xs font-bold uppercase tracking-[0.2em] text-gold">0{index + 1}</div>
@@ -175,7 +177,7 @@ export default function CartPage() {
 
           <aside className="rounded-sm border border-gold/20 bg-card p-6 sm:p-8">
             <div className="section-label mb-3">{locale === "en" ? "Summary" : "Podsumowanie"}</div>
-            <h2 className="font-display text-2xl font-black text-white">{locale === "en" ? "Total due" : "Do zapłaty"}</h2>
+            <h2 className="font-display text-2xl font-black text-white">{locale === "en" ? "Price-list total" : "Suma wg cennika"}</h2>
             <div className="mt-6 flex items-end justify-between gap-4 border-b border-white/5 pb-6">
               <span className="text-sm text-white/55">
                 {locale === "en" ? "Services and add-ons total" : "Suma usług i dodatków"}
@@ -191,8 +193,8 @@ export default function CartPage() {
                 </div>
                 <div className="mt-3 leading-relaxed">
                   {locale === "en"
-                    ? "After checkout you go straight to a short project brief. That's where we collect everything needed to start your project."
-                    : "Po checkoutcie przejdziesz od razu do krótkiego briefu projektowego. To tam zbieramy wszystko, co potrzebne, żeby ruszyć z Twoim projektem."}
+                    ? "You send this selection as a free quote request. We review the scope and reply by email with a tailored quote."
+                    : "Wysyłasz ten wybór jako bezpłatne zapytanie o wycenę. Sprawdzamy zakres i odpowiadamy mailem z dopasowaną wyceną."}
                 </div>
               </div>
               <div className="rounded-sm border border-white/10 bg-background px-4 py-4 text-sm text-white/65">
@@ -202,8 +204,8 @@ export default function CartPage() {
                 </div>
                 <div className="mt-3 leading-relaxed">
                   {locale === "en"
-                    ? "Placing the order is the start of our conversation. We confirm the scope and timeline with you before any work begins."
-                    : "Złożenie zamówienia to początek rozmowy. Zakres i termin potwierdzamy z Tobą, zanim ruszymy z realizacją."}
+                    ? "No payment and no obligation at this stage. Scope, price and timeline are confirmed with you before any work begins."
+                    : "Na tym etapie nie ma żadnej płatności ani zobowiązania. Zakres, cenę i termin potwierdzamy z Tobą przed startem prac."}
                 </div>
               </div>
             </div>
@@ -213,13 +215,20 @@ export default function CartPage() {
                 href={getStaticPath("checkout")}
                 className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background"
               >
-                {locale === "en" ? "Go to checkout" : "Przejdź do checkoutu"}
+                {locale === "en" ? "Request a quote" : "Zapytaj o wycenę"}
                 <ArrowRight size={16} />
               </Link>
               <button
                 type="button"
-                onClick={clearCart}
-                className="inline-flex items-center justify-center rounded-sm border border-white/10 px-6 py-4 text-sm font-black uppercase tracking-wider text-white/60"
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    locale === "en"
+                      ? "Remove all items from the cart?"
+                      : "Usunąć wszystkie pozycje z koszyka?"
+                  );
+                  if (confirmed) clearCart();
+                }}
+                className="inline-flex items-center justify-center rounded-sm border border-white/10 px-6 py-4 text-sm font-black uppercase tracking-wider text-white/60 transition hover:border-white/25 hover:text-white"
               >
                 {locale === "en" ? "Clear cart" : "Wyczyść koszyk"}
               </button>

@@ -25,6 +25,7 @@ export default function NotFound() {
           <div className="font-display text-7xl font-black leading-none text-gold sm:text-9xl">404</div>
           <div className="mt-6 max-w-2xl">
             <SectionHeading
+              as="h1"
               eyebrow={locale === "en" ? "Page not found" : "Nie znaleziono strony"}
               title={locale === "en" ? "This page doesn't exist" : "Tej strony nie ma"}
               description={

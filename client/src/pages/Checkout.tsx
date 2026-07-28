@@ -1,4 +1,4 @@
-import { CreditCard, FileText, ShoppingBag } from "lucide-react";
+import { FileText, Mail, ShoppingBag } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -10,52 +10,74 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { useOrderFlow } from "@/contexts/OrderFlowContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
-type CheckoutForm = {
+type QuoteForm = {
   name: string;
   email: string;
   phone: string;
   company: string;
   taxId: string;
-  payment: string;
   notes: string;
 };
 
-const initialForm: CheckoutForm = {
+const initialForm: QuoteForm = {
   name: "",
   email: "",
   phone: "",
   company: "",
   taxId: "",
-  payment: "stripe",
   notes: "",
 };
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+type FieldProps = {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+};
+
+function Field({ label, required, children }: FieldProps) {
+  return (
+    <label className="grid gap-1.5">
+      <span className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/38">
+        {label}
+        {required ? <span className="ml-1 text-gold">*</span> : null}
+      </span>
+      {children}
+    </label>
+  );
+}
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const { locale, getStaticPath } = useLocale();
   const { createCheckoutOrder, isSubmitting } = useOrderFlow();
   const [, navigate] = useLocation();
-  const [form, setForm] = useState<CheckoutForm>(initialForm);
+  const [form, setForm] = useState<QuoteForm>(initialForm);
 
   usePageMeta(
-    "Checkout | DatiVe Design",
+    locale === "en" ? "Quote request | DatiVe Design" : "Zapytanie o wycenę | DatiVe Design",
     locale === "en"
-      ? "Checkout for DatiVe Design graphic services: selected packages, client details, payment method and the path to the brief after purchase."
-      : "Checkout dla usług graficznych DatiVe Design. Podsumowanie pakietów, dane klienta, wybór płatności i przejście do briefu po zakupie.",
+      ? "Send a free quote request for the selected DatiVe Design services. You will receive a tailored quote and next steps by email."
+      : "Wyślij bezpłatne zapytanie o wycenę wybranych usług DatiVe Design. Dostaniesz dopasowaną wycenę i dalsze kroki na maila.",
     { locale, path: getStaticPath("checkout"), robots: "noindex, follow" }
   );
+
+  const inputClass =
+    "h-12 w-full rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none transition focus:border-gold/45 disabled:opacity-60";
 
   if (items.length === 0) {
     return (
       <SiteLayout>
         <section className="container py-24">
           <SectionHeading
-            eyebrow="Checkout"
-            title={locale === "en" ? "There is nothing to pay for yet" : "Nie ma czego opłacić"}
+            as="h1"
+            eyebrow={locale === "en" ? "Quote request" : "Zapytanie o wycenę"}
+            title={locale === "en" ? "Your inquiry is empty" : "Twoje zapytanie jest puste"}
             description={
               locale === "en"
-                ? "Add a service to the cart first. Checkout only makes sense when the client has selected a package."
-                : "Najpierw dodaj usługę do koszyka. Checkout działa dopiero, kiedy klient ma wybrane pakiety."
+                ? "Choose a service and package first - then send everything as one quote request."
+                : "Najpierw wybierz usługę i pakiet - potem wyślesz wszystko jako jedno zapytanie o wycenę."
             }
           />
           <div className="mt-8">
@@ -63,7 +85,7 @@ export default function CheckoutPage() {
               href={getStaticPath("order")}
               className="gold-button-shimmer inline-flex items-center justify-center rounded-sm px-7 py-4 text-sm font-black uppercase tracking-wider text-background"
             >
-              {locale === "en" ? "Back to offer" : "Wróć do oferty"}
+              {locale === "en" ? "Browse services" : "Przeglądaj usługi"}
             </Link>
           </div>
         </section>
@@ -71,14 +93,21 @@ export default function CheckoutPage() {
     );
   }
 
-  const submitCheckout = async (event: FormEvent<HTMLFormElement>) => {
+  const submitQuote = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!form.name || !form.email || !form.phone || !form.company) {
+    if (!form.name.trim() || !form.email.trim()) {
       toast.error(
         locale === "en"
-          ? "Fill in the customer data before moving on."
-          : "Uzupełnij dane klienta, zanim przejdziesz dalej."
+          ? "Enter your name and email so we can reply with the quote."
+          : "Podaj imię i adres e-mail, żebyśmy mogli odesłać wycenę."
+      );
+      return;
+    }
+
+    if (!EMAIL_RE.test(form.email.trim())) {
+      toast.error(
+        locale === "en" ? "This email address looks invalid." : "Ten adres e-mail wygląda na niepoprawny."
       );
       return;
     }
@@ -89,23 +118,25 @@ export default function CheckoutPage() {
         items,
         subtotal,
         customer: {
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          company: form.company,
-          taxId: form.taxId,
-          paymentMethod: form.payment,
-          notes: form.notes,
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          company: form.company.trim(),
+          taxId: form.taxId.trim(),
+          paymentMethod: locale === "en" ? "quote request" : "zapytanie o wycenę",
+          notes: form.notes.trim(),
         },
       });
       clearCart();
-      toast.success(locale === "en" ? "Order moved to brief." : "Zamówienie przeszło do briefu.");
+      toast.success(
+        locale === "en" ? "Quote request sent!" : "Zapytanie o wycenę wysłane!"
+      );
       navigate(getStaticPath("brief"));
     } catch {
       toast.error(
         locale === "en"
-          ? "The order could not be saved on the server."
-          : "Nie udało się zapisać zamówienia po stronie serwera."
+          ? "The request could not be sent. Please try again."
+          : "Nie udało się wysłać zapytania. Spróbuj ponownie."
       );
     }
   };
@@ -115,12 +146,13 @@ export default function CheckoutPage() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
-            eyebrow="Checkout"
-            title={locale === "en" ? "Finalize the order and move to the brief" : "Domknij zamówienie i przejdź do briefu"}
+            as="h1"
+            eyebrow={locale === "en" ? "Quote request" : "Zapytanie o wycenę"}
+            title={locale === "en" ? "Send a free quote request" : "Wyślij bezpłatne zapytanie o wycenę"}
             description={
               locale === "en"
-                ? "Customer details, payment method, order summary - and then the short project brief."
-                : "Dane klienta, metoda płatności, podsumowanie zamówienia - a potem krótki brief projektowy."
+                ? "No payment now, no obligation. You send the selected packages with your contact details - we reply by email with a tailored quote and next steps."
+                : "Bez płatności i bez zobowiązań. Wysyłasz wybrane pakiety ze swoimi danymi kontaktowymi - odpowiadamy mailem z dopasowaną wyceną i dalszymi krokami."
             }
           />
         </Reveal>
@@ -129,134 +161,138 @@ export default function CheckoutPage() {
           <div className="rounded-sm border border-white/8 bg-card px-5 py-4">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
               <ShoppingBag size={14} />
-              {locale === "en" ? "Cart" : "Koszyk"}
+              {locale === "en" ? "1. Selection" : "1. Wybór"}
             </div>
             <div className="mt-3 text-sm text-white/72">
-              {locale === "en" ? "The product and package are already chosen." : "Produkt i pakiet są już wybrane."}
+              {locale === "en" ? "Your services and packages are picked." : "Usługi i pakiety masz już wybrane."}
             </div>
           </div>
           <div className="rounded-sm border border-gold/20 bg-gold/8 px-5 py-4">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
-              <CreditCard size={14} />
-              Checkout
+              <Mail size={14} />
+              {locale === "en" ? "2. Request" : "2. Zapytanie"}
             </div>
             <div className="mt-3 text-sm text-white/72">
-              {locale === "en" ? "Now we confirm the buyer and payment route." : "Tutaj potwierdzamy kupującego i ścieżkę płatności."}
+              {locale === "en"
+                ? "Leave your contact details and send the inquiry."
+                : "Zostaw dane kontaktowe i wyślij zapytanie."}
             </div>
           </div>
           <div className="rounded-sm border border-white/8 bg-card px-5 py-4">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold">
               <FileText size={14} />
-              Brief
+              {locale === "en" ? "3. Quote" : "3. Wycena"}
             </div>
             <div className="mt-3 text-sm text-white/72">
-              {locale === "en" ? "Right after checkout, the client fills in the full project input." : "Zaraz po checkoutcie klient uzupełnia pełny brief projektowy."}
+              {locale === "en"
+                ? "You get the quote and next steps by email."
+                : "Wycenę i dalsze kroki dostajesz na maila."}
             </div>
           </div>
         </div>
 
         <div className="mt-10 grid gap-8 xl:grid-cols-[1fr_0.9fr]">
-          <form onSubmit={submitCheckout} className="rounded-sm border border-white/5 bg-card p-6 sm:p-8">
+          <form onSubmit={submitQuote} className="rounded-sm border border-white/5 bg-card p-6 sm:p-8">
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
-                disabled={isSubmitting}
-                value={form.name}
-                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                placeholder={locale === "en" ? "Full name" : "Imię i nazwisko"}
-                className="h-12 rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none disabled:opacity-60"
-              />
-              <input
-                disabled={isSubmitting}
-                value={form.email}
-                onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                placeholder={locale === "en" ? "Email address" : "Adres e-mail"}
-                className="h-12 rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none disabled:opacity-60"
-              />
+              <Field label={locale === "en" ? "Full name" : "Imię i nazwisko"} required>
+                <input
+                  disabled={isSubmitting}
+                  autoComplete="name"
+                  value={form.name}
+                  onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                  placeholder={locale === "en" ? "e.g. John Smith" : "np. Jan Kowalski"}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={locale === "en" ? "Email address" : "Adres e-mail"} required>
+                <input
+                  disabled={isSubmitting}
+                  type="email"
+                  autoComplete="email"
+                  value={form.email}
+                  onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                  placeholder={locale === "en" ? "e.g. john@company.com" : "np. jan@firma.pl"}
+                  className={inputClass}
+                />
+              </Field>
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <input
-                disabled={isSubmitting}
-                value={form.phone}
-                onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-                placeholder={locale === "en" ? "Phone number" : "Numer telefonu"}
-                className="h-12 rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none disabled:opacity-60"
-              />
-              <input
-                disabled={isSubmitting}
-                value={form.company}
-                onChange={(event) => setForm((current) => ({ ...current, company: event.target.value }))}
-                placeholder={locale === "en" ? "Company / brand" : "Firma / marka"}
-                className="h-12 rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none disabled:opacity-60"
-              />
+              <Field label={locale === "en" ? "Phone (optional)" : "Telefon (opcjonalnie)"}>
+                <input
+                  disabled={isSubmitting}
+                  type="tel"
+                  autoComplete="tel"
+                  value={form.phone}
+                  onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                  placeholder={locale === "en" ? "If you prefer a call" : "Jeśli wolisz kontakt telefoniczny"}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={locale === "en" ? "Company / brand (optional)" : "Firma / marka (opcjonalnie)"}>
+                <input
+                  disabled={isSubmitting}
+                  autoComplete="organization"
+                  value={form.company}
+                  onChange={(event) => setForm((current) => ({ ...current, company: event.target.value }))}
+                  placeholder={locale === "en" ? "Who is the project for?" : "Dla kogo jest projekt?"}
+                  className={inputClass}
+                />
+              </Field>
             </div>
 
-            <input
-              disabled={isSubmitting}
-              value={form.taxId}
-              onChange={(event) => setForm((current) => ({ ...current, taxId: event.target.value }))}
-              placeholder={locale === "en" ? "Tax ID / VAT ID (optional)" : "NIP (opcjonalnie)"}
-              className="mt-4 h-12 w-full rounded-sm border border-white/10 bg-background px-4 text-sm text-white outline-none disabled:opacity-60"
-            />
-
-            <div className="mt-6">
-              <div className="mb-3 text-xs font-bold uppercase tracking-wider text-white/35">
-                {locale === "en" ? "Payment method" : "Wybór płatności"}
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                  ["stripe", "Stripe"],
-                  ["przelewy24", "Przelewy24"],
-                  ["blik", "BLIK"],
-                  ["paypal", "PayPal"],
-                ].map(([value, label]) => {
-                  const active = form.payment === value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      disabled={isSubmitting}
-                      onClick={() => setForm((current) => ({ ...current, payment: value }))}
-                      className={`rounded-sm border px-4 py-3 text-left text-sm transition-colors ${
-                        active ? "border-gold bg-gold/10 text-gold" : "border-white/10 bg-background text-white/65"
-                      } disabled:opacity-60`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
+            <div className="mt-4">
+              <Field label={locale === "en" ? "Tax ID (optional)" : "NIP (opcjonalnie)"}>
+                <input
+                  disabled={isSubmitting}
+                  value={form.taxId}
+                  onChange={(event) => setForm((current) => ({ ...current, taxId: event.target.value }))}
+                  placeholder={locale === "en" ? "For the invoice later" : "Do późniejszej faktury"}
+                  className={inputClass}
+                />
+              </Field>
             </div>
 
-            <textarea
-              disabled={isSubmitting}
-              value={form.notes}
-              onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
-              placeholder={
-                locale === "en"
-                  ? "Optional order notes before the full brief: preferred contact hours, invoice notes, urgent constraints."
-                  : "Opcjonalne notatki przed pełnym briefem: preferowane godziny kontaktu, uwagi do faktury, pilne ograniczenia."
-              }
-              className="mt-6 min-h-36 w-full rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none disabled:opacity-60"
-            />
+            <div className="mt-4">
+              <Field label={locale === "en" ? "Message (optional)" : "Wiadomość (opcjonalnie)"}>
+                <textarea
+                  disabled={isSubmitting}
+                  value={form.notes}
+                  onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
+                  placeholder={
+                    locale === "en"
+                      ? "Anything that helps with the quote: deadline, budget range, links, questions."
+                      : "Wszystko, co pomoże w wycenie: termin, widełki budżetu, linki, pytania."
+                  }
+                  className="min-h-32 w-full rounded-sm border border-white/10 bg-background px-4 py-3 text-sm text-white outline-none transition focus:border-gold/45 disabled:opacity-60"
+                />
+              </Field>
+            </div>
 
             <button
               disabled={isSubmitting}
               type="submit"
-              className="gold-button-shimmer mt-6 inline-flex w-full items-center justify-center rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background disabled:opacity-60"
+              className="gold-button-shimmer mt-6 inline-flex w-full items-center justify-center gap-2 rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background disabled:opacity-60"
             >
+              <Mail size={16} />
               {isSubmitting
                 ? locale === "en"
-                  ? "Saving order..."
-                  : "Zapisywanie zamówienia..."
+                  ? "Sending..."
+                  : "Wysyłanie..."
                 : locale === "en"
-                  ? "Continue to project brief"
-                  : "Przejdź do briefu projektowego"}
+                  ? "Send quote request"
+                  : "Wyślij zapytanie o wycenę"}
             </button>
+
+            <p className="mt-3 text-center text-xs leading-relaxed text-white/40">
+              {locale === "en"
+                ? "Free and non-binding. We reply within 24h on business days."
+                : "Bezpłatnie i bez zobowiązań. Odpowiadamy do 24h w dni robocze."}
+            </p>
           </form>
 
-          <aside className="rounded-sm border border-gold/20 bg-card p-6 sm:p-8">
-            <div className="section-label mb-3">{locale === "en" ? "Summary" : "Podsumowanie"}</div>
+          <aside className="self-start rounded-sm border border-gold/20 bg-card p-6 sm:p-8">
+            <div className="section-label mb-3">{locale === "en" ? "Your inquiry" : "Twoje zapytanie"}</div>
             <div className="grid gap-4 border-b border-white/5 pb-6">
               {items.map((item) => {
                 const addonsTotal = item.addons.reduce((sum, addon) => sum + addon.price, 0);
@@ -282,20 +318,22 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mt-6 flex items-end justify-between gap-4">
-              <span className="text-sm text-white/55">{locale === "en" ? "Total" : "Łącznie"}</span>
+              <span className="text-sm text-white/55">
+                {locale === "en" ? "Price-list estimate" : "Suma wg cennika"}
+              </span>
               <span className="font-display text-4xl font-black text-gold">{subtotal} zł</span>
             </div>
 
             <div className="mt-6 grid gap-3 text-sm text-white/60">
               <div>
                 {locale === "en"
-                  ? "After you confirm, you go straight to a short brief where you describe your project."
-                  : "Po potwierdzeniu przejdziesz od razu do krótkiego briefu, w którym opiszesz swój projekt."}
+                  ? "This is the price-list total for your selection. The final quote lands in your inbox after we review the scope."
+                  : "To suma cennikowa Twojego wyboru. Ostateczna wycena przyjdzie na maila po weryfikacji zakresu."}
               </div>
               <div>
                 {locale === "en"
-                  ? "We confirm the scope, price and timeline with you before starting any work."
-                  : "Zakres, cenę i termin potwierdzamy z Tobą, zanim rozpoczniemy pracę."}
+                  ? "After sending you can optionally add a project brief - it speeds up the quote."
+                  : "Po wysłaniu możesz opcjonalnie uzupełnić brief projektowy - to przyspiesza wycenę."}
               </div>
             </div>
           </aside>

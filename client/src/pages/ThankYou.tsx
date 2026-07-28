@@ -14,22 +14,25 @@ export default function ThankYouPage() {
   usePageMeta(
     locale === "en" ? "Thank You | DatiVe Design" : "Dziękujemy | DatiVe Design",
     locale === "en"
-      ? "Order confirmation page for DatiVe Design. Summary of the service order, current status and next project steps."
-      : "Strona potwierdzenia zamówienia DatiVe Design. Podsumowanie zakupu usługi, aktualny status i kolejne kroki projektu.",
+      ? "Quote request confirmation for DatiVe Design. Summary of the selected services and next steps."
+      : "Potwierdzenie zapytania o wycenę DatiVe Design. Podsumowanie wybranych usług i dalsze kroki.",
     { locale, path: getStaticPath("thankYou"), robots: "noindex, follow" }
   );
+
+  const briefDone = activeOrder?.status === "brief_submitted";
 
   if (!activeOrder) {
     return (
       <SiteLayout>
         <section className="container py-24">
           <SectionHeading
+            as="h1"
             eyebrow={locale === "en" ? "Thank you" : "Dziękujemy"}
-            title={locale === "en" ? "There is no recent order to display" : "Nie ma świeżego zamówienia do wyświetlenia"}
+            title={locale === "en" ? "There is no recent inquiry to display" : "Nie ma świeżego zapytania do wyświetlenia"}
             description={
               locale === "en"
-                ? "The confirmation page appears after checkout and brief completion."
-                : "Strona potwierdzenia pojawia się po checkoutcie i uzupełnieniu briefu."
+                ? "The confirmation page appears after you send a quote request."
+                : "Strona potwierdzenia pojawia się po wysłaniu zapytania o wycenę."
             }
           />
           <div className="mt-8">
@@ -50,12 +53,13 @@ export default function ThankYouPage() {
       <section className="container py-20 sm:py-24">
         <Reveal>
           <SectionHeading
-            eyebrow={locale === "en" ? "Thank you for your order" : "Dziękujemy za zamówienie"}
-            title={locale === "en" ? "Your order has been received" : "Twoje zamówienie zostało przyjęte"}
+            as="h1"
+            eyebrow={locale === "en" ? "Thank you" : "Dziękujemy"}
+            title={locale === "en" ? "Your quote request has been sent" : "Twoje zapytanie o wycenę zostało wysłane"}
             description={
               locale === "en"
-                ? "Your project brief is already saved. The next step is review, confirmation of the scope and moving the project into production."
-                : "Twój brief projektowy został już zapisany. Teraz kolejnym krokiem jest weryfikacja zgłoszenia, potwierdzenie zakresu i przejście do realizacji."
+                ? "We will review the scope and reply by email with a tailored quote and next steps - usually within 24h on business days."
+                : "Sprawdzimy zakres i odpowiemy mailem z dopasowaną wyceną i dalszymi krokami - zwykle do 24h w dni robocze."
             }
           />
         </Reveal>
@@ -63,12 +67,16 @@ export default function ThankYouPage() {
         <div className="mt-10 rounded-sm border border-gold/20 bg-gradient-to-r from-gold/12 via-card to-card p-6 sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="section-label mb-3">{locale === "en" ? "Order number" : "Numer zamówienia"}</div>
+              <div className="section-label mb-3">{locale === "en" ? "Inquiry number" : "Numer zapytania"}</div>
               <h2 className="font-display text-4xl font-black text-white">{activeOrder.number}</h2>
               <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/65">
-                {locale === "en"
-                  ? "The order details and the full brief are already saved on the server. I can now review the request and prepare the next production step."
-                  : "Dane zamówienia i pełny brief są już zapisane na serwerze. Teraz mogę przejrzeć zgłoszenie i przygotować kolejny krok realizacji."}
+                {briefDone
+                  ? locale === "en"
+                    ? "Your inquiry and the project brief have reached us. Keep this number - we will reference it in the quote email."
+                    : "Twoje zapytanie razem z briefem projektowym do nas dotarło. Zachowaj ten numer - powołamy się na niego w mailu z wyceną."
+                  : locale === "en"
+                    ? "Your inquiry has reached us. Keep this number - we will reference it in the quote email."
+                    : "Twoje zapytanie do nas dotarło. Zachowaj ten numer - powołamy się na niego w mailu z wyceną."}
               </p>
             </div>
             <div className="rounded-sm border border-white/10 bg-background px-5 py-4 text-right">
@@ -76,7 +84,13 @@ export default function ThankYouPage() {
                 {locale === "en" ? "Status" : "Status"}
               </div>
               <div className="mt-3 text-lg font-semibold text-gold">
-                {locale === "en" ? "Brief submitted" : "Brief wysłany"}
+                {briefDone
+                  ? locale === "en"
+                    ? "Inquiry + brief sent"
+                    : "Zapytanie + brief wysłane"
+                  : locale === "en"
+                    ? "Inquiry sent"
+                    : "Zapytanie wysłane"}
               </div>
               <div className="mt-2 text-xs text-white/45">
                 {activeOrder.delivery.savedToServer
@@ -98,21 +112,27 @@ export default function ThankYouPage() {
               {[
                 {
                   icon: ShoppingBag,
-                  title: locale === "en" ? "1. Your order details are saved" : "1. Dane zamówienia zostały zapisane",
+                  title:
+                    locale === "en"
+                      ? "1. Your selection and contact details reached us"
+                      : "1. Twój wybór i dane kontaktowe do nas dotarły",
                 },
                 {
                   icon: FileText,
-                  title:
-                    locale === "en"
-                      ? "2. The project brief is attached to the order"
-                      : "2. Brief projektowy został przypisany do zamówienia",
+                  title: briefDone
+                    ? locale === "en"
+                      ? "2. The project brief is attached to your inquiry"
+                      : "2. Brief projektowy został dołączony do zapytania"
+                    : locale === "en"
+                      ? "2. You skipped the brief - you can still add details when we reply"
+                      : "2. Brief pominięty - szczegóły możesz dosłać w odpowiedzi na maila",
                 },
                 {
                   icon: CheckCircle2,
                   title:
                     locale === "en"
-                      ? "3. The project is ready for review and production planning"
-                      : "3. Zamówienie jest gotowe do weryfikacji i planowania realizacji",
+                      ? "3. We review the scope and prepare your quote"
+                      : "3. Weryfikujemy zakres i przygotowujemy wycenę",
                 },
                 {
                   icon: Mail,
@@ -122,8 +142,8 @@ export default function ThankYouPage() {
                         ? "4. A confirmation has been sent to your inbox"
                         : "4. Potwierdzenie trafiło na Twojego maila"
                       : locale === "en"
-                        ? "4. Keep your order number - we'll get back to you by email or phone"
-                        : "4. Zachowaj numer zamówienia - odezwiemy się mailowo lub telefonicznie",
+                        ? "4. The quote lands in your inbox - usually within 24h"
+                        : "4. Wycena przyjdzie na Twojego maila - zwykle do 24h",
                 },
               ].map((step) => (
                 <div key={step.title} className="rounded-sm border border-white/8 bg-background px-4 py-4">
@@ -154,28 +174,44 @@ export default function ThankYouPage() {
             </div>
 
             <div className="mt-6 flex items-end justify-between gap-4">
-              <span className="text-sm text-white/55">{locale === "en" ? "Order total" : "Łącznie"}</span>
+              <span className="text-sm text-white/55">
+                {locale === "en" ? "Price-list total" : "Suma wg cennika"}
+              </span>
               <span className="font-display text-4xl font-black text-gold">{activeOrder.subtotal} zł</span>
             </div>
 
             <div className="mt-6 grid gap-3 text-sm text-white/60">
               <div>{locale === "en" ? `Client: ${activeOrder.customer.name}` : `Klient: ${activeOrder.customer.name}`}</div>
               <div>{locale === "en" ? `Email: ${activeOrder.customer.email}` : `Email: ${activeOrder.customer.email}`}</div>
-              <div>{locale === "en" ? `Company: ${activeOrder.customer.company}` : `Firma: ${activeOrder.customer.company}`}</div>
+              {activeOrder.customer.company ? (
+                <div>{locale === "en" ? `Company: ${activeOrder.customer.company}` : `Firma: ${activeOrder.customer.company}`}</div>
+              ) : null}
             </div>
 
             <div className="mt-8 flex flex-col gap-3">
+              {!briefDone ? (
+                <Link
+                  href={getStaticPath("brief")}
+                  className="gold-button-shimmer inline-flex items-center justify-center rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background"
+                >
+                  {locale === "en" ? "Add project brief" : "Uzupełnij brief projektu"}
+                </Link>
+              ) : null}
               <Link
                 href={getStaticPath("home")}
-                className="gold-button-shimmer inline-flex items-center justify-center rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background"
+                className={
+                  briefDone
+                    ? "gold-button-shimmer inline-flex items-center justify-center rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background"
+                    : "inline-flex items-center justify-center rounded-sm border border-gold/30 px-6 py-4 text-sm font-black uppercase tracking-wider text-gold"
+                }
               >
                 {locale === "en" ? "Back to homepage" : "Wróć na stronę główną"}
               </Link>
               <Link
                 href={getStaticPath("order")}
-                className="inline-flex items-center justify-center rounded-sm border border-gold/30 px-6 py-4 text-sm font-black uppercase tracking-wider text-gold"
+                className="inline-flex items-center justify-center rounded-sm border border-white/10 px-6 py-4 text-sm font-black uppercase tracking-wider text-white/60"
               >
-                {locale === "en" ? "Order another service" : "Zamów kolejną usługę"}
+                {locale === "en" ? "Browse more services" : "Przeglądaj więcej usług"}
               </Link>
             </div>
           </aside>

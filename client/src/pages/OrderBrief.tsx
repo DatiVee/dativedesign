@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -110,6 +110,12 @@ export default function OrderBriefPage() {
 
   const [answers, setAnswers] = useState<OrderBriefAnswer[]>(initialAnswers);
 
+  // activeOrder ładuje się asynchronicznie z localStorage - po odświeżeniu strony
+  // stan startuje pusty, więc uzupełniamy go, gdy tylko zamówienie się pojawi.
+  useEffect(() => {
+    setAnswers((current) => (current.length === 0 ? initialAnswers : current));
+  }, [initialAnswers]);
+
   usePageMeta(
     locale === "en" ? "Project Brief | DatiVe Design" : "Brief projektowy | DatiVe Design",
     locale === "en"
@@ -126,13 +132,13 @@ export default function OrderBriefPage() {
             eyebrow="Brief"
             title={
               locale === "en"
-                ? "There is no active order to complete"
-                : "Nie ma aktywnego zamówienia do uzupełnienia"
+                ? "There is no inquiry to complete"
+                : "Nie ma zapytania do uzupełnienia"
             }
             description={
               locale === "en"
-                ? "The brief appears only after the checkout creates an order record."
-                : "Brief pojawia się dopiero wtedy, kiedy checkout utworzy rekord zamówienia."
+                ? "The brief appears after you send a quote request from the cart."
+                : "Brief pojawia się po wysłaniu zapytania o wycenę z koszyka."
             }
           />
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -241,6 +247,15 @@ export default function OrderBriefPage() {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (answers.length === 0) {
+      toast.error(
+        locale === "en"
+          ? "The brief has not loaded yet. Try again in a moment."
+          : "Brief jeszcze się nie załadował. Spróbuj za chwilę."
+      );
+      return;
+    }
+
     const hasMissing = answers.some(
       (answer) =>
         !answer.brandName ||
@@ -278,22 +293,22 @@ export default function OrderBriefPage() {
         <div className="grid gap-5 rounded-sm border border-gold/20 bg-card p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <div className="section-label mb-3">
-              {locale === "en" ? "Brief after checkout" : "Brief po checkoutcie"}
+              {locale === "en" ? "Optional step" : "Krok opcjonalny"}
             </div>
             <h1 className="max-w-4xl font-display text-3xl font-black leading-[1.04] text-white sm:text-5xl">
-              {locale === "en" ? "Complete the project brief" : "Uzupełnij brief projektu"}
+              {locale === "en" ? "Speed up your quote with a brief" : "Przyspiesz wycenę briefem"}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65 sm:text-base">
               {locale === "en"
-                ? "The first order email has already been sent. This step sends the full production brief."
-                : "Pierwszy mail z zamówieniem już poszedł. Ten krok dosyła pełny brief produkcyjny."}
+                ? "Your quote request has been sent. If you add a few project details now, the quote will be more accurate and faster - but you can skip this step."
+                : "Twoje zapytanie o wycenę zostało wysłane. Jeśli teraz dodasz kilka szczegółów projektu, wycena będzie trafniejsza i szybsza - ale możesz ten krok pominąć."}
             </p>
           </div>
 
           <div className="grid gap-3 rounded-sm border border-white/8 bg-background p-4 text-sm sm:min-w-72">
             <div>
               <div className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-white/35">
-                {locale === "en" ? "Order number" : "Numer zamówienia"}
+                {locale === "en" ? "Inquiry number" : "Numer zapytania"}
               </div>
               <div className="mt-1 font-display text-2xl font-black text-gold">{activeOrder.number}</div>
             </div>
@@ -305,7 +320,7 @@ export default function OrderBriefPage() {
               <span>
                 {locale === "en" ? "Status" : "Status"}:{" "}
                 <strong className="text-white">
-                  {locale === "en" ? "Brief pending" : "Brief do uzupełnienia"}
+                  {locale === "en" ? "Inquiry sent" : "Zapytanie wysłane"}
                 </strong>
               </span>
             </div>
@@ -464,28 +479,38 @@ export default function OrderBriefPage() {
               <div>
                 <div className="section-label mb-2">{locale === "en" ? "Final step" : "Ostatni krok"}</div>
                 <h2 className="font-display text-xl font-black text-white sm:text-2xl">
-                  {locale === "en" ? "Send the brief" : "Wyślij brief do realizacji"}
+                  {locale === "en" ? "Send the brief" : "Wyślij brief"}
                 </h2>
                 <p className="mt-1 text-sm leading-relaxed text-white/60">
                   {locale === "en"
-                    ? "After saving, I receive the full brief and the client gets a confirmation email."
-                    : "Po zapisie dostaję pełny brief, a klient otrzymuje potwierdzenie mailowe."}
+                    ? "We get the full picture of your project and you receive an email confirmation."
+                    : "Dostajemy pełny obraz Twojego projektu, a Ty potwierdzenie na maila."}
                 </p>
               </div>
-              <button
-                disabled={isSubmitting}
-                type="submit"
-                className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-6 py-3 text-xs font-black uppercase tracking-wider text-background disabled:opacity-60"
-              >
-                <Save size={16} />
-                {isSubmitting
-                  ? locale === "en"
-                    ? "Saving..."
-                    : "Zapisywanie..."
-                  : locale === "en"
-                    ? "Save brief"
-                    : "Zapisz brief"}
-              </button>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  disabled={isSubmitting}
+                  type="submit"
+                  className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-6 py-3 text-xs font-black uppercase tracking-wider text-background disabled:opacity-60"
+                >
+                  <Save size={16} />
+                  {isSubmitting
+                    ? locale === "en"
+                      ? "Saving..."
+                      : "Zapisywanie..."
+                    : locale === "en"
+                      ? "Save brief"
+                      : "Zapisz brief"}
+                </button>
+                <button
+                  disabled={isSubmitting}
+                  type="button"
+                  onClick={() => navigate(getStaticPath("thankYou"))}
+                  className="inline-flex items-center justify-center rounded-sm border border-white/10 px-6 py-3 text-xs font-black uppercase tracking-wider text-white/60 transition hover:border-gold/30 hover:text-gold disabled:opacity-60"
+                >
+                  {locale === "en" ? "Skip for now" : "Pomiń na razie"}
+                </button>
+              </div>
             </div>
           </div>
         </form>

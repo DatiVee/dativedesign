@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import {
   getBlogPostPath,
@@ -27,15 +27,18 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const locale: Locale = location === "/en" || location.startsWith("/en/") ? "en" : "pl";
   const alternateLocale: Locale = locale === "pl" ? "en" : "pl";
 
-  const value: LocaleContextValue = {
-    locale,
-    alternateLocale,
-    switchPath: switchLocalePath(location, alternateLocale),
-    getStaticPath: (key) => getStaticPath(locale, key),
-    getServicePath: (slug) => getServicePath(locale, slug),
-    getPortfolioDetailPath: (slug) => getPortfolioDetailPath(locale, slug),
-    getBlogPostPath: (slug) => getBlogPostPath(locale, slug),
-  };
+  const value = useMemo<LocaleContextValue>(
+    () => ({
+      locale,
+      alternateLocale,
+      switchPath: switchLocalePath(location, alternateLocale),
+      getStaticPath: (key) => getStaticPath(locale, key),
+      getServicePath: (slug) => getServicePath(locale, slug),
+      getPortfolioDetailPath: (slug) => getPortfolioDetailPath(locale, slug),
+      getBlogPostPath: (slug) => getBlogPostPath(locale, slug),
+    }),
+    [locale, alternateLocale, location],
+  );
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }

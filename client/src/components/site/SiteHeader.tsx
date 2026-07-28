@@ -1,5 +1,5 @@
 import { Menu, ShoppingBag, Sparkles, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useCart } from "@/contexts/CartContext";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -11,6 +11,24 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { count } = useCart();
   const { locale, alternateLocale, switchPath, getStaticPath } = useLocale();
+
+  // Escape zamyka menu mobilne; otwarte menu blokuje scroll tła.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
 
   const navItems: { key: StaticRouteKey; label: string }[] =
     locale === "en"
@@ -111,6 +129,8 @@ export function SiteHeader() {
           type="button"
           onClick={() => setMenuOpen((current) => !current)}
           className="inline-flex items-center justify-center rounded-sm border border-white/10 p-2.5 text-white lg:hidden"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
           aria-label={
             menuOpen
               ? locale === "en"
@@ -126,7 +146,7 @@ export function SiteHeader() {
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-white/5 bg-card lg:hidden">
+        <div id="mobile-menu" className="border-t border-white/5 bg-card lg:hidden">
           <div className="container flex flex-col gap-3 py-4">
             {navItems.map((item) => (
               <Link
