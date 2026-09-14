@@ -50,7 +50,7 @@ export function SiteFooter() {
                 : "DatiVe Design to nowoczesne studio projektowe łączące premium portfolio, dopracowaną identyfikację wizualną i uporządkowany proces realizacji."}
           </p>
           <address className="mt-6 grid gap-1 text-xs not-italic leading-relaxed text-white/45">
-            <span className="font-semibold text-white/65">DatiVe Design Damian Wilk</span>
+            <span className="font-semibold text-white/65">DatiVe Design</span>
             <span>36-100 Świerczów</span>
             <span>NIP: 8141705913 · REGON: 545711992</span>
           </address>
@@ -123,7 +123,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="container mt-10 border-t border-white/5 pt-6 text-xs tracking-wide text-white/55">
-        © 2025–2026 DatiVe Design Damian Wilk –{" "}
+        © 2025–2026 DatiVe Design –{" "}
         {locale === "en"
           ? "Professional graphic design services for your business."
           : "Profesjonalne usługi graficzne dla Twojej firmy."}
