@@ -1,0 +1,791 @@
+/* ============================================================
+   DatiVe Design – wariant strony głównej "2026" (trasa /koncept).
+   Ładowany wyłącznie z HomeConcept.tsx; wszystkie klasy z prefiksem c-.
+
+   Nowe API CSS użyte PROGRESYWNIE – przeglądarka bez wsparcia dostaje
+   ten sam, statyczny układ (nic nie znika, nic nie jest ukryte):
+   - scroll-driven animations (animation-timeline: view() / scroll())
+     → odsłanianie sekcji, "tonące" hero, złota nić postępu, licznik liczb,
+       karty procesu kurczące się pod następną, pasek postępu karuzeli
+   - @property → licznik liczb (<integer>) i obracana obwódka (<angle>)
+   - @starting-style → animacja wejścia hero bez JS
+   - karuzela CSS: scroll-snap + ::scroll-marker (+ JS strzałki jako fallback)
+   - <details name> (natywny akordeon) + ::details-content + interpolate-size
+   - text-box-trim (optyczne wyrównanie nagłówków), corner-shape: squircle,
+     color-mix(), linear() easing, container queries, zmienna czcionka Fraunces
+   ============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,300..700,0..100,0..1&display=swap");
+
+@property --c-n {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+@property --c-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@layer components {
+  /* ---------- tokeny ---------- */
+  .c-root {
+    --c-serif: "Fraunces", "Instrument Serif", Georgia, "Times New Roman", serif;
+    --c-sans: "Montserrat", sans-serif;
+    --c-line: color-mix(in oklab, white 8%, transparent);
+    --c-line-strong: color-mix(in oklab, white 15%, transparent);
+    --c-line-faint: color-mix(in oklab, white 4.5%, transparent);
+    --c-glass: color-mix(in oklab, white 4%, transparent);
+    --c-gold-soft: color-mix(in oklab, var(--gold) 14%, transparent);
+    --c-text-dim: color-mix(in oklab, white 58%, transparent);
+    --c-header: 4rem;
+    --c-pad: 1rem;
+    --c-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --c-spring: linear(0, 0.38 11%, 0.8 23%, 1.03 37%, 0.99 53%, 1);
+    font-family: var(--c-sans);
+  }
+  @media (min-width: 640px) {
+    .c-root { --c-pad: 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .c-root { --c-pad: 2rem; --c-header: 4.5rem; }
+  }
+  @media (min-width: 1280px) {
+    /* 100cqw = szerokość kontenera (bez paska przewijania) – wyrównanie do .container;
+       max(): przy 1280px z paskiem przewijania kontener jest węższy niż 1280 i ma pełne 2rem. */
+    .c-root { --c-pad: max(2rem, calc((100cqw - 1280px) / 2 + 2rem)); }
+  }
+
+  /* ---------- typografia ---------- */
+  .c-h {
+    font-family: var(--c-sans);
+    font-weight: 800;
+    text-transform: none;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    color: white;
+    text-wrap: balance;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+  .c-h--hero { font-size: clamp(3rem, 9.2vw, 8.2rem); }
+  .c-h--section { font-size: clamp(2.2rem, 5.4vw, 4.4rem); letter-spacing: -0.03em; line-height: 1.02; }
+  .c-h--sub { font-size: clamp(1.5rem, 3vw, 2.4rem); letter-spacing: -0.02em; line-height: 1.08; }
+  @media (max-width: 767px) {
+    /* globalne reguły mobilne h1/h2/h3 mają !important – tu świadomie nadpisane */
+    .c-h--hero { font-size: clamp(2.75rem, 12.8vw, 3.6rem) !important; line-height: 1 !important; letter-spacing: -0.03em !important; }
+    .c-h--section { font-size: clamp(2rem, 9.6vw, 2.7rem) !important; line-height: 1.04 !important; }
+    .c-h--sub { font-size: clamp(1.4rem, 6.4vw, 1.8rem) !important; line-height: 1.12 !important; }
+  }
+  .c-accent {
+    font-family: var(--c-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.06em;
+    letter-spacing: -0.01em;
+    padding-right: 0.06em;
+    color: var(--gold);
+    font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+    transition: font-variation-settings 0.7s var(--c-ease);
+  }
+  .c-h:hover .c-accent { font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1; }
+
+  .c-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--c-sans);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--c-text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .c-label__n { color: var(--gold); }
+  .c-lede {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: color-mix(in oklab, white 68%, transparent);
+    text-wrap: pretty;
+  }
+  @media (min-width: 640px) {
+    .c-lede { font-size: 1.12rem; }
+  }
+  .c-dim { color: var(--c-text-dim); }
+  .c-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    background: linear-gradient(var(--gold), var(--gold)) no-repeat 0 100% / 0% 1px;
+    transition: background-size 0.45s var(--c-ease);
+    padding-bottom: 0.2rem;
+  }
+  .c-link:hover { background-size: 100% 1px; }
+
+  /* ---------- przyciski ---------- */
+  .c-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border-radius: 999px;
+    padding: 1.05rem 1.7rem;
+    font-family: var(--c-sans);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1;
+    text-decoration: none;
+    transition: translate 0.45s var(--c-spring), border-color 0.3s, background-color 0.3s, color 0.3s;
+  }
+  .c-btn:hover { translate: 0 -2px; }
+  .c-btn--gold { color: var(--background); }
+  .c-btn--glass {
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-glass);
+    backdrop-filter: blur(12px);
+    color: white;
+  }
+  .c-btn--glass:hover {
+    border-color: color-mix(in oklab, var(--gold) 55%, transparent);
+    background: var(--c-gold-soft);
+    color: var(--gold);
+  }
+
+  /* ---------- szkło + poświata (glow z obecnej strony, zachowany) ---------- */
+  .c-glass {
+    position: relative;
+    border-radius: 22px;
+    corner-shape: squircle;
+    border: 1px solid var(--c-line);
+    background: var(--c-glass);
+    backdrop-filter: blur(16px) saturate(1.2);
+    box-shadow: inset 0 1px 0 color-mix(in oklab, white 9%, transparent), 0 24px 60px -32px black;
+  }
+  .c-glow { transition: border-color 0.3s, box-shadow 0.3s, translate 0.5s var(--c-spring); }
+  .c-glow:hover {
+    border-color: oklch(0.72 0.12 85 / 0.6);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, white 9%, transparent),
+      0 0 10px oklch(0.72 0.12 85 / 0.4),
+      0 0 20px oklch(0.72 0.12 85 / 0.2),
+      0 0 35px oklch(0.72 0.12 85 / 0.1);
+    translate: 0 -4px;
+  }
+  /* obracana złota obwódka (conic-gradient + @property <angle>) */
+  .c-ring::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(from var(--c-angle), transparent 0 62%, var(--gold) 82%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+  }
+  .c-ring:hover::after { opacity: 1; animation: c-spin 2.6s linear infinite; }
+  @keyframes c-spin { to { --c-angle: 360deg; } }
+
+  /* ---------- hero (na dużych ekranach przyklejone; treść "wjeżdża" na nie jak kartka) ---------- */
+  .c-hero {
+    position: relative;
+    z-index: 0;
+    min-height: calc(100svh - var(--c-header));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /* Przyklejenie tylko tam, gdzie hero mieści się w całości w oknie – na telefonie
+     (treść wyższa niż ekran) dolna część z kartą metadanych byłaby nieosiągalna. */
+  @media (min-width: 1024px) and (min-height: 700px) {
+    .c-hero { position: sticky; top: var(--c-header); }
+  }
+  .c-hero__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .c-hero__bg::before,
+  .c-hero__bg::after {
+    content: "";
+    position: absolute;
+    width: 72vmax;
+    height: 72vmax;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--gold) 24%, transparent), transparent 72%);
+    animation: c-drift 28s ease-in-out infinite alternate;
+  }
+  .c-hero__bg::before { top: -30vmax; right: -20vmax; }
+  .c-hero__bg::after {
+    bottom: -36vmax;
+    left: -24vmax;
+    width: 60vmax;
+    height: 60vmax;
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--gold-dark) 28%, transparent), transparent 72%);
+    animation-duration: 36s;
+    animation-delay: -14s;
+  }
+  @keyframes c-drift { from { translate: 0 0; } to { translate: -7vmax 6vmax; } }
+  .c-hero__grid {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--c-line-faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--c-line-faint) 1px, transparent 1px);
+    background-size: 84px 84px;
+    mask-image: radial-gradient(ellipse 70% 65% at 30% 25%, black, transparent);
+  }
+  .c-hero__inner {
+    position: relative;
+    display: grid;
+    gap: 2.5rem;
+    padding-top: 3.5rem;
+    padding-bottom: 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .c-hero__inner {
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.62fr);
+      align-items: end;
+      gap: 3rem;
+      padding-bottom: 3rem;
+    }
+  }
+  .c-hero__copy { display: grid; gap: 1.75rem; justify-items: start; }
+  .c-hero__copy .c-h { margin-top: 0.5rem; }
+  .c-hero__copy .c-lede { max-width: 34rem; }
+  .c-hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+  .c-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0.95rem 0.5rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--c-line);
+    background: var(--c-glass);
+    backdrop-filter: blur(10px);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, white 74%, transparent);
+  }
+  .c-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: oklch(0.8 0.17 150);
+    box-shadow: 0 0 0 0 oklch(0.8 0.17 150 / 0.55);
+    animation: c-pulse 2.2s ease-out infinite;
+  }
+  @keyframes c-pulse { to { box-shadow: 0 0 0 9px transparent; } }
+
+  .c-scrollhint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, white 40%, transparent);
+  }
+  .c-scrollhint::before {
+    content: "";
+    width: 44px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform-origin: left;
+    animation: c-hint 1.8s ease-in-out infinite;
+  }
+  @keyframes c-hint { 0%, 100% { scale: 0.4 1; opacity: 0.5; } 50% { scale: 1 1; opacity: 1; } }
+
+  /* karta metadanych w hero */
+  .c-meta { padding: 0.4rem 1.4rem; font-size: 0.86rem; }
+  .c-meta__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--c-line);
+  }
+  .c-meta__row:first-child { border-top: 0; }
+  .c-meta__k { font-size: 0.64rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--c-text-dim); }
+  .c-meta__v { text-align: right; color: white; font-variant-numeric: tabular-nums; }
+  .c-meta__coords {
+    padding: 0.85rem 0 0.7rem;
+    border-top: 1px solid var(--c-line);
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
+    color: color-mix(in oklab, white 35%, transparent);
+  }
+
+  /* animacja wejścia bez JS: @starting-style */
+  .c-in {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 0.8s ease-out, translate 0.9s var(--c-ease);
+    transition-delay: calc(var(--i, 0) * 110ms);
+  }
+  @starting-style {
+    .c-in { opacity: 0; translate: 0 28px; }
+  }
+
+  /* ---------- "kartka" treści nad hero ---------- */
+  .c-sheet {
+    position: relative;
+    z-index: 1;
+    background: var(--background);
+    border-top: 1px solid var(--c-line-strong);
+    border-radius: 30px 30px 0 0;
+    corner-shape: squircle;
+    box-shadow: 0 -40px 90px -20px oklch(0 0 0 / 0.75);
+  }
+
+  /* złota nić postępu (tylko szerokie ekrany, tylko z animation-timeline) */
+  .c-thread {
+    display: none;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: calc((100vw - 1280px) / 2 - 1.4rem);
+    width: 1px;
+    z-index: 30;
+    background: var(--c-line);
+    pointer-events: none;
+  }
+  .c-thread::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(var(--gold-light), var(--gold));
+    transform-origin: top;
+    scale: 1 0;
+  }
+
+  /* ---------- sekcje ---------- */
+  .c-section { padding-block: clamp(4.5rem, 9vw, 8rem); }
+  .c-section--tight { padding-block: clamp(3rem, 6vw, 5rem); }
+  .c-head { display: grid; gap: 1.25rem; align-items: end; }
+  @media (min-width: 1024px) {
+    .c-head { grid-template-columns: minmax(0, 1fr) minmax(0, 24rem); gap: 3rem; }
+  }
+  .c-head .c-h { margin-top: 1.25rem; }
+  .c-head__side { display: grid; gap: 1.25rem; justify-items: start; }
+  @media (min-width: 1024px) {
+    .c-head__side { justify-items: end; text-align: right; }
+  }
+  .c-head__side p { font-size: 0.92rem; line-height: 1.65; max-width: 24rem; }
+  .c-rule { height: 1px; background: var(--c-line); }
+
+  /* ---------- realizacje: karuzela CSS ---------- */
+  .c-work { container-type: inline-size; timeline-scope: --c-work; }
+  .c-arrows { display: flex; gap: 0.5rem; }
+  .c-arrow {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-glass);
+    color: white;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s, background-color 0.3s, translate 0.4s var(--c-spring);
+  }
+  .c-arrow:hover { border-color: var(--gold); color: var(--gold); background: var(--c-gold-soft); translate: 0 -2px; }
+  .c-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(82cqw, 430px);
+    gap: 0.9rem;
+    margin-top: 2.5rem;
+    padding: 1.25rem var(--c-pad) 2.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--c-pad);
+    scrollbar-width: none;
+    scroll-timeline: --c-work inline;
+    scroll-marker-group: after;
+  }
+  .c-track::-webkit-scrollbar { display: none; }
+  .c-track > * { scroll-snap-align: start; }
+  .c-track::scroll-marker-group {
+    display: flex;
+    gap: 0.45rem;
+    padding-inline: var(--c-pad);
+    margin-top: 0.25rem;
+  }
+  .c-track > *::scroll-marker {
+    content: "";
+    width: 26px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--c-line-strong);
+    transition: background 0.3s, width 0.3s;
+  }
+  .c-track > *::scroll-marker:target-current { background: var(--gold); width: 44px; }
+  .c-card {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 20px;
+    corner-shape: squircle;
+    border: 1px solid var(--c-line);
+    background: var(--card);
+    color: white;
+    text-decoration: none;
+  }
+  .c-card img { width: 100%; height: 100%; object-fit: cover; transition: scale 1.1s var(--c-ease); }
+  .c-card:hover img { scale: 1.05; }
+  .c-card__body {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.4rem;
+    background: linear-gradient(to top, oklch(0.09 0.008 285 / 0.94), oklch(0.09 0.008 285 / 0.6) 55%, transparent);
+  }
+  .c-card__title { font-family: var(--c-sans); font-size: 1.35rem; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; text-transform: none; }
+  .c-card__summary {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: color-mix(in oklab, white 66%, transparent);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .c-card__cta { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.35rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+  .c-progress { position: relative; height: 1px; margin-top: 1.5rem; background: var(--c-line); overflow: hidden; }
+  .c-progress::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform-origin: left;
+    scale: 0 1;
+  }
+  .c-work__foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; }
+
+  /* ---------- zakres: bento ---------- */
+  .c-bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0.8rem; margin-top: 3rem; }
+  .c-tile {
+    grid-column: span 12;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2.25rem;
+    min-height: 15rem;
+    padding: 1.5rem;
+    container-type: inline-size;
+    isolation: isolate;
+  }
+  @media (min-width: 640px) {
+    .c-tile { grid-column: span 6; }
+  }
+  @media (min-width: 1024px) {
+    .c-tile { grid-column: span 3; }
+    .c-tile--big { grid-column: span 6; min-height: 20rem; padding: 1.85rem; }
+  }
+  /* reflektor pod kursorem: --mx/--my ustawia pointermove (tylko mysz) */
+  .c-tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 0%), var(--c-gold-soft), transparent 62%);
+    opacity: 0;
+    transition: opacity 0.45s;
+  }
+  .c-tile:hover::before { opacity: 1; }
+  .c-tile__icon {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 12px;
+    corner-shape: squircle;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--c-line);
+    background: color-mix(in oklab, var(--gold) 9%, transparent);
+    color: var(--gold);
+  }
+  .c-tile__name { font-family: var(--c-sans); font-size: 1.2rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; text-transform: none; color: white; }
+  .c-tile--big .c-tile__name { font-size: 1.6rem; }
+  .c-tile__tag { margin-top: 0.5rem; font-size: 0.86rem; line-height: 1.55; color: var(--c-text-dim); max-width: 30ch; text-wrap: pretty; }
+  .c-tile__cat { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in oklab, white 40%, transparent); }
+  .c-tile__art {
+    position: absolute;
+    right: -6%;
+    bottom: -10%;
+    z-index: -1;
+    width: 54%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 14px;
+    opacity: 0.5;
+    mask-image: linear-gradient(135deg, black 35%, transparent 95%);
+    transition: opacity 0.5s, translate 0.8s var(--c-ease);
+    display: none;
+  }
+  @container (min-width: 380px) {
+    .c-tile--big .c-tile__art { display: block; }
+  }
+  .c-tile:hover .c-tile__art { opacity: 0.85; translate: -4px -4px; }
+
+  /* ---------- liczby: licznik w czystym CSS ---------- */
+  .c-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.25rem 1.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--c-line);
+  }
+  @media (min-width: 1024px) {
+    .c-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .c-stat + .c-stat { padding-left: 1.5rem; border-left: 1px solid var(--c-line); }
+  }
+  .c-num {
+    font-family: var(--c-sans);
+    font-weight: 800;
+    font-size: clamp(3rem, 6.4vw, 5.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    color: white;
+    font-variant-numeric: tabular-nums;
+    counter-reset: c-n var(--c-n);
+  }
+  .c-num::before { content: counter(c-n); }
+  .c-num__suffix { margin-left: 0.06em; font-size: 0.55em; font-weight: 700; color: var(--gold); vertical-align: 0.4em; }
+  .c-stat__label { margin-top: 0.6rem; font-size: 0.86rem; color: var(--c-text-dim); }
+
+  /* ---------- proces: karty przyklejone, układane w stos ----------
+     Wszystkie karty są bezpośrednimi dziećmi .c-steps (wspólny blok zawierający dla
+     sticky), więc karta N zostaje przyklejona, a karta N+1 wjeżdża na nią z lekkim
+     przesunięciem. Odstęp w siatce (row-gap) steruje tempem – nie widać go, bo karty
+     nachodzą na siebie. Nazwane osie czasu (view-timeline) pozwalają kurczyć kartę N
+     w rytmie wjazdu karty N+1. */
+  .c-steps {
+    display: grid;
+    row-gap: 22svh;
+    margin-top: 3rem;
+    timeline-scope: --c-s1, --c-s2, --c-s3, --c-s4;
+  }
+  .c-step {
+    position: sticky;
+    top: calc(var(--c-header) + 1.25rem + var(--i, 0) * 0.9rem);
+    display: grid;
+    gap: 1.5rem;
+    min-height: 44svh;
+    padding: 1.75rem;
+    transform-origin: top center;
+    background: color-mix(in oklab, var(--card) 88%, white 2%);
+  }
+  .c-step:nth-child(1) { view-timeline: --c-s1 block; }
+  .c-step:nth-child(2) { view-timeline: --c-s2 block; }
+  .c-step:nth-child(3) { view-timeline: --c-s3 block; }
+  .c-step:nth-child(4) { view-timeline: --c-s4 block; }
+  @media (min-width: 1024px) {
+    .c-step { grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr); gap: 3rem; padding: 2.75rem; }
+  }
+  .c-step__num { font-family: var(--c-sans); font-size: 3.4rem; font-weight: 800; line-height: 0.9; letter-spacing: -0.04em; color: color-mix(in oklab, white 14%, transparent); }
+  .c-step .c-h { margin-top: 1rem; }
+  .c-step__body { display: grid; gap: 1.5rem; align-content: end; }
+  .c-step__result {
+    display: grid;
+    gap: 0.4rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--c-line);
+    font-size: 0.95rem;
+    color: white;
+  }
+
+  /* ---------- opinie ---------- */
+  .c-reviews__grid { display: grid; gap: 2.5rem; }
+  @media (min-width: 1024px) {
+    .c-reviews__grid { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 4rem; align-items: start; }
+  }
+  .c-quote-mark { margin-top: 1.5rem; font-family: var(--c-serif); font-style: italic; font-size: 5.5rem; line-height: 0.6; color: var(--gold); opacity: 0.75; }
+  .c-quote {
+    margin-top: 1.25rem;
+    font-family: var(--c-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-variation-settings: "opsz" 120, "SOFT" 40, "WONK" 0;
+    font-size: clamp(1.45rem, 2.9vw, 2.35rem);
+    line-height: 1.24;
+    letter-spacing: -0.008em;
+    color: white;
+    text-wrap: pretty;
+  }
+  .c-quote__who { margin-top: 1.5rem; font-size: 0.9rem; color: var(--c-text-dim); }
+  .c-quote__who b { color: white; font-weight: 700; }
+  .c-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
+    background: color-mix(in oklab, var(--gold) 8%, transparent);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .c-reviews__side { display: grid; gap: 0.8rem; }
+  .c-mini { padding: 1.5rem; display: grid; gap: 0.9rem; }
+  .c-mini__quote { font-size: 0.95rem; line-height: 1.6; color: color-mix(in oklab, white 78%, transparent); }
+  .c-mini__who { font-size: 0.8rem; color: var(--c-text-dim); }
+  .c-mini__who b { color: white; }
+  .c-stars { display: flex; gap: 0.15rem; color: var(--gold); }
+
+  /* ---------- CTA: wielki adres e-mail ---------- */
+  .c-cta { border-top: 1px solid var(--c-line); }
+  .c-cta__inner { display: grid; gap: 1.5rem; justify-items: start; }
+  .c-cta__inner .c-h { margin-top: 0.75rem; }
+  .c-cta__inner .c-lede { max-width: 36rem; }
+  .c-mail {
+    display: inline-block;
+    margin-block: 0.5rem 0.25rem;
+    font-family: var(--c-sans);
+    font-weight: 800;
+    font-size: clamp(1.45rem, 5.6vw, 4.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+    color: white;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    padding-bottom: 0.06em;
+    background: linear-gradient(var(--gold), var(--gold)) no-repeat 0 100% / 0% 0.06em;
+    transition: background-size 0.6s var(--c-ease), color 0.3s;
+  }
+  .c-mail:hover { background-size: 100% 0.06em; color: var(--gold); }
+
+  /* ---------- FAQ (natywny akordeon) + blog ---------- */
+  .c-faqblog { display: grid; gap: 4rem; }
+  @media (min-width: 1024px) {
+    .c-faqblog { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 5rem; align-items: start; }
+  }
+  .c-faq { margin-top: 2rem; interpolate-size: allow-keywords; }
+  .c-faq details { border-top: 1px solid var(--c-line); }
+  .c-faq details:last-child { border-bottom: 1px solid var(--c-line); }
+  .c-faq summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.15rem 0;
+    font-family: var(--c-sans);
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    transition: color 0.3s;
+  }
+  .c-faq summary::-webkit-details-marker { display: none; }
+  .c-faq summary:hover { color: var(--gold); }
+  .c-faq summary::after {
+    content: "+";
+    flex-shrink: 0;
+    margin-top: -0.15rem;
+    font-size: 1.4rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--gold);
+    transition: rotate 0.35s var(--c-ease);
+  }
+  .c-faq details[open] summary::after { rotate: 45deg; }
+  .c-faq details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.45s var(--c-ease), content-visibility 0.45s allow-discrete;
+  }
+  .c-faq details[open]::details-content { block-size: auto; }
+  .c-faq details > p { margin: 0 0 1.25rem; max-width: 60ch; font-size: 0.9rem; line-height: 1.65; color: color-mix(in oklab, white 60%, transparent); }
+  .c-posts { display: grid; gap: 0.8rem; margin-top: 2rem; }
+  .c-post { display: grid; gap: 0.9rem; align-content: space-between; min-height: 11rem; padding: 1.5rem; color: white; text-decoration: none; }
+  .c-post__meta { display: flex; gap: 0.75rem; align-items: baseline; font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--c-text-dim); }
+  .c-post__meta b { color: var(--gold); font-weight: 600; }
+  .c-post__meta i { flex: 1; height: 1px; background: var(--c-line); }
+  .c-post h3 { font-family: var(--c-sans); font-size: 1.1rem; font-weight: 700; line-height: 1.3; letter-spacing: 0; text-transform: none; transition: color 0.3s; }
+  .c-post:hover h3 { color: var(--gold); }
+  .c-section .c-link { margin-top: 1.75rem; }
+
+  /* ---------- gigantyczny znak w stopce ---------- */
+  .c-wordmark {
+    overflow: hidden;
+    text-align: center;
+    font-family: var(--c-sans);
+    font-weight: 900;
+    font-size: clamp(4rem, 21vw, 19rem);
+    line-height: 0.82;
+    letter-spacing: -0.055em;
+    color: color-mix(in oklab, white 5.5%, transparent);
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    margin-bottom: -0.2em;
+  }
+
+  /* ---------- animacje sterowane przewijaniem (progresywnie) ---------- */
+  @supports (animation-timeline: view()) {
+    .c-reveal { animation: c-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 42%; }
+    .c-thread::after { animation: c-fill-y linear both; animation-timeline: scroll(root); }
+    .c-progress::after { animation: c-fill-x linear both; animation-timeline: --c-work; }
+    .c-card { animation: c-focus linear both; animation-timeline: view(inline); animation-range: cover 0% cover 100%; }
+    .c-num { animation: c-count linear both; animation-timeline: view(); animation-range: entry 25% entry 85%; }
+    /* karta N kurczy się w rytmie wjazdu karty N+1 (oś czasu = widoczność następnej karty);
+       ostatnia karta nie ma następnej, więc się nie kurczy */
+    .c-step:nth-child(1) { animation: c-shrink linear both; animation-timeline: --c-s2; animation-range: cover 28% cover 58%; }
+    .c-step:nth-child(2) { animation: c-shrink linear both; animation-timeline: --c-s3; animation-range: cover 28% cover 58%; }
+    .c-step:nth-child(3) { animation: c-shrink linear both; animation-timeline: --c-s4; animation-range: cover 28% cover 58%; }
+    /* "tonące" hero tylko tam, gdzie hero jest przyklejone (patrz .c-hero) */
+    @media (min-width: 1024px) and (min-height: 700px) {
+      .c-hero__inner { animation: c-sink linear both; animation-timeline: scroll(root); animation-range: 0px 70vh; }
+    }
+    @media (min-width: 1380px) {
+      .c-thread { display: block; }
+    }
+  }
+  @keyframes c-rise { from { opacity: 0; translate: 0 34px; } }
+  @keyframes c-sink { to { opacity: 0; translate: 0 -40px; scale: 0.97; } }
+  @keyframes c-fill-y { to { scale: 1 1; } }
+  @keyframes c-fill-x { to { scale: 1 1; } }
+  @keyframes c-focus { 0% { opacity: 0.5; scale: 0.95; } 20%, 80% { opacity: 1; scale: 1; } 100% { opacity: 0.5; scale: 0.95; } }
+  @keyframes c-count { from { --c-n: 0; } }
+  @keyframes c-shrink { to { scale: 0.9; opacity: 0.35; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .c-root *,
+    .c-root *::before,
+    .c-root *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .c-thread { display: none !important; }
+  }
+}

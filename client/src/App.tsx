@@ -16,6 +16,8 @@ const OrderBriefPage = lazy(() => import("@/pages/OrderBrief"));
 const CartPage = lazy(() => import("@/pages/Cart"));
 const CheckoutPage = lazy(() => import("@/pages/Checkout"));
 const FAQPage = lazy(() => import("@/pages/FAQPage"));
+// Koncept 2026 strony głównej – ukryta trasa podglądowa (noindex), nie zastępuje "/".
+const HomeConcept = lazy(() => import("@/pages/HomeConcept"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const OrderPage = lazy(() => import("@/pages/Order"));
 const Portfolio = lazy(() => import("@/pages/Portfolio"));
@@ -88,6 +90,8 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/en" component={Home} />
+          <Route path="/koncept" component={HomeConcept} />
+          <Route path="/en/concept" component={HomeConcept} />
           <Route path="/o-nas" component={About} />
           <Route path="/en/about" component={About} />
           <Route path="/portfolio" component={Portfolio} />
