@@ -385,7 +385,7 @@
 /* dolny pasek CTA (SiteLayout) jest widoczny do 1023px - treść i stopka
    potrzebują miejsca pod nim także na tabletach */
 @media (max-width: 1023px) {
-  main {
+  main.has-mobile-bar {
     padding-bottom: 5.5rem;
   }
 }
@@ -449,7 +449,7 @@
     line-height: 1.25 !important;
   }
 
-  main {
+  main.has-mobile-bar {
     padding-bottom: 5.5rem;
   }
 

@@ -11,8 +11,10 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const { count } = useCart();
   const { locale, getStaticPath } = useLocale();
 
+  // overflow-x-clip zamiast hidden: "hidden" robi z wrappera kontener przewijania
+  // i psuje position: sticky (nagłówek przestawał być przyklejony).
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-sm focus:bg-gold focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-background"
@@ -20,7 +22,8 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         {locale === "en" ? "Skip to content" : "Przejdź do treści"}
       </a>
       <SiteHeader />
-      <main id="main">{children}</main>
+      {/* Padding pod dolny pasek mobilny tylko wtedy, gdy pasek istnieje (sklep włączony). */}
+      <main id="main" className={SHOP_ENABLED ? "has-mobile-bar" : undefined}>{children}</main>
       {/* Dolny sticky pasek mobilny (Koszyk / Zamów) – tylko gdy sklep jest włączony. */}
       {SHOP_ENABLED ? (
         <div className="fixed inset-x-2 bottom-2 z-50 lg:hidden">
