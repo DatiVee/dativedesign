@@ -314,9 +314,6 @@ export default function HomeConcept() {
                   {t.secondary}
                 </a>
               </div>
-              <div className="c-scrollhint c-in" style={cssVars({ "--i": 5 })}>
-                {t.scroll}
-              </div>
             </div>
 
             <aside className="c-glass c-ring c-meta c-in" style={cssVars({ "--i": 4 })}>
@@ -328,6 +325,11 @@ export default function HomeConcept() {
               ))}
               <div className="c-meta__coords">50.04° N · 22.00° E</div>
             </aside>
+          </div>
+          <div className="c-hero__foot container">
+            <div className="c-scrollhint c-in" style={cssVars({ "--i": 5 })}>
+              {t.scroll}
+            </div>
           </div>
         </section>
 

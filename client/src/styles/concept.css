@@ -68,7 +68,7 @@
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
   }
-  .c-h--hero { font-size: clamp(3rem, 9.2vw, 8.2rem); }
+  .c-h--hero { font-size: clamp(3rem, 9.2vw, 9.4rem); }
   .c-h--section { font-size: clamp(2.2rem, 5.4vw, 4.4rem); letter-spacing: -0.03em; line-height: 1.02; }
   .c-h--sub { font-size: clamp(1.5rem, 3vw, 2.4rem); letter-spacing: -0.02em; line-height: 1.08; }
   @media (max-width: 767px) {
@@ -206,7 +206,6 @@
     min-height: calc(100svh - var(--c-header));
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     overflow: hidden;
     isolation: isolate;
   }
@@ -248,13 +247,16 @@
     background-size: 84px 84px;
     mask-image: radial-gradient(ellipse 70% 65% at 30% 25%, black, transparent);
   }
+  /* margin-block: auto = blok wyśrodkowany w pionie; na wysokich ekranach nie ma pustej górnej połowy */
   .c-hero__inner {
     position: relative;
     display: grid;
     gap: 2.5rem;
+    margin-block: auto;
     padding-top: 3.5rem;
     padding-bottom: 2.5rem;
   }
+  .c-hero__foot { position: relative; padding-bottom: 1.5rem; }
   @media (min-width: 1024px) {
     .c-hero__inner {
       grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.62fr);
@@ -297,7 +299,6 @@
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    margin-top: 1.5rem;
     font-size: 0.64rem;
     letter-spacing: 0.26em;
     text-transform: uppercase;
@@ -765,7 +766,8 @@
     .c-step:nth-child(3) { animation: c-shrink linear both; animation-timeline: --c-s4; animation-range: cover 28% cover 58%; }
     /* "tonące" hero tylko tam, gdzie hero jest przyklejone (patrz .c-hero) */
     @media (min-width: 1024px) and (min-height: 700px) {
-      .c-hero__inner { animation: c-sink linear both; animation-timeline: scroll(root); animation-range: 0px 70vh; }
+      .c-hero__inner,
+      .c-hero__foot { animation: c-sink linear both; animation-timeline: scroll(root); animation-range: 0px 70vh; }
     }
     @media (min-width: 1380px) {
       .c-thread { display: block; }
