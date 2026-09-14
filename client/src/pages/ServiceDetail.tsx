@@ -2,6 +2,7 @@ import { ArrowUpRight, Check, Clock3, Layers3, Package2, ShoppingBag, Sparkles }
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Link, useRoute } from "wouter";
+import { PriceTag } from "@/components/site/PriceTag";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -209,11 +210,13 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
   return (
     <SiteLayout>
       <section className="container py-14 sm:py-24">
-        <div className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr] xl:gap-14">
-          <div className="grid gap-8 sm:gap-16">
+        <div className="grid items-start gap-8 xl:grid-cols-[1.05fr_0.95fr] xl:gap-14">
+          {/* content-start: bez tego wiersze rozciągają się do wysokości panelu
+              konfiguratora i robią wielkie pustki w kafelkach i galerii */}
+          <div className="grid content-start gap-8 sm:gap-10">
             <div>
               <div className="section-label mb-3 sm:mb-4">{service.category}</div>
-              <h1 className="font-display text-[1.9rem] font-black leading-[1.06] text-white sm:text-4xl lg:text-5xl">
+              <h1 className="font-display text-[1.9rem] font-black leading-[1.15] text-white sm:text-4xl lg:text-5xl">
                 {service.name}
               </h1>
               <p className="mt-3 text-base leading-relaxed text-gold sm:mt-4 sm:text-lg">{service.tagline}</p>
@@ -224,12 +227,13 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
               <div className="rounded-sm border border-white/8 bg-card p-3 sm:p-4">
-                <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/35">
+                <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/45">
                   {locale === "en" ? "Starting from" : "Start od"}
                 </div>
-                <div className="mt-2 font-display text-xl font-black text-gold sm:mt-3 sm:text-2xl">
-                  {formatPackagePrice(selectedPackage.price, selectedPackage.priceLabel)}
-                </div>
+                <PriceTag
+                  value={formatPackagePrice(selectedPackage.price, selectedPackage.priceLabel)}
+                  className="mt-2 font-display text-lg font-bold text-gold sm:mt-3 sm:text-xl"
+                />
               </div>
               <div className="rounded-sm border border-white/8 bg-card p-3 sm:p-4">
                 <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-white/35">
@@ -328,8 +332,8 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/60">
                   {locale === "en"
-                    ? "The scope depends on the package - you can see right away which files and assets are delivered."
-                    : "Zakres zależy od pakietu - od razu widzisz, jakie pliki i materiały otrzymasz."}
+                    ? "The scope depends on the package – you can see right away which files and assets are delivered."
+                    : "Zakres zależy od pakietu – od razu widzisz, jakie pliki i materiały otrzymasz."}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   {service.deliverables.map((item) => (
@@ -388,21 +392,20 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
                     type="button"
                     aria-pressed={isActive}
                     onClick={() => handlePackageChange(item.slug)}
-                    className={`rounded-sm border p-3 text-left transition-colors sm:p-4 ${
+                    className={`rounded-sm border p-4 text-left transition-colors sm:p-5 ${
                       isActive ? "border-gold bg-gold/10" : "border-white/10 bg-background hover:border-gold/30"
                     }`}
                   >
-                    <div className="grid gap-3 sm:flex sm:items-start sm:justify-between sm:gap-4">
-                      <div>
-                        <div className="font-display text-base font-black text-white sm:text-xl">{item.name}</div>
-                        <div className="mt-1 hidden text-sm text-white/55 sm:block">{item.description}</div>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        <div className="font-display text-lg font-black text-gold sm:text-2xl">
-                          {formatPackagePrice(item.price, item.priceLabel)}
-                        </div>
-                        <div className="text-xs uppercase tracking-wide text-white/35">{item.turnaround}</div>
-                      </div>
+                    <div className="flex items-baseline justify-between gap-4">
+                      <span className="font-display text-base font-bold text-white sm:text-lg">{item.name}</span>
+                      <PriceTag
+                        value={formatPackagePrice(item.price, item.priceLabel)}
+                        className="shrink-0 font-display text-base font-bold text-gold sm:text-lg"
+                      />
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-white/58">{item.description}</p>
+                    <div className="mt-3 text-[11px] uppercase tracking-[0.16em] text-white/40">
+                      {item.turnaround}
                     </div>
                   </button>
                 );
@@ -508,19 +511,19 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
             </div>
 
             <div className="mt-6 rounded-sm border border-white/10 bg-background p-4 sm:mt-8 sm:p-5">
-              <div className="grid gap-3 sm:flex sm:items-start sm:justify-between sm:gap-4">
-                <div>
-                  <div className="font-display text-lg font-black text-white sm:text-xl">{selectedPackage.name}</div>
-                  <div className="mt-1 text-sm text-white/50">{selectedPackage.revisions}</div>
-                </div>
-                <div className="text-left sm:text-right">
-                  <div className="font-display text-2xl font-black text-gold sm:text-3xl">
-                    {locale === "en" ? `${orderTotal} PLN` : `${orderTotal} zł`}
-                  </div>
-                  <div className="text-xs uppercase tracking-wide text-white/35">
-                    {locale === "en" ? "Price-list total" : "Suma wg cennika"}
-                  </div>
-                </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="font-display text-base font-bold text-white sm:text-lg">
+                  {selectedPackage.name}
+                </span>
+                <span className="shrink-0 whitespace-nowrap font-display text-xl font-bold text-gold sm:text-2xl">
+                  {locale === "en" ? `${orderTotal} PLN` : `${orderTotal} zł`}
+                </span>
+              </div>
+              <div className="mt-1 flex items-baseline justify-between gap-4 text-sm text-white/50">
+                <span>{selectedPackage.revisions}</span>
+                <span className="shrink-0 text-[11px] uppercase tracking-[0.16em] text-white/40">
+                  {locale === "en" ? "Price-list total" : "Suma wg cennika"}
+                </span>
               </div>
 
               <div className="mt-5 rounded-sm border border-white/10 bg-card px-4 py-3">
@@ -703,7 +706,7 @@ export default function ServiceDetail({ forcedSlug }: ServiceDetailProps) {
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="section-label mb-3">{locale === "en" ? "Shop" : "Sklep"}</div>
-              <h2 className="font-display text-3xl font-black text-white sm:text-4xl">
+              <h2 className="leading-[1.15] font-display text-3xl font-black text-white sm:text-4xl">
                 {locale === "en" ? "Want to compare other products" : "Chcesz porównać inne produkty"}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">

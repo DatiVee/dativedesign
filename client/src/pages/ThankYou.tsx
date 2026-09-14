@@ -58,8 +58,8 @@ export default function ThankYouPage() {
             title={locale === "en" ? "Your quote request has been sent" : "Twoje zapytanie o wycenę zostało wysłane"}
             description={
               locale === "en"
-                ? "We will review the scope and reply by email with a tailored quote and next steps - usually within 24h on business days."
-                : "Sprawdzimy zakres i odpowiemy mailem z dopasowaną wyceną i dalszymi krokami - zwykle do 24h w dni robocze."
+                ? "We will review the scope and reply by email with a tailored quote and next steps – usually within 24h on business days."
+                : "Sprawdzimy zakres i odpowiemy mailem z dopasowaną wyceną i dalszymi krokami – zwykle do 24h w dni robocze."
             }
           />
         </Reveal>
@@ -68,15 +68,15 @@ export default function ThankYouPage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="section-label mb-3">{locale === "en" ? "Inquiry number" : "Numer zapytania"}</div>
-              <h2 className="font-display text-4xl font-black text-white">{activeOrder.number}</h2>
+              <h2 className="leading-[1.15] font-display text-4xl font-black text-white">{activeOrder.number}</h2>
               <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/65">
                 {briefDone
                   ? locale === "en"
-                    ? "Your inquiry and the project brief have reached us. Keep this number - we will reference it in the quote email."
-                    : "Twoje zapytanie razem z briefem projektowym do nas dotarło. Zachowaj ten numer - powołamy się na niego w mailu z wyceną."
+                    ? "Your inquiry and the project brief have reached us. Keep this number – we will reference it in the quote email."
+                    : "Twoje zapytanie razem z briefem projektowym do nas dotarło. Zachowaj ten numer – powołamy się na niego w mailu z wyceną."
                   : locale === "en"
-                    ? "Your inquiry has reached us. Keep this number - we will reference it in the quote email."
-                    : "Twoje zapytanie do nas dotarło. Zachowaj ten numer - powołamy się na niego w mailu z wyceną."}
+                    ? "Your inquiry has reached us. Keep this number – we will reference it in the quote email."
+                    : "Twoje zapytanie do nas dotarło. Zachowaj ten numer – powołamy się na niego w mailu z wyceną."}
               </p>
             </div>
             <div className="rounded-sm border border-white/10 bg-background px-5 py-4 text-right">
@@ -124,8 +124,8 @@ export default function ThankYouPage() {
                       ? "2. The project brief is attached to your inquiry"
                       : "2. Brief projektowy został dołączony do zapytania"
                     : locale === "en"
-                      ? "2. You skipped the brief - you can still add details when we reply"
-                      : "2. Brief pominięty - szczegóły możesz dosłać w odpowiedzi na maila",
+                      ? "2. You skipped the brief – you can still add details when we reply"
+                      : "2. Brief pominięty – szczegóły możesz dosłać w odpowiedzi na maila",
                 },
                 {
                   icon: CheckCircle2,
@@ -142,8 +142,8 @@ export default function ThankYouPage() {
                         ? "4. A confirmation has been sent to your inbox"
                         : "4. Potwierdzenie trafiło na Twojego maila"
                       : locale === "en"
-                        ? "4. The quote lands in your inbox - usually within 24h"
-                        : "4. Wycena przyjdzie na Twojego maila - zwykle do 24h",
+                        ? "4. The quote lands in your inbox – usually within 24h"
+                        : "4. Wycena przyjdzie na Twojego maila – zwykle do 24h",
                 },
               ].map((step) => (
                 <div key={step.title} className="rounded-sm border border-white/8 bg-background px-4 py-4">

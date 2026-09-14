@@ -6,10 +6,13 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
 import { getCompanyStats } from "@/data/localizedSiteContent";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { SHOP_ENABLED } from "@/siteConfig";
 
 export default function About() {
   const { locale, getStaticPath } = useLocale();
   const companyStats = getCompanyStats(locale);
+  const ctaClass =
+    "inline-flex items-center gap-2 rounded-sm bg-gold px-7 py-4 text-sm font-black uppercase tracking-wider text-background";
 
   usePageMeta(
     locale === "en" ? "About | DatiVe Design" : "O nas | DatiVe Design",
@@ -55,13 +58,13 @@ export default function About() {
           <div className="mt-6 grid gap-4">
             {(locale === "en" ? [
                   "direct contact with the designer",
-                  "clear package structure and transparent scope",
+                  SHOP_ENABLED ? "clear package structure and transparent scope" : "clear scope and transparent terms of collaboration",
                   "design decisions matched to brand goals, not random taste",
                   "portfolio based on real commercial use cases",
                 ]
               : [
                   "kontakt bez pośredników",
-                  "jasna struktura pakietów i przejrzysty zakres",
+                  SHOP_ENABLED ? "jasna struktura pakietów i przejrzysty zakres" : "jasny zakres i przejrzyste warunki współpracy",
                   "decyzje projektowe dopasowane do celu marki, a nie przypadku",
                   "portfolio oparte o realne zastosowania komercyjne",
                 ]).map((item) => (
@@ -124,20 +127,34 @@ export default function About() {
         <div className="rounded-sm border border-gold/20 bg-gradient-to-r from-gold/10 to-card p-8 sm:p-10">
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="section-label mb-3">{locale === "en" ? "Start" : "Zacznij"}</div>
-              <h2 className="font-display text-3xl font-black text-white sm:text-4xl">
-                {locale === "en" ? "Want to move from inspiration to a real order"
-                  : "Chcesz przejść od inspiracji do konkretnego zamówienia"}
+              <div className="section-label mb-3">
+                {SHOP_ENABLED ? (locale === "en" ? "Start" : "Zacznij") : (locale === "en" ? "Contact" : "Kontakt")}
+              </div>
+              <h2 className="leading-[1.15] font-display text-3xl font-black text-white sm:text-4xl">
+                {SHOP_ENABLED
+                  ? (locale === "en" ? "Want to move from inspiration to a real order"
+                    : "Chcesz przejść od inspiracji do konkretnego zamówienia")
+                  : (locale === "en" ? "Want to talk about your brand?" : "Chcesz porozmawiać o swojej marce?")}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">
-                {locale === "en" ? "You can go straight to the service packages, compare options and choose the scope that matches your brand."
-                  : "Możesz od razu przejść do pakietów usług, porównać opcje i wybrać zakres dopasowany do Twojej marki."}
+                {SHOP_ENABLED
+                  ? (locale === "en" ? "You can go straight to the service packages, compare options and choose the scope that matches your brand."
+                    : "Możesz od razu przejść do pakietów usług, porównać opcje i wybrać zakres dopasowany do Twojej marki.")
+                  : (locale === "en" ? "Get in touch – I reply within 24h on business days."
+                    : "Napisz – odpowiadam do 24h w dni robocze.")}
               </p>
             </div>
-            <Link href={getStaticPath("order")} className="inline-flex items-center gap-2 rounded-sm bg-gold px-7 py-4 text-sm font-black uppercase tracking-wider text-background">
-              {locale === "en" ? "Order project" : "Zamów projekt"}
-              <ArrowRight size={16} />
-            </Link>
+            {SHOP_ENABLED ? (
+              <Link href={getStaticPath("order")} className={ctaClass}>
+                {locale === "en" ? "Order project" : "Zamów projekt"}
+                <ArrowRight size={16} />
+              </Link>
+            ) : (
+              <a href="/#kontakt" className={ctaClass}>
+                {locale === "en" ? "Get in touch" : "Napisz do nas"}
+                <ArrowRight size={16} />
+              </a>
+            )}
           </div>
         </div>
       </section>

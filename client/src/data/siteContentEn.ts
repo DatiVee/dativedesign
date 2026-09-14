@@ -3,8 +3,8 @@
 export const companyStatsEn = [
   { value: "300+", label: "clients served" },
   { value: "100%", label: "recommendation rate" },
-  { value: "Multiple", label: "industries and project types" },
-  { value: "Direct", label: "contact without middlemen" },
+  { value: "20", label: "services available" },
+  { value: "24h", label: "response time" },
 ] as const;
 
 export const servicesEn: Service[] = [
@@ -186,7 +186,7 @@ export const servicesEn: Service[] = [
       "stronger first impression with clients",
     ],
     deliverables: [
-      "PNG  for web, with and without background",
+      "PNG – for web, with and without background",
       "JPG  for simple day-to-day uses",
       "SVG  vector file for websites and scaling",
       "PDF  for print and sharing",
@@ -207,10 +207,10 @@ export const servicesEn: Service[] = [
         slug: "logo-start",
         name: "Basic package",
         price: 300,
-        priceLabel: "300600 PLN net",
+        priceLabel: "300-600 PLN net",
         turnaround: "up to 5 business days",
         revisions: "1 revision round",
-        description: "12 logo directions without a full identity system or brand book. The package still includes the full set of final files.",
+        description: "1-2 logo directions without a full identity system or brand book. The package still includes the full set of final files.",
         addons: [
           { name: "mini logo guide", price: 149 },
           { name: "social media avatar set", price: 79 },
@@ -220,10 +220,10 @@ export const servicesEn: Service[] = [
         slug: "logo-pro",
         name: "Standard package",
         price: 700,
-        priceLabel: "7001000 PLN net",
+        priceLabel: "700-1000 PLN net",
         turnaround: "up to 7 business days",
         revisions: "23 revision rounds",
-        description: "24 logo directions, market and competitor analysis for brand visibility, plus a basic logo usage guide and a full set of files.",
+        description: "2-4 logo directions, market and competitor analysis for brand visibility, plus a basic logo usage guide and a full set of files.",
         addons: [
           { name: "brandboard", price: 199 },
           { name: "business card design", price: 129 },
@@ -233,7 +233,7 @@ export const servicesEn: Service[] = [
         slug: "logo-premium",
         name: "Premium / branding package",
         price: 1500,
-        priceLabel: "15003000+ PLN net",
+        priceLabel: "1500-3000+ PLN net",
         turnaround: "up to 10 business days",
         revisions: "23 revision rounds",
         description: "34 logo concepts, refinement of the chosen direction, market analysis, broader identity work, colors, fonts, logo variations and a full brand guide.",

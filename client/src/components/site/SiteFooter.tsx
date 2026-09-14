@@ -1,19 +1,39 @@
 import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 import { Link } from "wouter";
 import { useLocale } from "@/contexts/LocaleContext";
+import { SHOP_ENABLED } from "@/siteConfig";
+
+type FooterLink = {
+  href: string;
+  label: string;
+  /** Link kotwicowy (np. /#kontakt) – zwykłe <a>, żeby działał z każdej podstrony. */
+  anchor?: boolean;
+};
 
 export function SiteFooter() {
   const { locale, getStaticPath } = useLocale();
 
-  const navigationLinks = [
-    { href: getStaticPath("about"), label: locale === "en" ? "About" : "O nas" },
-    { href: getStaticPath("services"), label: locale === "en" ? "Services" : "Usługi" },
-    { href: getStaticPath("portfolio"), label: "Portfolio" },
-    { href: getStaticPath("reviews"), label: locale === "en" ? "Reviews" : "Opinie" },
-    { href: getStaticPath("faq"), label: "FAQ" },
-    { href: getStaticPath("blog"), label: "Blog" },
-    { href: getStaticPath("order"), label: locale === "en" ? "Order a project" : "Zamów projekt" },
-  ];
+  const contactHref = `${getStaticPath("home")}#kontakt`;
+
+  const navigationLinks: FooterLink[] = SHOP_ENABLED
+    ? [
+        { href: getStaticPath("about"), label: locale === "en" ? "About" : "O nas" },
+        { href: getStaticPath("services"), label: locale === "en" ? "Services" : "Usługi" },
+        { href: getStaticPath("portfolio"), label: "Portfolio" },
+        { href: getStaticPath("reviews"), label: locale === "en" ? "Reviews" : "Opinie" },
+        { href: getStaticPath("faq"), label: "FAQ" },
+        { href: getStaticPath("blog"), label: "Blog" },
+        { href: getStaticPath("order"), label: locale === "en" ? "Order a project" : "Zamów projekt" },
+      ]
+    : [
+        // Tryb wizytówki: bez usług, sklepu i zamówień – zamiast tego link do sekcji kontaktu.
+        { href: getStaticPath("about"), label: locale === "en" ? "About" : "O nas" },
+        { href: getStaticPath("portfolio"), label: "Portfolio" },
+        { href: getStaticPath("reviews"), label: locale === "en" ? "Reviews" : "Opinie" },
+        { href: getStaticPath("faq"), label: "FAQ" },
+        { href: getStaticPath("blog"), label: "Blog" },
+        { href: contactHref, label: locale === "en" ? "Get in touch" : "Napisz do nas", anchor: true },
+      ];
 
   return (
     <footer className="border-t border-white/5 bg-card/40 py-14">
@@ -21,24 +41,38 @@ export function SiteFooter() {
         <div>
           <img src="/logo.png" alt="DatiVe Design" className="mb-5 h-12 w-auto" />
           <p className="max-w-md text-sm leading-relaxed text-white/60">
-            {locale === "en"
-              ? "DatiVe Design is a modern design studio combining premium portfolio presentation, online service sales and an organized delivery process."
-              : "DatiVe Design to nowoczesne studio projektowe łączące premium portfolio, sprzedaż usług online i uporządkowany proces realizacji."}
+            {SHOP_ENABLED
+              ? locale === "en"
+                ? "DatiVe Design is a modern design studio combining premium portfolio presentation, online service sales and an organized delivery process."
+                : "DatiVe Design to nowoczesne studio projektowe łączące premium portfolio, sprzedaż usług online i uporządkowany proces realizacji."
+              : locale === "en"
+                ? "DatiVe Design is a modern design studio combining premium portfolio presentation, refined visual identity and an organized delivery process."
+                : "DatiVe Design to nowoczesne studio projektowe łączące premium portfolio, dopracowaną identyfikację wizualną i uporządkowany proces realizacji."}
           </p>
         </div>
 
         <div>
           <div className="section-label mb-4">{locale === "en" ? "Navigation" : "Nawigacja"}</div>
           <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-white/70 transition-colors hover:text-gold"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navigationLinks.map((link) =>
+              link.anchor ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-white/70 transition-colors hover:text-gold"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-white/70 transition-colors hover:text-gold"
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
           </div>
         </div>
 

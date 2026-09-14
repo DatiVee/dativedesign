@@ -38,8 +38,8 @@ export default function Blog() {
             }
             description={
               locale === "en"
-                ? "Practical reads that answer the questions clients ask most - and help you get more out of your brand."
-                : "Praktyczne teksty, które odpowiadają na najczęstsze pytania klientów - i pomagają wycisnąć więcej z marki."
+                ? "Practical reads that answer the questions clients ask most – and help you get more out of your brand."
+                : "Praktyczne teksty, które odpowiadają na najczęstsze pytania klientów – i pomagają wycisnąć więcej z marki."
             }
           />
         </Reveal>
@@ -61,7 +61,7 @@ export default function Blog() {
                     <div className="section-label mb-3">
                       {locale === "en" ? "Featured article" : "Wyróżniony artykuł"}
                     </div>
-                    <h2 className="font-display text-4xl font-black text-white sm:text-5xl">
+                    <h2 className="leading-[1.15] font-display text-4xl font-black text-white sm:text-5xl">
                       {featuredPost.title}
                     </h2>
                   </div>

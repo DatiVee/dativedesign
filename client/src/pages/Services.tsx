@@ -27,8 +27,8 @@ export default function Services() {
             eyebrow={locale === "en" ? "Services" : "Usługi"}
             title={locale === "en" ? "All graphic design services in one place" : "Wszystkie usługi graficzne w jednym miejscu"}
             description={
-              locale === "en" ? "Clear scope, examples and packages with pricing - everything you need to order with confidence."
-                : "Jasny zakres, przykłady i pakiety z cenami - wszystko, czego potrzebujesz, żeby zamówić bez wahania."
+              locale === "en" ? "Clear scope, examples and packages with pricing – everything you need to order with confidence."
+                : "Jasny zakres, przykłady i pakiety z cenami – wszystko, czego potrzebujesz, żeby zamówić bez wahania."
             }
           />
         </Reveal>

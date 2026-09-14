@@ -1,10 +1,11 @@
-import { Menu, ShoppingBag, Sparkles, X } from "lucide-react";
+import { Mail, Menu, ShoppingBag, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useCart } from "@/contexts/CartContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { services } from "@/data/siteContent";
 import type { StaticRouteKey } from "@/lib/localeRoutes";
+import { SHOP_ENABLED } from "@/siteConfig";
 
 export function SiteHeader() {
   const [location] = useLocation();
@@ -30,7 +31,7 @@ export function SiteHeader() {
     };
   }, [menuOpen]);
 
-  const navItems: { key: StaticRouteKey; label: string }[] =
+  const allNavItems: { key: StaticRouteKey; label: string }[] =
     locale === "en"
       ? [
           { key: "home", label: "Home" },
@@ -52,6 +53,15 @@ export function SiteHeader() {
           { key: "blog", label: "Blog" },
           { key: "order", label: "Zamów projekt" },
         ];
+
+  // Tryb wizytówki (SHOP_ENABLED = false): bez "Usługi" i "Zamów projekt" w nawigacji,
+  // zamiast tego na końcu zwykły link kotwicowy do sekcji kontaktu na stronie głównej.
+  const navItems = SHOP_ENABLED
+    ? allNavItems
+    : allNavItems.filter((item) => item.key !== "services" && item.key !== "order");
+
+  const contactHref = `${getStaticPath("home")}#kontakt`;
+  const contactLabel = locale === "en" ? "Contact" : "Kontakt";
 
   const isActive = (key: StaticRouteKey) => {
     const href = getStaticPath(key);
@@ -93,6 +103,14 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          {SHOP_ENABLED ? null : (
+            <a
+              href={contactHref}
+              className="font-display text-sm font-bold uppercase tracking-wide text-white/65 transition-colors hover:text-gold"
+            >
+              {contactLabel}
+            </a>
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
@@ -104,25 +122,37 @@ export function SiteHeader() {
             <span className="text-white/30">/</span>
             {alternateLocale.toUpperCase()}
           </Link>
-          <Link
-            href={getStaticPath("cart")}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/70 transition-colors hover:border-gold/30 hover:text-gold"
-          >
-            <ShoppingBag size={16} />
-            {locale === "en" ? "Cart" : "Koszyk"}
-            {count > 0 ? (
-              <span className="rounded-full bg-gold px-2 py-0.5 text-xs font-bold text-background">
-                {count}
-              </span>
-            ) : null}
-          </Link>
-          <Link
-            href={getStaticPath("order")}
-            className="gold-button-shimmer inline-flex items-center gap-2 rounded-sm px-5 py-3 text-sm font-black uppercase tracking-wider text-background"
-          >
-            <Sparkles size={15} />
-            {locale === "en" ? "Shop" : "Sklep"}
-          </Link>
+          {SHOP_ENABLED ? (
+            <>
+              <Link
+                href={getStaticPath("cart")}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/70 transition-colors hover:border-gold/30 hover:text-gold"
+              >
+                <ShoppingBag size={16} />
+                {locale === "en" ? "Cart" : "Koszyk"}
+                {count > 0 ? (
+                  <span className="rounded-full bg-gold px-2 py-0.5 text-xs font-bold text-background">
+                    {count}
+                  </span>
+                ) : null}
+              </Link>
+              <Link
+                href={getStaticPath("order")}
+                className="gold-button-shimmer inline-flex items-center gap-2 rounded-sm px-5 py-3 text-sm font-black uppercase tracking-wider text-background"
+              >
+                <Sparkles size={15} />
+                {locale === "en" ? "Shop" : "Sklep"}
+              </Link>
+            </>
+          ) : (
+            <a
+              href={contactHref}
+              className="gold-button-shimmer inline-flex items-center gap-2 rounded-sm px-5 py-3 text-sm font-black uppercase tracking-wider text-background"
+            >
+              <Mail size={15} />
+              {locale === "en" ? "Get in touch" : "Napisz do nas"}
+            </a>
+          )}
         </div>
 
         <button
@@ -164,15 +194,28 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <Link
-                href={getStaticPath("cart")}
+            {SHOP_ENABLED ? null : (
+              <a
+                href={contactHref}
                 onClick={() => setMenuOpen(false)}
-                className="inline-flex items-center gap-2 text-sm text-white/75"
+                className="font-display text-sm font-bold uppercase tracking-wide text-white/75"
               >
-                <ShoppingBag size={16} />
-                {locale === "en" ? `Cart (${count})` : `Koszyk (${count})`}
-              </Link>
+                {contactLabel}
+              </a>
+            )}
+            <div
+              className={`mt-2 flex items-center gap-3 ${SHOP_ENABLED ? "justify-between" : "justify-end"}`}
+            >
+              {SHOP_ENABLED ? (
+                <Link
+                  href={getStaticPath("cart")}
+                  onClick={() => setMenuOpen(false)}
+                  className="inline-flex items-center gap-2 text-sm text-white/75"
+                >
+                  <ShoppingBag size={16} />
+                  {locale === "en" ? `Cart (${count})` : `Koszyk (${count})`}
+                </Link>
+              ) : null}
               <Link
                 href={switchPath}
                 onClick={() => setMenuOpen(false)}

@@ -69,8 +69,8 @@ export type BlogPost = {
 export const companyStats = [
   { value: "300+", label: "obsłużonych klientów" },
   { value: "100%", label: "rekomendacji" },
-  { value: "Różne", label: "branże i różnorodne projekty" },
-  { value: "Kontakt", label: "bez pośredników" },
+  { value: "20", label: "usług w ofercie" },
+  { value: "24h", label: "czas odpowiedzi" },
 ] as const;
 
 export const services: Service[] = [
@@ -244,11 +244,11 @@ export const services: Service[] = [
       "lepsze pierwsze wrażenie u klientów",
     ],
     deliverables: [
-      "PNG - do internetu, z tłem i bez tła",
-      "JPG - do prostych zastosowań",
-      "SVG - do stron i skalowania bez utraty jakości",
-      "PDF - do druku i przekazywania dalej",
-      "AI / EPS - pliki wektorowe do edycji",
+      "PNG – do internetu, z tłem i bez tła",
+      "JPG – do prostych zastosowań",
+      "SVG – do stron i skalowania bez utraty jakości",
+      "PDF – do druku i przekazywania dalej",
+      "AI / EPS – pliki wektorowe do edycji",
       "wersje kolorystyczne: pełna, czarno-biała, odwrócona",
       "w standard i premium: układ poziomy, pionowy i sam sygnet",
     ],

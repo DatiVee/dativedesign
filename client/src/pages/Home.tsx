@@ -1,8 +1,7 @@
-import { ArrowRight, Check, Sparkles, Star } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Quote, Sparkles, Star } from "lucide-react";
 import { Link } from "wouter";
 import { ContactSection } from "@/components/site/ContactSection";
 import { Reveal } from "@/components/site/Reveal";
-import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
 import {
@@ -14,6 +13,32 @@ import {
   getTestimonials,
 } from "@/data/localizedSiteContent";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { isShopOnlyFaq } from "@/lib/faqVisibility";
+import { SHOP_ENABLED } from "@/siteConfig";
+
+/** Nadtytuł sekcji z kreską – jeden wzorzec na całej stronie.
+ *  `as="h2"` tam, gdzie sekcja nie ma innego nagłówka (semantyka + czytniki). */
+function Kicker({
+  children,
+  className = "",
+  as: Tag = "div",
+}: {
+  children: React.ReactNode;
+  className?: string;
+  as?: "div" | "h2";
+}) {
+  return <Tag className={`fx-kicker ${className}`}>{children}</Tag>;
+}
+
+/** Numer porządkowy kroku – pełna, wygaszona cyfra (kontur wyglądał
+ *  jak rysunek techniczny, nie jak premium). */
+function Numeral({ value }: { value: string }) {
+  return (
+    <span className="block font-display text-5xl font-black leading-none tracking-tight text-white/14 sm:text-6xl">
+      {value}
+    </span>
+  );
+}
 
 export default function Home() {
   const { locale, getBlogPostPath, getPortfolioDetailPath, getServicePath, getStaticPath } =
@@ -23,574 +48,566 @@ export default function Home() {
   const homepageProjects = getHomepageProjectsLocalized(locale);
   const companyStats = getCompanyStats(locale);
   const testimonials = getTestimonials(locale);
-  const faqs = getFaqs(locale);
+  /* Wizytówka: pytania o płatności / koszyk / zakup nie mają sensu bez sklepu (ten sam filtr co strona FAQ). */
+  const faqs = SHOP_ENABLED ? getFaqs(locale) : getFaqs(locale).filter((faq) => !isShopOnlyFaq(faq));
   const latestPosts = getBlogPosts(locale).slice(0, 3);
 
   const [leadProject, ...restProjects] = homepageProjects;
-  const [leadReview, ...restReviews] = testimonials;
+  const leadReview = testimonials[0];
 
   usePageMeta(
     locale === "en"
-      ? "DatiVe Design | Premium graphic design studio and online service ordering"
-      : "DatiVe Design | Premium studio graficzne i zamówienia usług online",
+      ? SHOP_ENABLED
+        ? "DatiVe Design | Premium graphic design studio and online service ordering"
+        : "DatiVe Design | Graphic design studio – Rzeszów, Kolbuszowa"
+      : SHOP_ENABLED
+        ? "DatiVe Design | Premium studio graficzne i zamówienia usług online"
+        : "DatiVe Design | Studio graficzne – Rzeszów, Kolbuszowa",
     locale === "en"
-      ? "DatiVe Design combines premium portfolio presentation, a modern creative agency feel and online service sales for logo design, branding, social media, print and advertising materials."
-      : "DatiVe Design łączy premium portfolio, nowoczesną agencję kreatywną i sprzedaż usług graficznych online: logo, branding, social media, druk i materiały reklamowe.",
+      ? SHOP_ENABLED
+        ? "DatiVe Design combines premium portfolio presentation, a modern creative agency feel and online service sales for logo design, branding, social media, print and advertising materials."
+        : "Visual identities, logos, labels, print and advertising design. DatiVe Design – a graphic design studio in Rzeszów and Kolbuszowa, working with companies across Poland."
+      : SHOP_ENABLED
+        ? "DatiVe Design łączy premium portfolio, nowoczesną agencję kreatywną i sprzedaż usług graficznych online: logo, branding, social media, druk i materiały reklamowe."
+        : "Identyfikacje wizualne, logo, etykiety, materiały drukowane i grafika reklamowa. DatiVe Design – studio graficzne z Rzeszowa i Kolbuszowej, dla firm z całej Polski.",
     { locale, path: getStaticPath("home") },
   );
 
-  const hero =
+  const t =
     locale === "en"
       ? {
-          label: "Graphic Designer - Rzeszów / Kolbuszowa / International",
-          titleTop: "FROM IDEA",
-          titleBottom: "TO EXECUTION",
-          description:
-            "Professional graphic design services for your business. I create visual identities, labels, print materials and promotional graphics that help your brand stand out.",
-          primary: "Order project",
-          secondary: "See portfolio",
+          heroLabel: "Graphic design studio – Rzeszów / Kolbuszowa",
+          heroTop: "FROM IDEA",
+          heroBottom: "TO EXECUTION",
+          heroDesc: SHOP_ENABLED
+            ? "Visual identities, labels, print and advertising design for companies that want to look professional."
+            : "Visual identities, labels, print and advertising design. Rzeszów, Kolbuszowa and remotely – for companies across Poland.",
+          heroPrimary: SHOP_ENABLED ? "Request a quote" : "See portfolio",
+          heroSecondary: SHOP_ENABLED ? "See portfolio" : "Get in touch",
+          workKicker: "Selected work",
+          workTitle: "Projects that",
+          workAccent: "did the job",
+          workDesc:
+            "Labels, branding, business cards and campaign materials. Every project comes with its goal and result.",
+          workAll: "See full portfolio",
+          servicesKicker: SHOP_ENABLED ? "Services" : "Scope",
+          servicesTitle: SHOP_ENABLED ? "What you can" : "What I can",
+          servicesAccent: SHOP_ENABLED ? "order" : "do for you",
+          servicesDesc: SHOP_ENABLED
+            ? "Clear scope, defined packages, transparent starting prices."
+            : "Logo, branding, print and advertising design – from concept to final files.",
+          servicesAll: "All services",
+          processKicker: "How it works",
+          processTitle: "Four steps,",
+          processAccent: "no guesswork",
+          reviewKicker: "Client review",
+          reviewsAll: "All reviews",
+          ctaKicker: "Start your project",
+          ctaTitle: SHOP_ENABLED ? "Pick a package," : "Got a project",
+          ctaAccent: SHOP_ENABLED ? "get a free quote" : "in mind?",
+          ctaDesc: SHOP_ENABLED
+            ? "Add services to the cart and send one free, no-obligation request. The tailored quote lands in your inbox."
+            : "Write a few sentences about what you need – I reply within 24 hours on business days.",
+          ctaButton: SHOP_ENABLED ? "Request a quote" : "Get in touch",
+          faqKicker: SHOP_ENABLED ? "Before you order" : "Good to know",
+          faqAll: "Full FAQ",
+          blogKicker: "Journal",
+          blogAll: "Go to blog",
+          openProject: "View project",
+          from: "from",
         }
       : {
-          label: "Projektant graficzny - Rzeszów / Kolbuszowa",
-          titleTop: "Z POMYSŁU",
-          titleBottom: "DO REALIZACJI",
-          description:
-            "Profesjonalne usługi graficzne dla Twojej firmy. Tworzę identyfikacje wizualne, etykiety, materiały drukowane i grafiki reklamowe, które wyróżniają Twoją markę.",
-          primary: "Zamów projekt",
-          secondary: "Zobacz portfolio",
+          heroLabel: "Studio graficzne – Rzeszów / Kolbuszowa",
+          heroTop: "Z POMYSŁU",
+          heroBottom: "DO REALIZACJI",
+          heroDesc: SHOP_ENABLED
+            ? "Identyfikacje wizualne, etykiety, materiały drukowane i grafika reklamowa dla firm, które chcą wyglądać profesjonalnie."
+            : "Identyfikacje wizualne, etykiety, materiały drukowane i grafika reklamowa. Rzeszów, Kolbuszowa i zdalnie – dla firm z całej Polski.",
+          heroPrimary: SHOP_ENABLED ? "Zapytaj o wycenę" : "Zobacz portfolio",
+          heroSecondary: SHOP_ENABLED ? "Zobacz portfolio" : "Napisz do nas",
+          workKicker: "Wybrane realizacje",
+          workTitle: "Projekty, które",
+          workAccent: "zrobiły robotę",
+          workDesc:
+            "Etykiety, branding, wizytówki i materiały reklamowe. Przy każdej realizacji opisany cel i efekt.",
+          workAll: "Zobacz pełne portfolio",
+          servicesKicker: SHOP_ENABLED ? "Usługi" : "Zakres",
+          servicesTitle: SHOP_ENABLED ? "Co możesz" : "Co mogę",
+          servicesAccent: SHOP_ENABLED ? "zamówić" : "dla Ciebie zrobić",
+          servicesDesc: SHOP_ENABLED
+            ? "Jasny zakres, konkretne pakiety, przejrzyste ceny startowe."
+            : "Logo, branding, materiały drukowane i grafika reklamowa – od koncepcji po gotowe pliki.",
+          servicesAll: "Wszystkie usługi",
+          processKicker: "Jak to działa",
+          processTitle: "Cztery kroki,",
+          processAccent: "zero domysłów",
+          reviewKicker: "Opinia klienta",
+          reviewsAll: "Wszystkie opinie",
+          ctaKicker: "Zacznij projekt",
+          ctaTitle: SHOP_ENABLED ? "Wybierz pakiet," : "Masz projekt",
+          ctaAccent: SHOP_ENABLED ? "zapytaj o wycenę" : "do zrobienia?",
+          ctaDesc: SHOP_ENABLED
+            ? "Dodaj usługi do koszyka i wyślij jedno bezpłatne zapytanie. Dopasowana wycena przyjdzie na maila."
+            : "Napisz kilka zdań o tym, czego potrzebujesz – odpowiadam do 24h w dni robocze.",
+          ctaButton: SHOP_ENABLED ? "Zapytaj o wycenę" : "Napisz do nas",
+          faqKicker: SHOP_ENABLED ? "Zanim zamówisz" : "Warto wiedzieć",
+          faqAll: "Pełne FAQ",
+          blogKicker: "Dziennik",
+          blogAll: "Przejdź do bloga",
+          openProject: "Zobacz projekt",
+          from: "od",
         };
 
   const marqueeItems =
     locale === "en"
+      ? ["PRINT", "ADVERTISING", "REBRANDING", "BRANDING", "LOGO", "LABELS", "BUSINESS CARDS", "PACKAGING", "SOCIAL MEDIA"]
+      : ["DRUK", "REKLAMA", "REBRANDING", "BRANDING", "LOGO", "ETYKIETY", "WIZYTÓWKI", "OPAKOWANIA", "SOCIAL MEDIA"];
+
+  const steps =
+    locale === "en"
       ? [
-          "PRINT MATERIALS",
-          "ADVERTISING GRAPHICS",
-          "REBRANDING",
-          "BRANDING",
-          "LOGO",
-          "LABELS",
-          "BUSINESS CARDS",
-          "PACKAGING",
-          "SOCIAL MEDIA",
+          ["Brief", "We define the goal, scope and deadline – in plain words."],
+          ["Direction", "You get a visual concept matched to your brand and audience."],
+          ["Refinement", "We polish it based on feedback that moves the project forward."],
+          ["Handoff", "You receive ready-to-use files for web, print and rollout."],
         ]
       : [
-          "MATERIAŁY DRUKOWANE",
-          "GRAFIKA REKLAMOWA",
-          "REBRANDING",
-          "BRANDING",
-          "LOGO",
-          "ETYKIETY",
-          "WIZYTÓWKI",
-          "OPAKOWANIA",
-          "SOCIAL MEDIA",
+          ["Brief", "Ustalamy cel, zakres i termin – prostym językiem."],
+          ["Kierunek", "Dostajesz koncepcję wizualną dopasowaną do marki i odbiorcy."],
+          ["Dopracowanie", "Szlifujemy projekt na bazie uwag, które realnie go rozwijają."],
+          ["Przekazanie", "Odbierasz gotowe pliki pod web, druk i wdrożenie."],
         ];
 
-  const formatPackagePrice = (price: number, priceLabel?: string) =>
-    priceLabel ?? (locale === "en" ? `${price} PLN` : `${price} zł`);
+  const priceFrom = (service: (typeof featuredServices)[number]) => {
+    const pkg = service.packages[0];
+    if (!pkg) return "";
+    if (pkg.priceLabel) return pkg.priceLabel;
+    return locale === "en" ? `${t.from} ${pkg.price} PLN` : `${t.from} ${pkg.price} zł`;
+  };
 
   return (
     <SiteLayout>
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-white/5">
+      {/* ---------- HERO ---------- */}
+      <section className="fx-grain relative flex min-h-[86vh] items-end overflow-hidden border-b border-white/5">
         <div className="absolute inset-0">
           <img
             src="/hero.jpg"
             alt=""
-            className="h-full w-full object-cover object-center opacity-65"
+            className="h-full w-full object-cover object-center"
             fetchPriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/28 via-background/22 to-background/82" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/72 via-background/38 to-background/8" />
-          <div className="ambient-orb ambient-orb-gold left-[7%] top-16 h-44 w-44" />
-          <div className="ambient-orb ambient-orb-soft bottom-10 right-[12%] h-52 w-52" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/78 to-background/35" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/55 to-transparent" />
         </div>
 
-        <div className="relative container py-24 sm:py-28 lg:py-36">
-          <div className="max-w-5xl">
-            <div className="section-label mb-5 animate-fade-up">{hero.label}</div>
-            <h1 className="max-w-4xl font-display text-4xl font-black leading-[0.94] text-white sm:text-6xl lg:text-8xl animate-fade-up">
-              <span className="block">{hero.titleTop}</span>
-              <span className="block text-gold">{hero.titleBottom}</span>
+        <div className="relative container pb-14 pt-32 sm:pb-16 sm:pt-40">
+          <div className="max-w-4xl">
+            <Kicker className="animate-fade-up">{t.heroLabel}</Kicker>
+            <h1 className="mt-6 font-display text-[2.7rem] font-black leading-[0.95] tracking-[-0.03em] text-white sm:text-7xl lg:text-[5.75rem] animate-fade-up">
+              <span className="block">{t.heroTop}</span>
+              <span className="block text-gold">{t.heroBottom}</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg animate-fade-up-delay-1">
-              {hero.description}
+            <p className="mt-7 max-w-lg text-base leading-relaxed text-white/70 sm:text-lg animate-fade-up-delay-1">
+              {t.heroDesc}
             </p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row animate-fade-up-delay-2">
-              <Link
-                href={getStaticPath("order")}
-                className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-7 py-4 text-sm font-black uppercase tracking-wider text-background"
-              >
-                <Sparkles size={18} />
-                {hero.primary}
-              </Link>
-              <Link
-                href={getStaticPath("portfolio")}
-                className="inline-flex items-center justify-center gap-2 rounded-sm border border-gold/30 px-7 py-4 text-sm font-black uppercase tracking-wider text-gold transition-colors hover:bg-gold/10"
-              >
-                {hero.secondary}
-                <ArrowRight size={18} />
-              </Link>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/60 animate-fade-up-delay-3">
-              {companyStats.slice(0, 3).map((stat) => (
-                <span key={stat.label} className="inline-flex items-center gap-2">
-                  <Check size={16} className="text-gold" />
-                  <span className="font-bold text-white">{stat.value}</span>
-                  {stat.label}
-                </span>
-              ))}
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center animate-fade-up-delay-2">
+              {SHOP_ENABLED ? (
+                <>
+                  <Link
+                    href={getStaticPath("order")}
+                    className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-8 py-4 text-sm font-black uppercase tracking-wider text-background"
+                  >
+                    <Sparkles size={17} />
+                    {t.heroPrimary}
+                  </Link>
+                  <Link
+                    href={getStaticPath("portfolio")}
+                    className="fx-underline inline-flex items-center justify-center gap-2 px-2 py-4 text-sm font-bold uppercase tracking-wider text-white/80"
+                  >
+                    {t.heroSecondary}
+                    <ArrowRight size={16} />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href={getStaticPath("portfolio")}
+                    className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-8 py-4 text-sm font-black uppercase tracking-wider text-background"
+                  >
+                    {t.heroPrimary}
+                    <ArrowRight size={17} />
+                  </Link>
+                  <a
+                    href="#kontakt"
+                    className="fx-underline inline-flex items-center justify-center gap-2 px-2 py-4 text-sm font-bold uppercase tracking-wider text-white/80"
+                  >
+                    {t.heroSecondary}
+                    <ArrowRight size={16} />
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
-          <a
-            href="#home-work"
-            className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/45 transition-colors hover:text-gold md:flex"
-          >
-            <span>{locale === "en" ? "Scroll" : "Przewiń"}</span>
-            <span className="text-gold">↓</span>
-          </a>
-        </div>
-
-        <div className="relative overflow-hidden border-t border-gold/15 bg-gold/8 py-5">
-          <div className="flex min-w-max animate-marquee gap-8 whitespace-nowrap">
-            {[...marqueeItems, ...marqueeItems].map((item, index) => (
-              <span
-                key={`${item}-${index}`}
-                className="font-display text-sm font-bold uppercase tracking-[0.18em] text-gold/90"
-              >
-                {item}
-                <span className="ml-8 text-gold/45">•</span>
-              </span>
+          {/* pasek dowodów – wbudowany w hero zamiast osobnej sekcji */}
+          <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-7 border-t border-white/10 pt-8 sm:mt-16 lg:grid-cols-4 animate-fade-up-delay-3">
+            {companyStats.map((stat) => (
+              <div key={stat.label}>
+                <div className="font-display text-2xl font-extrabold tracking-tight text-gold sm:text-3xl">
+                  {stat.value}
+                </div>
+                <div className="mt-1.5 text-[13px] leading-snug text-white/55">{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* PROOF BAR (jeden, scalony zestaw statystyk) */}
-      <section className="border-b border-white/5 bg-white/[0.02] py-10 sm:py-12">
-        <div className="container grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {companyStats.map((stat, index) => (
-            <Reveal
-              key={stat.label}
-              delay={index * 80}
-              className="rounded-sm border border-white/5 bg-card px-6 py-5"
+      <div className="relative overflow-hidden border-b border-white/5 bg-gold/[0.07] py-4">
+        <div className="fx-edge-fade-r flex min-w-max animate-marquee gap-10 whitespace-nowrap">
+          {[...marqueeItems, ...marqueeItems].map((item, index) => (
+            <span
+              key={`${item}-${index}`}
+              className="font-display text-xs font-bold uppercase tracking-[0.28em] text-gold/85"
             >
-              <div className="font-display text-3xl font-black text-gold sm:text-4xl">{stat.value}</div>
-              <div className="mt-2 text-sm text-white/65">{stat.label}</div>
-            </Reveal>
+              {item}
+            </span>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* PORTFOLIO - przeniesione wyżej, z dużym kafelkiem wiodącym */}
-      <section id="home-work" className="py-20 sm:py-24">
+      {/* ---------- PORTFOLIO ---------- */}
+      <section id="home-work" className="py-24 sm:py-32">
         <div className="container">
           <Reveal>
-            <SectionHeading
-              eyebrow="Portfolio"
-              title={locale === "en" ? "Selected" : "Wybrane"}
-              accent={locale === "en" ? "work" : "realizacje"}
-              description={
-                locale === "en"
-                  ? "A selection of projects where design solved a real problem for the brand - not just looked good."
-                  : "Wybór projektów, w których design rozwiązał realny problem marki - a nie tylko ładnie wyglądał."
-              }
-            />
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <Kicker>{t.workKicker}</Kicker>
+                <h2 className="mt-5 font-display text-[2rem] font-extrabold leading-[1.15] text-white sm:text-[3.1rem]">
+                  {t.workTitle}
+                  <span className="block text-gold">{t.workAccent}</span>
+                </h2>
+              </div>
+              <p className="max-w-sm text-sm leading-relaxed text-white/58 sm:text-base">{t.workDesc}</p>
+            </div>
           </Reveal>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {leadProject ? (
-              <Reveal className="lg:col-span-2" as="div">
-                <Link
-                  href={getPortfolioDetailPath(leadProject.slug)}
-                  className="group block h-full overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden lg:aspect-[16/9]">
-                    <img
-                      src={leadProject.image}
-                      alt={leadProject.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="portfolio-sheen absolute inset-0" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/10 to-transparent" />
-                    <div className="absolute bottom-0 left-0 p-6 sm:p-8">
-                      <div className="section-label mb-2">{leadProject.category}</div>
-                      <h3 className="font-display text-2xl font-black text-white sm:text-4xl">
+          {leadProject ? (
+            <Reveal className="mt-12">
+              <Link
+                href={getPortfolioDetailPath(leadProject.slug)}
+                className="fx-media gold-border-hover group relative block overflow-hidden rounded-sm"
+              >
+                <div className="aspect-[16/10] lg:aspect-[21/9]">
+                  <img
+                    src={leadProject.image}
+                    alt={leadProject.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
+                  <div className="flex flex-wrap items-end justify-between gap-5">
+                    <div className="max-w-2xl">
+                      <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold">
+                        {leadProject.category}
+                      </div>
+                      <h3 className="mt-3 font-display text-2xl font-extrabold text-white sm:text-4xl">
                         {leadProject.title}
                       </h3>
-                      <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/65">
+                      <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/70">
                         {leadProject.summary}
                       </p>
-                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
-                        {locale === "en" ? "View project" : "Zobacz projekt"}
-                        <ArrowRight size={16} />
-                      </span>
                     </div>
+                    <span className="inline-flex shrink-0 items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold">
+                      {t.openProject}
+                      <ArrowUpRight size={17} />
+                    </span>
                   </div>
-                </Link>
-              </Reveal>
-            ) : null}
-
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-              {restProjects.slice(0, 2).map((project, index) => (
-                <Reveal key={project.slug} delay={index * 100}>
-                  <Link
-                    href={getPortfolioDetailPath(project.slug)}
-                    className="group block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="portfolio-sheen absolute inset-0" />
-                    </div>
-                    <div className="p-5">
-                      <div className="section-label mb-1.5">{project.category}</div>
-                      <h3 className="font-display text-lg font-black text-white">{project.title}</h3>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-
-          {restProjects.length > 2 ? (
-            <div className="mt-6 grid gap-6 md:grid-cols-3">
-              {restProjects.slice(2).map((project, index) => (
-                <Reveal key={project.slug} delay={index * 100}>
-                  <Link
-                    href={getPortfolioDetailPath(project.slug)}
-                    className="group block overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
-                  >
-                    <div className="relative aspect-square overflow-hidden">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="portfolio-sheen absolute inset-0" />
-                    </div>
-                    <div className="p-6">
-                      <div className="section-label mb-2">{project.category}</div>
-                      <h3 className="font-display text-xl font-black text-white">{project.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-white/60">{project.summary}</p>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          ) : null}
-
-          <div className="mt-10">
-            <Link
-              href={getStaticPath("portfolio")}
-              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
-            >
-              {locale === "en" ? "See full portfolio" : "Zobacz pełne portfolio"}
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* O MNIE */}
-      <section className="border-y border-white/5 bg-white/[0.02] py-20 sm:py-24">
-        <div className="container grid items-start gap-14 lg:grid-cols-[1fr_0.9fr]">
-          <Reveal>
-            <SectionHeading
-              eyebrow={locale === "en" ? "Our story" : "Nasza historia"}
-              title={locale === "en" ? "Graphic designer" : "Grafik komputerowy"}
-              accent={locale === "en" ? "with passion" : "z pasją"}
-              description={
-                locale === "en"
-                  ? "DatiVe Design is a graphic design studio based in Rzeszów and Kolbuszowa. I create professional visual materials for brands that want to stand out, look consistent and build a stronger market presence."
-                  : "DatiVe Design to studio graficzne z siedzibą w Rzeszowie i Kolbuszowej. Specjalizuję się w tworzeniu profesjonalnych materiałów graficznych dla firm, które chcą wyróżnić się na rynku i zbudować silną, rozpoznawalną markę."
-              }
-            />
-            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/68 sm:text-base">
-              {locale === "en"
-                ? "Every project is treated individually. I listen to the client, analyze the market and build solutions that are not only visually strong, but above all useful in real business communication."
-                : "Każdy projekt traktuję indywidualnie - słucham potrzeb klienta, analizuję rynek i tworzę rozwiązania, które nie tylko dobrze wyglądają, ale przede wszystkim działają. Od pomysłu do realizacji."}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {(locale === "en"
-                ? ["Always available", "100% recommendations", "Growing portfolio"]
-                : ["Zawsze dostępny", "100% rekomendacji", "Stale rozwijane portfolio"]
-              ).map((item) => (
-                <span
-                  key={item}
-                  className="inline-flex items-center gap-2 rounded-sm border border-gold/25 px-4 py-2 text-xs font-bold uppercase tracking-wide text-gold"
-                >
-                  <Check size={14} />
-                  {item}
-                </span>
-              ))}
-            </div>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <div className="rounded-sm border border-gold/20 bg-gradient-to-br from-gold/12 via-card to-card p-7 sm:p-9">
-              <div className="section-label mb-4">{locale === "en" ? "How I work" : "Jak pracuję"}</div>
-              <div className="grid gap-6">
-                {(locale === "en"
-                  ? [
-                      ["Direct contact", "You talk to the person doing the work - no middlemen, no telephone game."],
-                      ["Clear process", "Scope, price and timeline are agreed before anything starts."],
-                      ["Files you own", "You receive ready-to-use files in the right formats for web and print."],
-                    ]
-                  : [
-                      ["Kontakt bez pośredników", "Rozmawiasz z osobą, która realnie robi projekt - bez głuchego telefonu."],
-                      ["Przejrzysty proces", "Zakres, cenę i termin ustalamy, zanim cokolwiek ruszy."],
-                      ["Pliki na własność", "Dostajesz gotowe pliki w odpowiednich formatach pod web i druk."],
-                    ]
-                ).map(([title, text]) => (
-                  <div key={title} className="flex gap-4">
-                    <ArrowRight size={18} className="mt-1 shrink-0 text-gold" />
-                    <div>
-                      <div className="font-black text-white">{title}</div>
-                      <p className="mt-1 text-sm leading-relaxed text-white/60">{text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* USŁUGI */}
-      <section className="py-20 sm:py-24">
-        <div className="container">
-          <Reveal>
-            <SectionHeading
-              eyebrow={locale === "en" ? "Popular services" : "Najpopularniejsze usługi"}
-              title={locale === "en" ? "Services ready" : "Usługi gotowe"}
-              accent={locale === "en" ? "to order" : "do zamówienia"}
-              description={
-                locale === "en"
-                  ? "Clear scope, examples and packages with pricing - pick what fits and order online in a few clicks."
-                  : "Jasny zakres, przykłady i pakiety z cenami - wybierz to, co pasuje, i zamów online w kilka kliknięć."
-              }
-            />
-          </Reveal>
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {featuredServices.map((service, index) => (
-              <Reveal key={service.slug} delay={index * 100}>
-                <article className="flex h-full flex-col rounded-sm border border-white/5 bg-card p-6 gold-border-hover">
-                  <div className="section-label mb-3">{service.category}</div>
-                  <h3 className="font-display text-2xl font-black text-white">{service.name}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/65">{service.shortDescription}</p>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {service.packages.slice(0, 3).map((item) => (
-                      <span key={item.slug} className="rounded-full bg-white/5 px-3 py-1 text-xs text-white/50">
-                        {item.name} ·{" "}
-                        {item.priceLabel
-                          ? formatPackagePrice(item.price, item.priceLabel)
-                          : `${locale === "en" ? "from" : "od"} ${formatPackagePrice(item.price)}`}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-auto pt-6">
-                    <Link
-                      href={getServicePath(service.slug)}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-gold"
-                    >
-                      {locale === "en" ? "Service details" : "Szczegóły usługi"}
-                      <ArrowRight size={16} />
-                    </Link>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* OPINIE - jedna duża + mniejsze */}
-      <section className="border-y border-white/5 bg-white/[0.02] py-20 sm:py-24">
-        <div className="container">
-          <Reveal>
-            <SectionHeading
-              eyebrow={locale === "en" ? "Client reviews" : "Opinie klientów"}
-              title={locale === "en" ? "100% recommendation rate" : "100% rekomendacji"}
-              description={
-                locale === "en"
-                  ? "Beyond good-looking visuals you get a clear process, straightforward communication and a result you can count on."
-                  : "Poza dobrą estetyką dostajesz przejrzysty proces, prostą komunikację i efekt, na którym możesz polegać."
-              }
-            />
-          </Reveal>
-
-          {leadReview ? (
-            <Reveal className="mt-10">
-              <article className="rounded-sm border border-gold/20 bg-gradient-to-br from-gold/12 via-card to-card p-7 sm:p-10">
-                <div className="mb-5 flex gap-1">
-                  {Array.from({ length: leadReview.rating }).map((_, index) => (
-                    <Star key={`${leadReview.id}-${index}`} size={18} className="fill-gold text-gold" />
-                  ))}
                 </div>
-                <p className="font-display text-xl italic leading-relaxed text-white/85 sm:text-2xl">
-                  "{leadReview.quote}"
-                </p>
-                <div className="mt-6 text-sm text-white/55">
-                  <span className="font-bold text-white">{leadReview.name}</span> · {leadReview.company} ·{" "}
-                  {leadReview.service}
-                </div>
-              </article>
+              </Link>
             </Reveal>
           ) : null}
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            {restReviews.map((review, index) => (
-              <Reveal key={review.id} delay={index * 100}>
-                <article className="h-full rounded-sm border border-white/5 bg-card p-6">
-                  <div className="mb-4 flex gap-1">
-                    {Array.from({ length: review.rating }).map((_, starIndex) => (
-                      <Star key={`${review.id}-${starIndex}`} size={16} className="fill-gold text-gold" />
-                    ))}
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {restProjects.slice(0, 3).map((project, index) => (
+              <Reveal key={project.slug} delay={index * 90}>
+                <Link
+                  href={getPortfolioDetailPath(project.slug)}
+                  className="gold-border-hover group block h-full overflow-hidden rounded-sm bg-card"
+                >
+                  <div className="fx-media aspect-[4/3]">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                  <p className="text-lg italic leading-relaxed text-white/72">"{review.quote}"</p>
-                  <div className="mt-5 text-sm text-white/50">
-                    <span className="font-bold text-white">{review.name}</span> · {review.company} · {review.service}
+                  <div className="flex items-start justify-between gap-4 p-5">
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">
+                        {project.category}
+                      </div>
+                      <h3 className="mt-2 font-display text-lg font-bold text-white">{project.title}</h3>
+                    </div>
+                    <ArrowUpRight
+                      size={18}
+                      className="mt-1 shrink-0 text-white/30 transition-colors group-hover:text-gold"
+                    />
                   </div>
-                </article>
+                </Link>
               </Reveal>
             ))}
           </div>
 
-          <div className="mt-8">
+          <Reveal className="mt-10">
             <Link
-              href={getStaticPath("reviews")}
-              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+              href={getStaticPath("portfolio")}
+              className="fx-underline inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
             >
-              {locale === "en" ? "See all reviews" : "Zobacz wszystkie opinie"}
+              {t.workAll}
               <ArrowRight size={16} />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-20 sm:py-24">
-        <div className="container">
-          <Reveal>
-            <SectionHeading
-              eyebrow="FAQ"
-              title={locale === "en" ? "Before you order" : "Zanim zamówisz"}
-              description={
-                locale === "en"
-                  ? "Straight answers about revisions, files, timelines and payments - no fine print."
-                  : "Konkretne odpowiedzi o poprawkach, plikach, terminach i płatnościach - bez drobnego druku."
-              }
-            />
           </Reveal>
-          <div className="mt-10 grid gap-5 lg:grid-cols-2">
-            {faqs.slice(0, 4).map((faq, index) => (
-              <Reveal key={faq.id} delay={index * 80}>
-                <article className="h-full rounded-sm border border-white/5 bg-card p-6">
-                  <h3 className="font-display text-xl font-black text-white">{faq.question}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/65">{faq.answer}</p>
-                </article>
+        </div>
+      </section>
+
+      {/* ---------- USŁUGI (sklep) / CO ROBIĘ (wizytówka) – lista edytorialna ---------- */}
+      <section className="fx-glow-gold fx-glow-gold--tr relative border-y border-white/5 bg-white/[0.02] py-24 sm:py-32">
+        <div className="container relative">
+          <Reveal>
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <Kicker>{t.servicesKicker}</Kicker>
+                <h2 className="mt-5 font-display text-[2rem] font-extrabold leading-[1.15] text-white sm:text-[3.1rem]">
+                  {t.servicesTitle}
+                  <span className="block text-gold">{t.servicesAccent}</span>
+                </h2>
+              </div>
+              <p className="max-w-sm text-sm leading-relaxed text-white/58 sm:text-base">
+                {t.servicesDesc}
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="mt-12 border-t border-white/10">
+            {featuredServices.map((service, index) => (
+              <Reveal key={service.slug} delay={index * 70}>
+                {SHOP_ENABLED ? (
+                  <Link
+                    href={getServicePath(service.slug)}
+                    className="group flex flex-wrap items-center gap-x-8 gap-y-3 border-b border-white/10 py-7 transition-colors hover:bg-white/[0.03] sm:flex-nowrap sm:py-8"
+                  >
+                    <span className="w-9 shrink-0 font-display text-sm font-bold text-white/25">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-display text-xl font-bold text-white transition-colors group-hover:text-gold sm:text-2xl">
+                        {service.name}
+                      </span>
+                      <span className="mt-1.5 block text-sm leading-relaxed text-white/55">
+                        {service.tagline}
+                      </span>
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap font-display text-base font-bold text-gold sm:text-lg">
+                      {priceFrom(service)}
+                    </span>
+                    <ArrowUpRight
+                      size={20}
+                      className="hidden shrink-0 text-white/25 transition-colors group-hover:text-gold sm:block"
+                    />
+                  </Link>
+                ) : (
+                  /* Wizytówka: wiersz informacyjny – bez ceny, linku i hovera. */
+                  <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-b border-white/10 py-7 sm:flex-nowrap sm:py-8">
+                    <span className="w-9 shrink-0 font-display text-sm font-bold text-white/25">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-display text-xl font-bold text-white sm:text-2xl">
+                        {service.name}
+                      </span>
+                      <span className="mt-1.5 block text-sm leading-relaxed text-white/55">
+                        {service.tagline}
+                      </span>
+                    </span>
+                  </div>
+                )}
               </Reveal>
             ))}
           </div>
-          <div className="mt-8">
-            <Link
-              href={getStaticPath("faq")}
-              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
-            >
-              {locale === "en" ? "See full FAQ" : "Zobacz pełne FAQ"}
-              <ArrowRight size={16} />
-            </Link>
+
+          {SHOP_ENABLED ? (
+            <Reveal className="mt-10">
+              <Link
+                href={getStaticPath("services")}
+                className="fx-underline inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+              >
+                {t.servicesAll}
+                <ArrowRight size={16} />
+              </Link>
+            </Reveal>
+          ) : null}
+        </div>
+      </section>
+
+      {/* ---------- PROCES ---------- */}
+      <section className="py-24 sm:py-32">
+        <div className="container">
+          <Reveal>
+            <Kicker>{t.processKicker}</Kicker>
+            <h2 className="mt-5 max-w-2xl font-display text-[2rem] font-extrabold leading-[1.15] text-white sm:text-[3.1rem]">
+              {t.processTitle}
+              <span className="text-gold"> {t.processAccent}</span>
+            </h2>
+          </Reveal>
+
+          <div className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map(([title, text], index) => (
+              <Reveal key={title} delay={index * 80}>
+                <Numeral value={String(index + 1).padStart(2, "0")} />
+                <div className="fx-hairline my-5" />
+                <h3 className="font-display text-lg font-bold text-white">{title}</h3>
+                <p className="mt-2.5 text-sm leading-relaxed text-white/58">{text}</p>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* GŁÓWNE CTA */}
-      <section className="py-20 sm:py-24">
-        <div className="container">
-          <Reveal>
-            <div className="relative overflow-hidden rounded-sm border border-gold/25 bg-gradient-to-r from-gold/14 via-card to-card p-8 sm:p-12">
-              <div className="ambient-orb ambient-orb-gold -right-10 -top-10 h-48 w-48" />
-              <div className="relative grid gap-8 lg:grid-cols-[1.3fr_auto] lg:items-center">
-                <div>
-                  <div className="section-label mb-3">{locale === "en" ? "Start your project" : "Zacznij projekt"}</div>
-                  <h2 className="font-display text-4xl font-black text-white sm:text-5xl">
-                    {locale === "en"
-                      ? "Order a design service online and pick the right package right away"
-                      : "Zamów usługę graficzną online i od razu wybierz odpowiedni pakiet"}
-                  </h2>
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/65 sm:text-base">
-                    {locale === "en"
-                      ? "Compare services, add extras to the cart and send a free quote request - the tailored quote lands in your inbox."
-                      : "Porównaj usługi, dodaj dodatki do koszyka i wyślij bezpłatne zapytanie - dopasowana wycena przyjdzie na maila."}
-                  </p>
+      {/* ---------- OPINIA ---------- */}
+      {leadReview ? (
+        <section className="border-y border-white/5 bg-white/[0.02] py-24 sm:py-32">
+          <div className="container">
+            <Reveal>
+              <div className="mx-auto max-w-4xl text-center">
+                <h2 className="sr-only">{t.reviewKicker}</h2>
+                <Quote size={34} className="mx-auto text-gold/50" aria-hidden="true" />
+                <div className="mt-6 flex justify-center gap-1">
+                  {Array.from({ length: leadReview.rating }).map((_, index) => (
+                    <Star key={index} size={15} className="fill-gold text-gold" />
+                  ))}
+                </div>
+                <blockquote className="mt-7 font-display text-xl font-medium italic leading-[1.45] text-white/90 sm:text-[1.75rem]">
+                  „{leadReview.quote}"
+                </blockquote>
+                <div className="mt-8 text-sm text-white/50">
+                  <span className="font-bold text-white">{leadReview.name}</span>
+                  <span className="mx-2 text-white/25">/</span>
+                  {leadReview.company}
                 </div>
                 <Link
-                  href={getStaticPath("order")}
-                  className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-8 py-4 text-sm font-black uppercase tracking-wider text-background"
+                  href={getStaticPath("reviews")}
+                  className="fx-underline mt-8 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
                 >
-                  <Sparkles size={16} />
-                  {locale === "en" ? "Order project" : "Zamów projekt"}
+                  {t.reviewsAll}
+                  <ArrowRight size={16} />
                 </Link>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      ) : null}
+
+      {/* ---------- CTA ---------- */}
+      <section className="py-24 sm:py-28">
+        <div className="container">
+          <Reveal>
+            <div className="fx-panel fx-panel--gold fx-glow-gold fx-glow-gold--bl relative overflow-hidden rounded-sm px-7 py-16 sm:px-14 sm:py-24">
+              <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
+                <Kicker>{t.ctaKicker}</Kicker>
+                <h2 className="mt-6 font-display text-[1.9rem] font-extrabold leading-[1.15] text-white sm:text-[3rem]">
+                  {t.ctaTitle}
+                  <span className="block text-gold">{t.ctaAccent}</span>
+                </h2>
+                <p className="mt-5 max-w-lg text-sm leading-relaxed text-white/62 sm:text-base">
+                  {t.ctaDesc}
+                </p>
+                {SHOP_ENABLED ? (
+                  <Link
+                    href={getStaticPath("order")}
+                    className="gold-button-shimmer mt-9 inline-flex items-center justify-center gap-2 rounded-sm px-10 py-5 text-sm font-black uppercase tracking-wider text-background"
+                  >
+                    <Sparkles size={17} />
+                    {t.ctaButton}
+                  </Link>
+                ) : (
+                  <a
+                    href="#kontakt"
+                    className="gold-button-shimmer mt-9 inline-flex items-center justify-center gap-2 rounded-sm px-10 py-5 text-sm font-black uppercase tracking-wider text-background"
+                  >
+                    {t.ctaButton}
+                    <ArrowRight size={17} />
+                  </a>
+                )}
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* BLOG */}
-      <section className="border-y border-white/5 bg-white/[0.02] py-20 sm:py-24">
-        <div className="container">
+      {/* ---------- FAQ + BLOG ---------- */}
+      <section className="border-t border-white/5 py-24 sm:py-28">
+        <div className="container grid gap-16 lg:grid-cols-2 lg:gap-20">
           <Reveal>
-            <SectionHeading
-              eyebrow="Blog"
-              title={locale === "en" ? "Latest articles" : "Ostatnie wpisy"}
-              description={
-                locale === "en"
-                  ? "Practical articles about branding, design and getting the most out of your visual identity."
-                  : "Praktyczne artykuły o brandingu, projektowaniu i tym, jak wycisnąć więcej z identyfikacji wizualnej."
-              }
-            />
-          </Reveal>
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {latestPosts.map((post, index) => (
-              <Reveal key={post.slug} delay={index * 100}>
-                <Link
-                  href={getBlogPostPath(post.slug)}
-                  className="block h-full overflow-hidden rounded-sm border border-white/5 bg-card gold-border-hover"
-                >
-                  <div className="aspect-[16/10] overflow-hidden">
-                    <img src={post.image} alt={post.title} loading="lazy" className="h-full w-full object-cover" />
-                  </div>
-                  <div className="p-6">
-                    <div className="section-label mb-2">{post.category}</div>
-                    <h3 className="font-display text-2xl font-black text-white">{post.title}</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-white/60">{post.excerpt}</p>
-                    <div className="mt-4 text-xs uppercase tracking-wider text-white/35">
-                      {post.readTime} · {post.publishedAt}
-                    </div>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-          <div className="mt-8">
+            <Kicker as="h2">{t.faqKicker}</Kicker>
+            <div className="mt-7 border-t border-white/10">
+              {faqs.slice(0, 4).map((faq) => (
+                <details key={faq.id} className="group border-b border-white/10 py-5">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-5 font-display text-base font-bold text-white transition-colors hover:text-gold">
+                    {faq.question}
+                    <span className="mt-1 shrink-0 text-gold transition-transform duration-300 group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/58">{faq.answer}</p>
+                </details>
+              ))}
+            </div>
             <Link
-              href={getStaticPath("blog")}
-              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+              href={getStaticPath("faq")}
+              className="fx-underline mt-7 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
             >
-              {locale === "en" ? "Go to blog" : "Przejdź do bloga"}
+              {t.faqAll}
               <ArrowRight size={16} />
             </Link>
-          </div>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <Kicker as="h2">{t.blogKicker}</Kicker>
+            {/* Wszystkie wpisy dzielą jedną grafikę, więc lista jest czysto
+                typograficzna – trzy identyczne miniatury wyglądałyby źle. */}
+            <div className="mt-7 border-t border-white/10">
+              {latestPosts.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={getBlogPostPath(post.slug)}
+                  className="group block border-b border-white/10 py-5 transition-colors hover:bg-white/[0.03]"
+                >
+                  <div className="flex items-baseline gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">
+                    <span className="text-gold/80">{post.category}</span>
+                    <span className="h-px flex-1 bg-white/10" aria-hidden="true" />
+                    <span>{post.readTime}</span>
+                  </div>
+                  <h3 className="mt-2.5 font-display text-lg font-bold leading-snug text-white transition-colors group-hover:text-gold">
+                    {post.title}
+                  </h3>
+                  <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-white/55">
+                    {post.excerpt}
+                  </p>
+                </Link>
+              ))}
+            </div>
+            <Link
+              href={getStaticPath("blog")}
+              className="fx-underline mt-7 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gold"
+            >
+              {t.blogAll}
+              <ArrowRight size={16} />
+            </Link>
+          </Reveal>
         </div>
       </section>
 

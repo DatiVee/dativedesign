@@ -5,10 +5,16 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
 import { getFaqs } from "@/data/localizedSiteContent";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { isShopOnlyFaq } from "@/lib/faqVisibility";
+import { SHOP_ENABLED } from "@/siteConfig";
 
 export default function FAQPage() {
   const { locale, getStaticPath } = useLocale();
-  const faqs = getFaqs(locale);
+  const allFaqs = getFaqs(locale);
+  const faqs = useMemo(
+    () => (SHOP_ENABLED ? allFaqs : allFaqs.filter((item) => !isShopOnlyFaq(item))),
+    [allFaqs]
+  );
   const categoryLabels =
     locale === "en"
       ? {
@@ -36,9 +42,13 @@ export default function FAQPage() {
 
   usePageMeta(
     "FAQ | DatiVe Design",
-    locale === "en"
-      ? "Frequently asked questions about working with DatiVe Design: delivery time, revisions, payments, rights, files and the post-purchase process."
-      : "Najczęstsze pytania o współpracę z DatiVe Design: czas realizacji, poprawki, płatności, prawa autorskie, pliki końcowe i proces po zakupie.",
+    SHOP_ENABLED
+      ? locale === "en"
+        ? "Frequently asked questions about working with DatiVe Design: delivery time, revisions, payments, rights, files and the post-purchase process."
+        : "Najczęstsze pytania o współpracę z DatiVe Design: czas realizacji, poprawki, płatności, prawa autorskie, pliki końcowe i proces po zakupie."
+      : locale === "en"
+        ? "Frequently asked questions about working with DatiVe Design: delivery time, revisions, rights, final files and how the collaboration works."
+        : "Najczęstsze pytania o współpracę z DatiVe Design: czas realizacji, poprawki, prawa autorskie, pliki końcowe i przebieg współpracy.",
     { locale, path: getStaticPath("faq") }
   );
 
@@ -49,11 +59,19 @@ export default function FAQPage() {
           <SectionHeading
             as="h1"
             eyebrow="FAQ"
-            title={locale === "en" ? "Questions before ordering a service" : "Pytania przed zamówieniem usługi"}
+            title={
+              SHOP_ENABLED
+                ? (locale === "en" ? "Questions before ordering a service" : "Pytania przed zamówieniem usługi")
+                : (locale === "en" ? "Frequently asked questions" : "Najczęstsze pytania")
+            }
             description={
-              locale === "en"
-                ? "Clear answers about the process, revisions, files, timelines and payments - everything before you decide."
-                : "Jasne odpowiedzi o procesie, poprawkach, plikach, terminach i płatnościach - wszystko, zanim zdecydujesz."
+              SHOP_ENABLED
+                ? (locale === "en"
+                  ? "Clear answers about the process, revisions, files, timelines and payments – everything before you decide."
+                  : "Jasne odpowiedzi o procesie, poprawkach, plikach, terminach i płatnościach – wszystko, zanim zdecydujesz.")
+                : (locale === "en"
+                  ? "Clear answers about the process, revisions, files, timelines and rights – everything you need before we start."
+                  : "Jasne odpowiedzi o procesie, poprawkach, plikach, terminach i prawach – wszystko, zanim zaczniemy współpracę.")
             }
           />
         </Reveal>

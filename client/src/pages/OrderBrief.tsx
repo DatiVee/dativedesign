@@ -110,7 +110,7 @@ export default function OrderBriefPage() {
 
   const [answers, setAnswers] = useState<OrderBriefAnswer[]>(initialAnswers);
 
-  // activeOrder ładuje się asynchronicznie z localStorage - po odświeżeniu strony
+  // activeOrder ładuje się asynchronicznie z localStorage – po odświeżeniu strony
   // stan startuje pusty, więc uzupełniamy go, gdy tylko zamówienie się pojawi.
   useEffect(() => {
     setAnswers((current) => (current.length === 0 ? initialAnswers : current));
@@ -295,13 +295,13 @@ export default function OrderBriefPage() {
             <div className="section-label mb-3">
               {locale === "en" ? "Optional step" : "Krok opcjonalny"}
             </div>
-            <h1 className="max-w-4xl font-display text-3xl font-black leading-[1.04] text-white sm:text-5xl">
+            <h1 className="max-w-4xl font-display text-3xl font-black leading-[1.15] text-white sm:text-5xl">
               {locale === "en" ? "Speed up your quote with a brief" : "Przyspiesz wycenę briefem"}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65 sm:text-base">
               {locale === "en"
-                ? "Your quote request has been sent. If you add a few project details now, the quote will be more accurate and faster - but you can skip this step."
-                : "Twoje zapytanie o wycenę zostało wysłane. Jeśli teraz dodasz kilka szczegółów projektu, wycena będzie trafniejsza i szybsza - ale możesz ten krok pominąć."}
+                ? "Your quote request has been sent. If you add a few project details now, the quote will be more accurate and faster – but you can skip this step."
+                : "Twoje zapytanie o wycenę zostało wysłane. Jeśli teraz dodasz kilka szczegółów projektu, wycena będzie trafniejsza i szybsza – ale możesz ten krok pominąć."}
             </p>
           </div>
 

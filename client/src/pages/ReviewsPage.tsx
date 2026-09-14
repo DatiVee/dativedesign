@@ -6,10 +6,13 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
 import { getTestimonials } from "@/data/localizedSiteContent";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { SHOP_ENABLED } from "@/siteConfig";
 
 export default function ReviewsPage() {
   const { locale, getStaticPath } = useLocale();
   const reviews = getTestimonials(locale);
+  const ctaClass =
+    "gold-button-shimmer inline-flex items-center gap-2 rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background";
 
   usePageMeta(
     locale === "en" ? "Client reviews | DatiVe Design" : "Opinie klientów | DatiVe Design",
@@ -94,13 +97,17 @@ export default function ReviewsPage() {
             </div>
 
             <div className="mt-8">
-              <Link
-                href={getStaticPath("order")}
-                className="gold-button-shimmer inline-flex items-center gap-2 rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background"
-              >
-                {locale === "en" ? "Order project" : "Zamów projekt"}
-                <ArrowRight size={16} />
-              </Link>
+              {SHOP_ENABLED ? (
+                <Link href={getStaticPath("order")} className={ctaClass}>
+                  {locale === "en" ? "Order project" : "Zamów projekt"}
+                  <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <a href="/#kontakt" className={ctaClass}>
+                  {locale === "en" ? "Get in touch" : "Napisz do nas"}
+                  <ArrowRight size={16} />
+                </a>
+              )}
             </div>
           </aside>
         </div>

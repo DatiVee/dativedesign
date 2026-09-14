@@ -16,7 +16,7 @@ export function ContactSection() {
           eyebrow: "Contact",
           title: "Get in touch",
           description:
-            "Have an idea, a brief or want to buy a design service right away? Send a message and we will help you choose the right direction, package and next steps.",
+            "Have an idea, a brief or just a quick question? Send a message and we will help you choose the right direction, package and next steps.",
           validation: "Fill in all fields.",
           success: "Message sent.",
           error: "The message could not be sent.",
@@ -35,7 +35,7 @@ export function ContactSection() {
           eyebrow: "Kontakt",
           title: "Napisz do nas",
           description:
-            "Masz pomysł, brief albo chcesz od razu kupić usługę? Napisz. Pomożemy dobrać kierunek, pakiet i kolejne kroki.",
+            "Masz pomysł, brief albo tylko luźne pytanie? Napisz. Pomożemy dobrać kierunek, pakiet i kolejne kroki.",
           validation: "Uzupełnij wszystkie pola.",
           success: "Wiadomość wysłana.",
           error: "Nie udało się wysłać wiadomości.",

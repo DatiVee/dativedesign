@@ -9,7 +9,7 @@ export default function NotFound() {
   const { locale, getStaticPath } = useLocale();
 
   usePageMeta(
-    locale === "en" ? "404 - Page not found | DatiVe Design" : "404 - Nie znaleziono strony | DatiVe Design",
+    locale === "en" ? "404 – Page not found | DatiVe Design" : "404 – Nie znaleziono strony | DatiVe Design",
     locale === "en"
       ? "The page you are looking for does not exist or has been moved."
       : "Strona, której szukasz, nie istnieje lub została przeniesiona.",

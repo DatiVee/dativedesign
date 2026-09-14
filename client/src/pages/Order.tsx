@@ -1,6 +1,7 @@
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
 import { ArrowRight, Star } from "lucide-react";
 import { Link } from "wouter";
+import { PriceTag } from "@/components/site/PriceTag";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -85,7 +86,7 @@ export default function OrderPage() {
                 <Star size={14} />
                 {locale === "en" ? "Bestsellers" : "Bestsellery"}
               </div>
-              <h2 className="font-display text-2xl font-black text-white sm:text-4xl">
+              <h2 className="leading-[1.15] font-display text-2xl font-black text-white sm:text-4xl">
                 {locale === "en" ? "Most-chosen products" : "Najczęściej wybierane produkty"}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/62 sm:text-base">
@@ -134,26 +135,24 @@ export default function OrderPage() {
                     <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/35">
                       {service.category}
                     </div>
-                    <h3 className="mt-2 font-display text-xl font-black text-white sm:mt-3 sm:text-2xl">
+                    <h3 className="mt-2 font-display text-lg font-bold text-white sm:mt-3 sm:text-xl">
                       {service.name}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gold">{service.tagline}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-gold/85">{service.tagline}</p>
 
                     <div className="mt-4 sm:mt-5">
-                      <div className="flex items-end justify-between gap-4">
-                        <div>
-                          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
+                      <div className="flex items-end justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">
                             {locale === "en" ? "Starting price" : "Cena startowa"}
                           </div>
-                          <div className="mt-1 font-display text-xl font-black text-gold sm:text-2xl">
-                            {formatListingPrice(locale, lowestPackage.price, lowestPackage.priceLabel)}
-                          </div>
+                          <PriceTag
+                            value={formatListingPrice(locale, lowestPackage.price, lowestPackage.priceLabel)}
+                            className="mt-1 font-display text-lg font-bold text-gold sm:text-xl"
+                          />
                         </div>
-                        <div className="text-right text-[11px] leading-relaxed text-white/45">
-                          <div>
-                            {service.packages.length} {locale === "en" ? "packages" : "pakiety"}
-                          </div>
-                          <div>{locale === "en" ? "Open product" : "Otwórz produkt"}</div>
+                        <div className="shrink-0 text-right text-[11px] leading-relaxed text-white/45">
+                          {service.packages.length} {locale === "en" ? "packages" : "pakiety"}
                         </div>
                       </div>
                     </div>
@@ -238,27 +237,27 @@ export default function OrderPage() {
                   <div className="text-xs font-bold uppercase tracking-[0.22em] text-white/35">
                     {locale === "en" ? "Product" : "Produkt"}
                   </div>
-                  <h2 className="mt-2 font-display text-xl font-black text-white sm:mt-3 sm:text-3xl">
+                  <h2 className="mt-2 font-display text-lg font-bold text-white sm:mt-3 sm:text-2xl">
                     {service.name}
                   </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-gold sm:text-base">{service.tagline}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-gold/85 sm:text-base">{service.tagline}</p>
                   <p className="mt-3 text-sm leading-relaxed text-white/65 sm:mt-4">
                     {service.shortDescription}
                   </p>
 
                   <div className="mt-4 sm:mt-5">
                     <div className="flex items-end justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-bold uppercase tracking-wider text-white/35">
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold uppercase tracking-wider text-white/45">
                           {locale === "en" ? "Starting price" : "Cena startowa"}
                         </div>
-                        <div className="mt-1 font-display text-2xl font-black text-gold sm:text-3xl">
-                          {formatListingPrice(locale, lowestPackage.price, lowestPackage.priceLabel)}
-                        </div>
+                        <PriceTag
+                          value={formatListingPrice(locale, lowestPackage.price, lowestPackage.priceLabel)}
+                          className="mt-1 font-display text-xl font-bold text-gold sm:text-2xl"
+                        />
                       </div>
-                      <div className="text-right text-xs leading-relaxed text-white/45">
-                        <div>{locale === "en" ? "Gallery inside" : "Galeria w środku"}</div>
-                        <div>{locale === "en" ? "Configurator inside" : "Konfigurator w środku"}</div>
+                      <div className="shrink-0 text-right text-xs leading-relaxed text-white/45">
+                        {locale === "en" ? "Gallery + configurator" : "Galeria + konfigurator"}
                       </div>
                     </div>
                   </div>

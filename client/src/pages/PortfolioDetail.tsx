@@ -10,6 +10,7 @@ import {
   getServices,
 } from "@/data/localizedSiteContent";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { SHOP_ENABLED } from "@/siteConfig";
 
 export default function PortfolioDetail() {
   const { locale, getPortfolioDetailPath, getServicePath, getStaticPath } = useLocale();
@@ -79,7 +80,7 @@ export default function PortfolioDetail() {
         <div className="grid gap-12 lg:grid-cols-[1fr_0.9fr]">
           <div>
             <div className="section-label mb-4">{project.category}</div>
-            <h1 className="font-display text-4xl font-black text-white sm:text-5xl lg:text-6xl">
+            <h1 className="leading-[1.15] font-display text-4xl font-black text-white sm:text-5xl lg:text-6xl">
               {project.title}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg">
@@ -121,8 +122,8 @@ export default function PortfolioDetail() {
               }
               description={
                 locale === "en"
-                  ? "More than one nice mockup - the context, the goal and the real outcome behind the work."
-                  : "Więcej niż jeden ładny mockup - kontekst, cel i realny efekt, które stoją za realizacją."
+                  ? "More than one nice mockup – the context, the goal and the real outcome behind the work."
+                  : "Więcej niż jeden ładny mockup – kontekst, cel i realny efekt, które stoją za realizacją."
               }
             />
           </Reveal>
@@ -141,6 +142,8 @@ export default function PortfolioDetail() {
         </div>
       </section>
 
+      {/* Tryb wizytówki (SHOP_ENABLED = false): brak sekcji z linkami do usług / sklepu. */}
+      {SHOP_ENABLED ? (
       <section className="container py-16">
         <Reveal>
           <SectionHeading
@@ -174,6 +177,7 @@ export default function PortfolioDetail() {
           ))}
         </div>
       </section>
+      ) : null}
 
       {similarProjects.length > 0 ? (
         <section className="container py-16">

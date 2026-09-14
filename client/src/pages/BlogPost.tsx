@@ -6,6 +6,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
 import { getBlogPostBySlugLocalized, getBlogPosts } from "@/data/localizedSiteContent";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { SHOP_ENABLED } from "@/siteConfig";
 
 export default function BlogPostPage() {
   const { locale, getBlogPostPath, getStaticPath } = useLocale();
@@ -57,13 +58,17 @@ export default function BlogPostPage() {
   }
 
   const relatedPosts = blogPosts.filter((item) => item.slug !== post.slug).slice(0, 2);
+  const asideCtaClass =
+    "gold-button-shimmer mt-6 inline-flex items-center justify-center gap-2 rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background";
+  const bottomCtaClass =
+    "gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-7 py-4 text-sm font-black uppercase tracking-wider text-background";
 
   return (
     <SiteLayout>
       <section className="container py-20 sm:py-24">
         <div className="max-w-5xl">
           <div className="section-label mb-4">{post.category}</div>
-          <h1 className="font-display text-4xl font-black text-white sm:text-5xl lg:text-6xl">{post.title}</h1>
+          <h1 className="leading-[1.15] font-display text-4xl font-black text-white sm:text-5xl lg:text-6xl">{post.title}</h1>
           <div className="mt-5 flex flex-wrap gap-4 text-xs uppercase tracking-wide text-white/35">
             <span>{post.author}</span>
             <span>{formatter.format(new Date(post.publishedAt))}</span>
@@ -111,19 +116,32 @@ export default function BlogPostPage() {
             </div>
 
             <div className="rounded-sm border border-gold/15 bg-gradient-to-br from-gold/10 via-card to-card p-6">
-              <div className="section-label mb-3">{locale === "en" ? "Shop" : "Sklep"}</div>
+              <div className="section-label mb-3">
+                {SHOP_ENABLED ? (locale === "en" ? "Shop" : "Sklep") : (locale === "en" ? "Contact" : "Kontakt")}
+              </div>
               <h2 className="font-display text-2xl font-black text-white">
                 {locale === "en" ? "Need a similar result for your brand" : "Chcesz podobny efekt dla swojej marki"}
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-white/65">
-                {locale === "en"
-                  ? "You can move straight from the article to the service packages and choose the right scope online."
-                  : "Możesz przejść prosto z artykułu do pakietów usług i wybrać odpowiedni zakres online."}
+                {SHOP_ENABLED
+                  ? (locale === "en"
+                    ? "You can move straight from the article to the service packages and choose the right scope online."
+                    : "Możesz przejść prosto z artykułu do pakietów usług i wybrać odpowiedni zakres online.")
+                  : (locale === "en"
+                    ? "Get in touch – I reply within 24h on business days."
+                    : "Napisz – odpowiadam do 24h w dni robocze.")}
               </p>
-              <Link href={getStaticPath("order")} className="gold-button-shimmer mt-6 inline-flex items-center justify-center gap-2 rounded-sm px-6 py-4 text-sm font-black uppercase tracking-wider text-background">
-                {locale === "en" ? "Go to shop" : "Przejdź do sklepu"}
-                <ArrowRight size={16} />
-              </Link>
+              {SHOP_ENABLED ? (
+                <Link href={getStaticPath("order")} className={asideCtaClass}>
+                  {locale === "en" ? "Go to shop" : "Przejdź do sklepu"}
+                  <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <a href="/#kontakt" className={asideCtaClass}>
+                  {locale === "en" ? "Get in touch" : "Napisz do nas"}
+                  <ArrowRight size={16} />
+                </a>
+              )}
             </div>
           </aside>
         </div>
@@ -134,19 +152,30 @@ export default function BlogPostPage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="section-label mb-3">{locale === "en" ? "Start" : "Zacznij"}</div>
-              <h2 className="font-display text-3xl font-black text-white sm:text-4xl">
+              <h2 className="leading-[1.15] font-display text-3xl font-black text-white sm:text-4xl">
                 {locale === "en" ? "Ready for a project for your brand?" : "Gotowy na projekt dla swojej marki?"}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">
-                {locale === "en"
-                  ? "Check the service packages and order a project online without a long email chain."
-                  : "Sprawdź pakiety usług i zamów projekt online bez rozwleczonej wymiany wiadomości."}
+                {SHOP_ENABLED
+                  ? (locale === "en"
+                    ? "Check the service packages and order a project online without a long email chain."
+                    : "Sprawdź pakiety usług i zamów projekt online bez rozwleczonej wymiany wiadomości.")
+                  : (locale === "en"
+                    ? "Tell me briefly what you need – I reply within 24h on business days."
+                    : "Opisz krótko, czego potrzebujesz – odpowiadam do 24h w dni robocze.")}
               </p>
             </div>
-            <Link href={getStaticPath("order")} className="gold-button-shimmer inline-flex items-center justify-center gap-2 rounded-sm px-7 py-4 text-sm font-black uppercase tracking-wider text-background">
-              {locale === "en" ? "Order project" : "Zamów projekt"}
-              <ArrowRight size={16} />
-            </Link>
+            {SHOP_ENABLED ? (
+              <Link href={getStaticPath("order")} className={bottomCtaClass}>
+                {locale === "en" ? "Order project" : "Zamów projekt"}
+                <ArrowRight size={16} />
+              </Link>
+            ) : (
+              <a href="/#kontakt" className={bottomCtaClass}>
+                {locale === "en" ? "Get in touch" : "Napisz do nas"}
+                <ArrowRight size={16} />
+              </a>
+            )}
           </div>
         </div>
       </section>

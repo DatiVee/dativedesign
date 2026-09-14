@@ -8,6 +8,11 @@
 
 @import "tailwindcss";
 @import "tw-animate-css";
+/* Biblioteka efektów (grain, poświaty, hover, panele) w warstwie "components",
+   żeby utilities Tailwinda (inline-flex, bg-*, text-*) mogły ją nadpisywać.
+   Bez warstwy style bez-warstwowe wygrywały ze wszystkim - ikony w linkach
+   łamały się do nowej linii. */
+@import "./styles/effects.css" layer(components);
 
 @custom-variant dark (&:is(.dark *));
 
@@ -115,9 +120,24 @@
     /* Zmiana na Montserrat dla nagłówków */
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    line-height: 1.1;
     letter-spacing: 0.02em;
+  }
+  /* Wersaliki tylko na głównych nagłówkach - tytuły kart i produktów
+     czytają się lepiej normalną wielkością liter.
+     Duże wersaliki wymagają ujemnego trackingu - z dodatnim wyglądają rozstrzelone.
+
+     Interlinia 1.18, bo polskie wersaliki zajmują dwa "piętra" więcej niż
+     angielskie: diakrytyki nad wysokością wersalika (Ż Ź Ó Ć Ś Ń) i zejścia
+     pod linię pisma (J, ogonki Ą Ę). Przy 1.1 kropka nad Ż zderzała się
+     z ogonkiem z wiersza wyżej. */
+  h1, h2 {
     text-transform: uppercase;
+    letter-spacing: -0.018em;
+    line-height: 1.18;
+  }
+  h3, h4, h5, h6 {
+    letter-spacing: 0;
+    line-height: 1.25;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -410,20 +430,23 @@
     hyphens: none;
   }
 
+  /* Interlinie jak na desktopie - polskie wersaliki potrzebują miejsca
+     na diakrytyki i ogonki także (a nawet bardziej) na wąskim ekranie,
+     gdzie nagłówki łamią się na więcej wierszy. */
   h1 {
     font-size: clamp(2.25rem, 11vw, 3.35rem) !important;
-    line-height: 1.02 !important;
-    letter-spacing: 0.005em;
+    line-height: 1.12 !important;
+    letter-spacing: -0.015em;
   }
 
   h2 {
     font-size: clamp(1.55rem, 7.2vw, 2.15rem) !important;
-    line-height: 1.08 !important;
+    line-height: 1.16 !important;
   }
 
   h3 {
     font-size: clamp(1.15rem, 5.7vw, 1.65rem) !important;
-    line-height: 1.12 !important;
+    line-height: 1.25 !important;
   }
 
   main {

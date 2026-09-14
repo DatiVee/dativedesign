@@ -76,8 +76,8 @@ export default function CheckoutPage() {
             title={locale === "en" ? "Your inquiry is empty" : "Twoje zapytanie jest puste"}
             description={
               locale === "en"
-                ? "Choose a service and package first - then send everything as one quote request."
-                : "Najpierw wybierz usługę i pakiet - potem wyślesz wszystko jako jedno zapytanie o wycenę."
+                ? "Choose a service and package first – then send everything as one quote request."
+                : "Najpierw wybierz usługę i pakiet – potem wyślesz wszystko jako jedno zapytanie o wycenę."
             }
           />
           <div className="mt-8">
@@ -151,8 +151,8 @@ export default function CheckoutPage() {
             title={locale === "en" ? "Send a free quote request" : "Wyślij bezpłatne zapytanie o wycenę"}
             description={
               locale === "en"
-                ? "No payment now, no obligation. You send the selected packages with your contact details - we reply by email with a tailored quote and next steps."
-                : "Bez płatności i bez zobowiązań. Wysyłasz wybrane pakiety ze swoimi danymi kontaktowymi - odpowiadamy mailem z dopasowaną wyceną i dalszymi krokami."
+                ? "No payment now, no obligation. You send the selected packages with your contact details – we reply by email with a tailored quote and next steps."
+                : "Bez płatności i bez zobowiązań. Wysyłasz wybrane pakiety ze swoimi danymi kontaktowymi – odpowiadamy mailem z dopasowaną wyceną i dalszymi krokami."
             }
           />
         </Reveal>
@@ -332,8 +332,8 @@ export default function CheckoutPage() {
               </div>
               <div>
                 {locale === "en"
-                  ? "After sending you can optionally add a project brief - it speeds up the quote."
-                  : "Po wysłaniu możesz opcjonalnie uzupełnić brief projektowy - to przyspiesza wycenę."}
+                  ? "After sending you can optionally add a project brief – it speeds up the quote."
+                  : "Po wysłaniu możesz opcjonalnie uzupełnić brief projektowy – to przyspiesza wycenę."}
               </div>
             </div>
           </aside>
