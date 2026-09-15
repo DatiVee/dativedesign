@@ -7,15 +7,17 @@ import { clamp, damp, prefersReducedMotion } from "./fx";
  * Warstwy:
  * 1. "Jedwab ze złota" – szum fbm z domain warpingiem, liczony w 1/4 rozdzielczości do tekstury
  *    i skalowany (tło jest miękkie, więc to prawie nic nie kosztuje).
- * 2. Kilkadziesiąt tysięcy złotych cząsteczek (addytywnie, z głębią ostrości):
- *    - [data-scene="logo"] (hero, CTA) → cząsteczki składają się w znak DatiVe (próbkowany z PNG),
- *      znak obraca się za kursorem, a kursor rozgarnia cząsteczki,
- *    - pozostałe sekcje → znak rozsypuje się w wirującą galaktykę złotego pyłu za treścią,
- *      która przyspiesza przy szybkim przewijaniu.
- * 3. Intro: cząsteczki nadlatują z głębi i układają się w znak po zejściu kurtyny.
+ * 2. Kilkadziesiąt tysięcy złotych cząsteczek (addytywnie, z głębią ostrości), które układają się
+ *    w kształt zależnie od sekcji na środku ekranu:
+ *    - [data-scene="logo"] (hero, CTA) → sygnet DatiVe próbkowany z PNG; obraca się za kursorem,
+ *      a kursor rozgarnia cząsteczki w pierścień,
+ *    - [data-scene="word"] (koniec strony) → napis "DatiVe" złożony z cząsteczek w miejscu elementu,
+ *    - pozostałe sekcje → wirująca galaktyka złotego pyłu: płynie z paralaksą przy przewijaniu,
+ *      przy szybkim przewijaniu cząsteczki rozciągają się w smugi, a kursor wkręca pył w wir.
+ * 3. Intro: cząsteczki nadlatują z głębi i układają sygnet po zejściu kurtyny.
  *
  * Wydajność: DPR maks. 1,5, automatyczne obniżenie jakości przy słabym GPU, pauza w tle karty.
- * Ograniczenie ruchu: jedna statyczna klatka odświeżana tylko przy przewijaniu.
+ * Ograniczenie ruchu: statyczna klatka odświeżana tylko przy przewijaniu.
  * Brak WebGL: .c-root dostaje data-scene="off" i zostaje statyczne tło CSS.
  */
 
@@ -90,7 +92,7 @@ void main() {
   vec3 col = vec3(0.022, 0.021, 0.03);
   col += bronze * fold * 0.8 * amount;
   col += gold * silk * fold * (0.22 + 0.5 * glow) * amount;
-  col += gold * glow * 0.05 * u_amount;
+  col += gold * glow * (0.05 * u_amount + 0.035);
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -113,49 +115,68 @@ void main() {
 
 const POINT_VERT = `
 attribute vec3 aLogo;
+attribute vec3 aWord;
 attribute vec3 aDust;
 attribute vec4 aRand;
 uniform mat4 uProj;
 uniform float uTime;
 uniform float uForm;
+uniform float uWordForm;
 uniform float uIntro;
 uniform float uScale;
+uniform float uWordScale;
 uniform float uDim;
 uniform float uSize;
 uniform float uSpin;
+uniform float uDrift;
 uniform float uScrollVel;
 uniform float uMouseStrength;
 uniform vec2 uOffset;
+uniform vec2 uWordOffset;
 uniform vec2 uDustOffset;
 uniform vec2 uMouse;
 uniform vec2 uRot;
 varying vec3 vColor;
 varying float vAlpha;
 varying float vBlur;
+varying float vStretch;
 
 const float CAM_Z = 3.2;
 
 mat3 rotY(float a) { float c = cos(a); float s = sin(a); return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c); }
 mat3 rotX(float a) { float c = cos(a); float s = sin(a); return mat3(1.0, 0.0, 0.0, 0.0, c, s, 0.0, -s, c); }
 
+float stagger(float value, float seed) {
+  float t = clamp((value - seed * 0.3) / 0.7, 0.0, 1.0);
+  return t * t * (3.0 - 2.0 * t);
+}
+
 void main() {
   float phase = aRand.x * 6.2831853;
 
-  vec3 logo = aLogo * vec3(uScale, uScale, uScale);
+  vec3 logo = aLogo * uScale;
   logo += vec3(sin(uTime * 0.7 + phase), cos(uTime * 0.6 + phase * 1.7), sin(uTime * 0.5 + phase * 0.6)) * vec3(0.004, 0.004, 0.025);
   logo = rotY(uRot.x) * rotX(uRot.y) * logo;
   logo.xy += uOffset;
 
+  vec3 word = vec3(aWord.xy * uWordScale, aWord.z);
+  word += vec3(sin(uTime * 0.8 + phase), cos(uTime * 0.7 + phase * 1.3), sin(uTime * 0.6 + phase)) * vec3(0.003, 0.003, 0.02);
+  word = rotY(uRot.x * 0.2) * word;
+  word.xy += uWordOffset;
+
   vec3 dust = rotY(uSpin * (0.55 + aRand.y * 0.9)) * aDust;
   dust = rotX(1.08) * dust;
   dust.y += sin(uTime * 0.25 + phase) * 0.04;
+  dust.y = mod(dust.y + uDrift + 3.2, 6.4) - 3.2;
   dust.xy += uDustOffset;
 
   vec3 chaos = vec3((aRand.x - 0.5) * 9.0, (aRand.y - 0.5) * 6.0, -2.5 - aRand.z * 5.0);
 
-  float formT = clamp((uForm - aRand.w * 0.3) / 0.7, 0.0, 1.0);
-  formT = formT * formT * (3.0 - 2.0 * formT);
-  vec3 pos = mix(dust, logo, formT);
+  float logoT = stagger(uForm, aRand.w);
+  float wordT = stagger(uWordForm, fract(aRand.w + 0.37));
+  float shapeT = max(logoT, wordT);
+  vec3 pos = mix(dust, logo, logoT);
+  pos = mix(pos, word, wordT);
 
   float introT = clamp((uIntro - aRand.z * 0.45) / 0.55, 0.0, 1.0);
   introT = 1.0 - pow(1.0 - introT, 3.0);
@@ -163,11 +184,17 @@ void main() {
 
   vec2 away = pos.xy - uMouse;
   float dist = length(away);
-  float push = uMouseStrength * exp(-dist * dist * 30.0) * (0.35 + 0.65 * formT);
+  float push = uMouseStrength * exp(-dist * dist * 30.0) * (0.35 + 0.65 * shapeT);
   pos.xy += away / max(dist, 0.001) * push * 0.16;
   pos.z += push * 0.22;
 
-  pos.y += sin(phase * 3.0 + uTime * 2.0) * uScrollVel * 0.035 * (1.0 - formT);
+  float swirl = uMouseStrength * exp(-dist * dist * 2.8) * (1.0 - shapeT);
+  float angle = swirl * (1.7 + 0.6 * sin(uTime * 0.9 + phase));
+  float ca = cos(angle);
+  float sa = sin(angle);
+  pos.xy = uMouse + mat2(ca, sa, -sa, ca) * (pos.xy - uMouse);
+
+  pos.y += sin(phase * 3.0 + uTime * 2.0) * uScrollVel * 0.02 * (1.0 - shapeT);
 
   vec4 view = vec4(pos, 1.0);
   view.z -= CAM_Z;
@@ -175,16 +202,19 @@ void main() {
 
   float depth = max(-view.z, 0.25);
   float blur = clamp(abs(depth - CAM_Z) * 0.8, 0.0, 1.0);
+  float stretch = uScrollVel * (1.0 - shapeT);
   vBlur = blur;
-  gl_PointSize = uSize * (1.0 + aRand.y * 2.4) * (1.0 + blur * 3.2) * (CAM_Z / depth);
+  vStretch = stretch;
+  float wordSize = mix(1.0, clamp(uWordScale / 1.2, 0.55, 1.0), wordT);
+  gl_PointSize = uSize * (1.0 + aRand.y * 2.4) * (1.0 + blur * 3.2) * (1.0 + stretch * 2.2) * wordSize * (CAM_Z / depth);
 
   float base = 0.35 + 0.65 * aRand.x;
-  vAlpha = uDim * base * mix(1.0, 0.14, blur) * mix(0.5, 1.0, formT) * mix(0.3, 1.0, introT);
+  vAlpha = uDim * base * mix(1.0, 0.14, blur) * mix(0.5, 1.0, shapeT) * mix(0.3, 1.0, introT) * (1.0 + swirl * 2.2);
 
   vec3 bronze = vec3(0.62, 0.40, 0.15);
   vec3 champagne = vec3(1.0, 0.87, 0.62);
   vColor = mix(bronze, champagne, aRand.y * aRand.y);
-  vColor = mix(vColor, vec3(1.0, 0.97, 0.9), clamp(push * 3.5, 0.0, 1.0));
+  vColor = mix(vColor, vec3(1.0, 0.97, 0.9), clamp(push * 3.5 + swirl * 0.6, 0.0, 1.0));
 }
 `;
 
@@ -193,10 +223,15 @@ precision mediump float;
 varying vec3 vColor;
 varying float vAlpha;
 varying float vBlur;
+varying float vStretch;
 void main() {
   vec2 c = gl_PointCoord - 0.5;
+  float fadeY = 1.0 - smoothstep(0.3, 0.5, abs(c.y));
+  c.x *= 1.0 + vStretch * 2.2;
+  c.y *= 1.0 - vStretch * 0.55;
   float d = dot(c, c) * 4.0;
   float a = exp(-d * mix(8.0, 3.0, vBlur)) * (1.0 - smoothstep(0.75, 1.0, d)) * vAlpha;
+  a *= mix(1.0, fadeY, vStretch) * (1.0 - vStretch * 0.3);
   if (a < 0.002) discard;
   gl_FragColor = vec4(vColor * a, a);
 }
@@ -218,7 +253,50 @@ function perspective(fovy: number, aspect: number, near: number, far: number) {
   return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0]);
 }
 
-/** Punkty wewnątrz znaku (kanał alfa PNG): 40% na krawędziach dla ostrego konturu, reszta w wypełnieniu. */
+type AlphaShape = { fill: number[]; edge: number[]; minX: number; minY: number; maxX: number; maxY: number };
+
+/** Piksele kształtu (kanał alfa > 50%) co `step` px, z osobną listą pikseli brzegowych i ramką. */
+function shapeFromAlpha(alpha: Uint8ClampedArray, width: number, height: number, step: number): AlphaShape {
+  const inside = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && alpha[(y * width + x) * 4 + 3] > 127;
+  const shape: AlphaShape = { fill: [], edge: [], minX: width, minY: height, maxX: 0, maxY: 0 };
+  for (let y = 0; y < height; y += step) {
+    for (let x = 0; x < width; x += step) {
+      if (!inside(x, y)) continue;
+      shape.fill.push(x, y);
+      if (!inside(x - step, y) || !inside(x + step, y) || !inside(x, y - step) || !inside(x, y + step)) shape.edge.push(x, y);
+      if (x < shape.minX) shape.minX = x;
+      if (y < shape.minY) shape.minY = y;
+      if (x > shape.maxX) shape.maxX = x;
+      if (y > shape.maxY) shape.maxY = y;
+    }
+  }
+  return shape;
+}
+
+/** Losowe punkty w kształcie: 40% na brzegach dla ostrego konturu, reszta w wypełnieniu. */
+function scatterInShape(
+  shape: AlphaShape,
+  count: number,
+  random: () => number,
+  step: number,
+  map: (x: number, y: number) => [number, number],
+  depthFill: number,
+  depthEdge: number,
+) {
+  const out = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const onEdge = shape.edge.length > 0 && random() < 0.4;
+    const list = onEdge ? shape.edge : shape.fill;
+    const k = Math.floor(random() * (list.length / 2)) * 2;
+    const [x, y] = map(list[k] + random() * step, list[k + 1] + random() * step);
+    out[i * 3] = x;
+    out[i * 3 + 1] = y;
+    out[i * 3 + 2] = (random() - 0.5) * (onEdge ? depthEdge : depthFill);
+  }
+  return out;
+}
+
+/** Sygnet z PNG (kształt z kanału alfa), współrzędne w kwadracie [-1, 1]. */
 async function sampleMark(src: string, count: number, random: () => number) {
   const image = new Image();
   image.src = src;
@@ -230,30 +308,44 @@ async function sampleMark(src: string, count: number, random: () => number) {
   const context = canvas.getContext("2d", { willReadFrequently: true });
   if (!context) throw new Error("2d context");
   context.drawImage(image, 0, 0, size, size);
-  const alpha = context.getImageData(0, 0, size, size).data;
-  const inside = (x: number, y: number) => x >= 0 && y >= 0 && x < size && y < size && alpha[(y * size + x) * 4 + 3] > 127;
+  const shape = shapeFromAlpha(context.getImageData(0, 0, size, size).data, size, size, 1);
+  if (!shape.fill.length) throw new Error("empty mark");
+  return scatterInShape(shape, count, random, 1, (x, y) => [(x / size) * 2 - 1, -((y / size) * 2 - 1)], 0.22, 0.05);
+}
 
-  const fill: number[] = [];
-  const edge: number[] = [];
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      if (!inside(x, y)) continue;
-      fill.push(x, y);
-      if (!inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1)) edge.push(x, y);
-    }
-  }
-  if (!fill.length) throw new Error("empty mark");
-
-  const out = new Float32Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    const onEdge = edge.length > 0 && random() < 0.4;
-    const list = onEdge ? edge : fill;
-    const k = Math.floor(random() * (list.length / 2)) * 2;
-    out[i * 3] = ((list[k] + random()) / size) * 2 - 1;
-    out[i * 3 + 1] = -(((list[k + 1] + random()) / size) * 2 - 1);
-    out[i * 3 + 2] = (random() - 0.5) * (onEdge ? 0.05 : 0.22);
-  }
-  return out;
+/** Napis w Montserrat 900: x w [-1, 1] na szerokości farby, y przeskalowane proporcjonalnie. */
+async function sampleText(text: string, count: number, random: () => number) {
+  await Promise.race([
+    document.fonts.load('900 300px "Montserrat"').catch(() => undefined),
+    new Promise((resolve) => window.setTimeout(resolve, 1500)),
+  ]);
+  const width = 1800;
+  const height = 480;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) throw new Error("2d context");
+  context.fillStyle = "#fff";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = '900 360px "Montserrat", sans-serif';
+  (context as CanvasRenderingContext2D & { letterSpacing?: string }).letterSpacing = "-20px";
+  context.fillText(text, width / 2, height / 2);
+  const shape = shapeFromAlpha(context.getImageData(0, 0, width, height).data, width, height, 2);
+  if (!shape.fill.length) throw new Error("empty text");
+  const inkWidth = Math.max(1, shape.maxX - shape.minX);
+  const inkHeight = Math.max(1, shape.maxY - shape.minY);
+  const positions = scatterInShape(
+    shape,
+    count,
+    random,
+    2,
+    (x, y) => [((x - shape.minX) / inkWidth) * 2 - 1, -(((y - shape.minY) / inkHeight) * 2 - 1) * (inkHeight / inkWidth)],
+    0.1,
+    0.03,
+  );
+  return { positions, aspect: inkHeight / inkWidth };
 }
 
 /** Galaktyka: trzy spiralne ramiona + rzadkie halo, żeby pył wypełniał cały ekran. */
@@ -311,9 +403,11 @@ type Props = {
   markSrc: string;
   /** false = cząsteczki czekają w głębi (np. pod kurtyną intro), true = nadlatują i składają znak. */
   assemble: boolean;
+  /** Napis, w który układają się cząsteczki przy elemencie [data-scene="word"]. */
+  word?: string;
 };
 
-export function ParticleScene({ markSrc, assemble }: Props) {
+export function ParticleScene({ markSrc, assemble, word = "DatiVe" }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const assembleRef = useRef(assemble);
 
@@ -346,11 +440,10 @@ export function ParticleScene({ markSrc, assemble }: Props) {
       const reduced = prefersReducedMotion();
       const small = window.matchMedia("(max-width: 1023px)").matches;
       const count = small ? 18000 : 46000;
-      const random = mulberry32(20260915);
 
       let logoPositions: Float32Array;
       try {
-        logoPositions = await sampleMark(markSrc, count, random);
+        logoPositions = await sampleMark(markSrc, count, mulberry32(20260915));
       } catch {
         root?.setAttribute("data-scene", "off");
         return;
@@ -374,6 +467,7 @@ export function ParticleScene({ markSrc, assemble }: Props) {
       document.documentElement.classList.add("c-scene-on");
       cleanups.push(() => document.documentElement.classList.remove("c-scene-on"));
 
+      const random = mulberry32(20260917);
       const dustPositions = makeDust(count, random);
       const randoms = new Float32Array(count * 4);
       for (let i = 0; i < randoms.length; i++) randoms[i] = random();
@@ -389,8 +483,21 @@ export function ParticleScene({ markSrc, assemble }: Props) {
         return buffer;
       };
       const logoBuffer = makeBuffer(logoPositions);
+      /* napis próbkujemy w tle (czeka na font) – do tego czasu bufor trzyma kształt sygnetu */
+      const wordBuffer = makeBuffer(logoPositions);
+      /* proporcja wysokości do szerokości farby napisu (do ustawienia go nad dolną krawędzią elementu) */
+      let wordAspect = 1;
       const dustBuffer = makeBuffer(dustPositions);
       const randBuffer = makeBuffer(randoms);
+
+      void sampleText(word, count, mulberry32(20260916))
+        .then(({ positions, aspect }) => {
+          if (disposed) return;
+          wordAspect = aspect;
+          gl.bindBuffer(gl.ARRAY_BUFFER, wordBuffer);
+          gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+        })
+        .catch(() => undefined);
 
       const loc = (program: WebGLProgram, name: string) => gl.getUniformLocation(program, name);
       const silkU = {
@@ -406,14 +513,18 @@ export function ParticleScene({ markSrc, assemble }: Props) {
         proj: loc(pointProgram, "uProj"),
         time: loc(pointProgram, "uTime"),
         form: loc(pointProgram, "uForm"),
+        wordForm: loc(pointProgram, "uWordForm"),
         intro: loc(pointProgram, "uIntro"),
         scale: loc(pointProgram, "uScale"),
+        wordScale: loc(pointProgram, "uWordScale"),
         dim: loc(pointProgram, "uDim"),
         size: loc(pointProgram, "uSize"),
         spin: loc(pointProgram, "uSpin"),
+        drift: loc(pointProgram, "uDrift"),
         scrollVel: loc(pointProgram, "uScrollVel"),
         mouseStrength: loc(pointProgram, "uMouseStrength"),
         offset: loc(pointProgram, "uOffset"),
+        wordOffset: loc(pointProgram, "uWordOffset"),
         dustOffset: loc(pointProgram, "uDustOffset"),
         mouse: loc(pointProgram, "uMouse"),
         rot: loc(pointProgram, "uRot"),
@@ -421,6 +532,7 @@ export function ParticleScene({ markSrc, assemble }: Props) {
       const silkPos = gl.getAttribLocation(silkProgram, "a_pos");
       const copyPos = gl.getAttribLocation(copyProgram, "a_pos");
       const aLogo = gl.getAttribLocation(pointProgram, "aLogo");
+      const aWord = gl.getAttribLocation(pointProgram, "aWord");
       const aDust = gl.getAttribLocation(pointProgram, "aDust");
       const aRand = gl.getAttribLocation(pointProgram, "aRand");
 
@@ -461,10 +573,14 @@ export function ParticleScene({ markSrc, assemble }: Props) {
       /* ---------- stan sceny (wygładzany) ---------- */
       const state = {
         form: 1,
+        wordForm: 0,
         intro: reduced ? 1 : 0,
         offsetX: 0.8,
         offsetY: 0,
         scale: 0.6,
+        wordOffsetX: 0,
+        wordOffsetY: -2,
+        wordScale: 1,
         dim: 1,
         silk: 1,
         focusX: 0.75,
@@ -475,6 +591,7 @@ export function ParticleScene({ markSrc, assemble }: Props) {
         rotX: 0,
         rotY: 0,
         spin: 0,
+        drift: 0,
         scrollVel: 0,
       };
       const pointer = { ndcX: 0, ndcY: 0, active: false, movedAt: -Infinity };
@@ -486,6 +603,14 @@ export function ParticleScene({ markSrc, assemble }: Props) {
 
       const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
+      /** Ramka samego tekstu elementu (a nie całego bloku), np. napisu wyśrodkowanego w szerokim kontenerze. */
+      const textRect = (element: HTMLElement) => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const rect = range.getBoundingClientRect();
+        return rect.width > 0 ? rect : element.getBoundingClientRect();
+      };
+
       const readScene = () => {
         const vw = canvas.clientWidth || window.innerWidth;
         const vh = canvas.clientHeight || window.innerHeight;
@@ -494,38 +619,51 @@ export function ParticleScene({ markSrc, assemble }: Props) {
         const halfW = halfH * aspect;
         const mobile = aspect < 0.85;
         const probe = vh * 0.5;
-
-        let weight = 0;
-        let target: HTMLElement | null = null;
-        let targetRect: DOMRect | null = null;
-        for (const element of Array.from(document.querySelectorAll<HTMLElement>('[data-scene="logo"]'))) {
-          const rect = element.getBoundingClientRect();
+        const weightOf = (rect: DOMRect) => {
           const distance = probe < rect.top ? rect.top - probe : probe > rect.bottom ? probe - rect.bottom : 0;
-          const w = clamp(1 - distance / (vh * 0.4), 0, 1);
-          if (w > weight) {
-            weight = w;
-            target = element;
-            targetRect = rect;
+          return clamp(1 - distance / (vh * 0.4), 0, 1);
+        };
+
+        let logoWeight = 0;
+        let logoElement: HTMLElement | null = null;
+        let logoRect: DOMRect | null = null;
+        let wordWeight = 0;
+        let wordElement: HTMLElement | null = null;
+        for (const element of Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"))) {
+          const kind = element.dataset.scene;
+          if (kind !== "logo" && kind !== "word") continue;
+          const rect = element.getBoundingClientRect();
+          const w = weightOf(rect);
+          if (kind === "logo" && w > logoWeight) {
+            logoWeight = w;
+            logoElement = element;
+            logoRect = rect;
+          } else if (kind === "word" && w > wordWeight) {
+            wordWeight = w;
+            wordElement = element;
           }
         }
 
         const result = {
-          form: weight,
+          logoForm: 0,
+          wordForm: 0,
           offsetX: state.offsetX,
           offsetY: state.offsetY,
           scale: state.scale,
+          wordOffsetX: state.wordOffsetX,
+          wordOffsetY: state.wordOffsetY,
+          wordScale: state.wordScale,
           dim: mobile ? 0.5 : 0.62,
           silk: 0.34,
           focusX: 0.72,
           focusY: 0.5,
           halfW,
           halfH,
-          mobile,
         };
 
-        if (target && targetRect) {
-          const element: HTMLElement = target;
-          const rect: DOMRect = targetRect;
+        if (logoElement && logoRect && logoWeight >= wordWeight) {
+          const element: HTMLElement = logoElement;
+          const rect: DOMRect = logoRect;
           const read = (name: string, fallback: number) => {
             const value = element.dataset[mobile ? `sceneM${name}` : `scene${name}`];
             return value === undefined ? fallback : Number(value);
@@ -533,15 +671,37 @@ export function ParticleScene({ markSrc, assemble }: Props) {
           const centerNdcY = 1 - ((rect.top + rect.bottom) / 2 / vh) * 2;
           const x = read("X", 0.5);
           const y = read("Y", 0);
+          result.logoForm = logoWeight;
           result.offsetX = x * halfW;
           result.offsetY = clamp(centerNdcY, -1.6, 1.6) * halfH * 0.85 + y * halfH;
           result.scale = read("Scale", 0.6);
-          result.dim = mix(result.dim, mobile ? 0.8 : 1, weight);
-          result.silk = mix(result.silk, 1, weight);
+          result.dim = mix(result.dim, mobile ? 0.8 : 1, logoWeight);
+          result.silk = mix(result.silk, 1, logoWeight);
           result.focusX = 0.5 + x * 0.5;
           result.focusY = clamp(0.5 + (result.offsetY / halfH) * 0.5, 0, 1);
+        } else if (wordElement) {
+          const rect = textRect(wordElement);
+          const box = wordElement.getBoundingClientRect();
+          /* szerokość jak tekst elementu; dół napisu nad dolną krawędzią elementu, żeby nie wchodził na stopkę */
+          const halfWidthPx = (rect.width / 2) * 0.94;
+          const centerX = rect.left + rect.width / 2;
+          const centerY = box.bottom - box.height * 0.1 - halfWidthPx * wordAspect;
+          result.wordForm = wordWeight;
+          result.wordOffsetX = ((centerX / vw) * 2 - 1) * halfW;
+          result.wordOffsetY = (1 - (centerY / vh) * 2) * halfH;
+          result.wordScale = ((halfWidthPx * 2) / vw) * halfW;
+          result.dim = mix(result.dim, 0.95, wordWeight);
+          result.silk = mix(result.silk, 0.75, wordWeight);
+          result.focusX = clamp(centerX / vw, 0, 1);
+          result.focusY = clamp(1 - centerY / vh, 0, 1);
         }
         return result;
+      };
+
+      const readDustShift = () => {
+        const aspect = (canvas.clientWidth || 1) / (canvas.clientHeight || 1);
+        const halfH = Math.tan(FOV / 2) * CAM_Z;
+        return aspect < 0.85 ? [0, -0.1] : [halfH * aspect * 0.42, -0.05];
       };
 
       const render = () => {
@@ -552,11 +712,12 @@ export function ParticleScene({ markSrc, assemble }: Props) {
         gl.bindBuffer(gl.ARRAY_BUFFER, triangle);
         gl.enableVertexAttribArray(silkPos);
         gl.vertexAttribPointer(silkPos, 2, gl.FLOAT, false, 0, 0);
+        const halfH = Math.tan(FOV / 2) * CAM_Z;
         gl.uniform2f(silkU.res, silkWidth, silkHeight);
         gl.uniform1f(silkU.time, elapsed + 12);
         gl.uniform2f(silkU.focus, state.focusX, state.focusY);
         gl.uniform1f(silkU.amount, state.silk);
-        gl.uniform2f(silkU.mouse, (state.mouseX / (Math.tan(FOV / 2) * CAM_Z * (width / height)) + 1) / 2, (state.mouseY / (Math.tan(FOV / 2) * CAM_Z) + 1) / 2);
+        gl.uniform2f(silkU.mouse, (state.mouseX / (halfH * (width / height)) + 1) / 2, (state.mouseY / halfH + 1) / 2);
         gl.uniform1f(silkU.light, 0.35 + state.mouseStrength * 0.65);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
 
@@ -582,34 +743,34 @@ export function ParticleScene({ markSrc, assemble }: Props) {
           gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
         };
         bind(logoBuffer, aLogo, 3);
+        bind(wordBuffer, aWord, 3);
         bind(dustBuffer, aDust, 3);
         bind(randBuffer, aRand, 4);
         const vmin = Math.min(canvas.clientWidth || 1, canvas.clientHeight || 1);
+        const dustShift = readDustShift();
         gl.uniformMatrix4fv(pointU.proj, false, projection);
         gl.uniform1f(pointU.time, elapsed);
         gl.uniform1f(pointU.form, state.form);
+        gl.uniform1f(pointU.wordForm, state.wordForm);
         gl.uniform1f(pointU.intro, state.intro);
         gl.uniform1f(pointU.scale, state.scale);
+        gl.uniform1f(pointU.wordScale, state.wordScale);
         gl.uniform1f(pointU.dim, state.dim);
         gl.uniform1f(pointU.size, dpr * 1.2 * clamp(vmin / 950, 0.7, 1.35));
         gl.uniform1f(pointU.spin, state.spin);
+        gl.uniform1f(pointU.drift, state.drift);
         gl.uniform1f(pointU.scrollVel, state.scrollVel);
         gl.uniform1f(pointU.mouseStrength, state.mouseStrength);
         gl.uniform2f(pointU.offset, state.offsetX, state.offsetY);
-        const dustShift = readDustShift();
+        gl.uniform2f(pointU.wordOffset, state.wordOffsetX, state.wordOffsetY);
         gl.uniform2f(pointU.dustOffset, dustShift[0], dustShift[1]);
         gl.uniform2f(pointU.mouse, state.mouseX, state.mouseY);
         gl.uniform2f(pointU.rot, state.rotY, state.rotX);
         gl.drawArrays(gl.POINTS, 0, drawCount);
         gl.disableVertexAttribArray(aLogo);
+        gl.disableVertexAttribArray(aWord);
         gl.disableVertexAttribArray(aDust);
         gl.disableVertexAttribArray(aRand);
-      };
-
-      const readDustShift = () => {
-        const aspect = (canvas.clientWidth || 1) / (canvas.clientHeight || 1);
-        const halfH = Math.tan(FOV / 2) * CAM_Z;
-        return aspect < 0.85 ? [0, -0.1] : [halfH * aspect * 0.42, -0.05];
       };
 
       const step = (dt: number, instant: boolean) => {
@@ -619,15 +780,20 @@ export function ParticleScene({ markSrc, assemble }: Props) {
         lastScroll = scroll;
         const ease = (current: number, target: number, rate: number) => (instant ? target : damp(current, target, rate, dt));
 
-        state.form = ease(state.form, scene.form, 0.05);
+        state.form = ease(state.form, scene.logoForm, 0.05);
+        state.wordForm = ease(state.wordForm, scene.wordForm, 0.045);
         state.offsetX = ease(state.offsetX, scene.offsetX, 0.08);
         state.offsetY = ease(state.offsetY, scene.offsetY, 0.12);
         state.scale = ease(state.scale, scene.scale, 0.06);
+        state.wordOffsetX = ease(state.wordOffsetX, scene.wordOffsetX, 0.12);
+        state.wordOffsetY = ease(state.wordOffsetY, scene.wordOffsetY, 0.18);
+        state.wordScale = ease(state.wordScale, scene.wordScale, 0.1);
         state.dim = ease(state.dim, scene.dim, 0.05);
         state.silk = ease(state.silk, scene.silk, 0.04);
         state.focusX = ease(state.focusX, scene.focusX, 0.05);
         state.focusY = ease(state.focusY, scene.focusY, 0.08);
         state.intro = reduced ? 1 : ease(state.intro, assembleRef.current ? 1 : 0, 0.022);
+        state.drift = ease(state.drift, scroll * 0.0009, 0.2);
 
         const now = performance.now();
         const pointerLive = pointer.active && now - pointer.movedAt < 3000;
@@ -729,7 +895,7 @@ export function ParticleScene({ markSrc, assemble }: Props) {
       cleanups.forEach((cleanup) => cleanup());
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [markSrc]);
+  }, [markSrc, word]);
 
   return <canvas ref={canvasRef} className="c-scene" aria-hidden="true" />;
 }

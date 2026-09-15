@@ -538,7 +538,8 @@ export default function HomeConcept() {
 
           <ContactSection />
 
-          <div className="c-wordmark" aria-hidden="true">
+          {/* data-scene="word": przy końcu strony cząsteczki układają się w ten napis (ParticleScene) */}
+          <div className="c-wordmark" aria-hidden="true" data-scene="word">
             DatiVe
           </div>
         </div>
