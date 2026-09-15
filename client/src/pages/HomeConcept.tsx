@@ -7,9 +7,9 @@ import { ConceptDock } from "@/components/concept/ConceptDock";
 import { CopyEmail } from "@/components/concept/CopyEmail";
 import { IntroCurtain } from "@/components/concept/IntroCurtain";
 import { KineticHeadline } from "@/components/concept/KineticHeadline";
+import { ParticleScene } from "@/components/concept/ParticleScene";
 import { ReviewDeck } from "@/components/concept/ReviewDeck";
 import { ServiceBento } from "@/components/concept/ServiceBento";
-import { ShaderBackdrop } from "@/components/concept/ShaderBackdrop";
 import { StatementReveal } from "@/components/concept/StatementReveal";
 import { VelocityMarquee } from "@/components/concept/VelocityMarquee";
 import { WorkShowcase } from "@/components/concept/WorkShowcase";
@@ -295,12 +295,24 @@ export default function HomeConcept() {
       <div className="c-root" data-intro={introState}>
         {playIntro ? <IntroCurtain brand="DatiVe" accent="Design" tagline={t.introTag} onReveal={onReveal} /> : null}
         {finePointer && !reducedMotion ? <ConceptCursor /> : null}
+        {/* Scena WebGL pod całą stroną: data-scene="logo" na sekcji = cząsteczki składają znak DatiVe */}
+        <ParticleScene markSrc="/favicon-512x512.png" assemble={introState === "done"} />
+        <div className="c-grain" aria-hidden="true" />
 
+        <div className="c-content">
         {/* ---------- HERO ---------- */}
-        <section className="c-hero fx-grain" id="start">
-          <div className="c-hero__bg" aria-hidden="true">
-            <ShaderBackdrop />
-          </div>
+        <section
+          className="c-hero"
+          id="start"
+          data-scene="logo"
+          data-scene-x="0.6"
+          data-scene-y="0.04"
+          data-scene-scale="0.62"
+          data-scene-m-x="0.4"
+          data-scene-m-y="0.5"
+          data-scene-m-scale="0.4"
+        >
+          <div className="c-hero__bg" aria-hidden="true" />
           <div className="c-hero__grid" aria-hidden="true" />
           <div className="c-hero__inner container">
             <div className="c-hero__copy">
@@ -327,24 +339,22 @@ export default function HomeConcept() {
               </div>
             </div>
 
-            <aside className="c-glass c-ring c-meta c-in" style={cssVars({ "--i": 4 })}>
-              {t.meta.map(([key, value]) => (
-                <div key={key} className="c-meta__row">
-                  <span className="c-meta__k">{key}</span>
-                  <span className="c-meta__v">{value}</span>
-                </div>
-              ))}
-              <div className="c-meta__coords">50.04° N · 22.00° E</div>
-            </aside>
           </div>
           <div className="c-hero__foot container">
             <div className="c-scrollhint c-in" style={cssVars({ "--i": 5 })}>
               {t.scroll}
             </div>
+            <dl className="c-herometa c-in" style={cssVars({ "--i": 4 })}>
+              {t.meta.map(([key, value]) => (
+                <div key={key} className="c-herometa__item">
+                  <dt>{key}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
 
-        <div className="c-sheet">
           <VelocityMarquee items={t.marquee} />
 
           <WorkShowcase
@@ -447,7 +457,16 @@ export default function HomeConcept() {
           ) : null}
 
           {/* ---------- CTA ---------- */}
-          <section className="c-section c-cta">
+          <section
+            className="c-section c-cta"
+            data-scene="logo"
+            data-scene-x="0.66"
+            data-scene-y="0"
+            data-scene-scale="0.42"
+            data-scene-m-x="0.3"
+            data-scene-m-y="-0.55"
+            data-scene-m-scale="0.32"
+          >
             <div className="container">
               <div className="c-cta__inner c-reveal">
                 <Label>{t.ctaKicker}</Label>

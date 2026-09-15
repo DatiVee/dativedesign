@@ -4,17 +4,133 @@
    ============================================================ */
 
 @layer components {
-  /* ---------- tło hero: shader WebGL (nad statycznym tłem CSS jako fallbackiem) ---------- */
-  .c-shader {
-    position: absolute;
+  /* ---------- scena WebGL pod całą stroną (ParticleScene) ---------- */
+  .c-scene {
+    position: fixed;
     inset: 0;
+    z-index: 0;
     display: block;
     width: 100%;
-    height: 100%;
+    height: 100lvh;
+    pointer-events: none;
     opacity: 0;
-    transition: opacity 1.4s ease-out;
+    transition: opacity 1.2s ease-out;
   }
-  .c-shader[data-ready="true"] { opacity: 1; }
+  .c-scene[data-ready="true"] { opacity: 1; }
+  .c-content { position: relative; z-index: 2; }
+  html.c-scene-on footer { position: relative; z-index: 2; }
+  .c-root[data-scene="on"] :is(.c-hero__bg, .c-hero__grid) { display: none; }
+
+  /* ziarno filmowe na całej stronie (nad sceną, pod treścią) */
+  .c-grain {
+    position: fixed;
+    inset: -50%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    animation: c-grain 0.9s steps(6) infinite;
+  }
+  @keyframes c-grain {
+    0% { translate: 0 0; }
+    20% { translate: -4% 3%; }
+    40% { translate: 3% -5%; }
+    60% { translate: -6% 2%; }
+    80% { translate: 5% 6%; }
+    100% { translate: 0 0; }
+  }
+
+  /* hero: informacje o studiu w dolnym pasku (prawa strona należy do znaku z cząsteczek) */
+  .c-hero__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-block: 1.25rem 1.75rem;
+  }
+  .c-herometa { display: flex; flex-wrap: wrap; gap: 0.75rem 2.75rem; margin: 0; }
+  .c-herometa__item { display: grid; gap: 0.25rem; }
+  .c-herometa dt {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, white 42%, transparent);
+  }
+  .c-herometa dd { margin: 0; font-size: 0.86rem; color: white; }
+  @media (max-width: 639px) {
+    .c-herometa { gap: 0.75rem 1.5rem; }
+    .c-herometa__item:nth-child(3) { display: none; }
+  }
+
+  /* bento: okładka usługi na każdym kafelku */
+  .c-tile__img {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 70% 50%;
+    opacity: 0.6;
+    transition: scale 1.2s var(--c-ease), opacity 0.5s;
+  }
+  .c-tile:hover .c-tile__img { scale: 1.07; opacity: 0.88; }
+  .c-tile__shade {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background: linear-gradient(to top, oklch(0.09 0.008 285 / 0.97) 14%, oklch(0.09 0.008 285 / 0.72) 48%, oklch(0.09 0.008 285 / 0.2));
+  }
+  .c-tile--big .c-tile__shade {
+    background: linear-gradient(100deg, oklch(0.09 0.008 285 / 0.97) 24%, oklch(0.09 0.008 285 / 0.55) 58%, oklch(0.09 0.008 285 / 0.08));
+  }
+
+  /* proces: zwarte karty zamiast pustych plansz, cyfry w złotym gradiencie */
+  .c-steps { row-gap: 16svh; }
+  .c-step {
+    /* jawna kolejność warstw: karta z animacją skalowania (osobna warstwa kompozytora) potrafiła
+       wskoczyć nad następną i jej tekst prześwitywał */
+    z-index: calc(1 + var(--i, 0));
+    min-height: 0;
+    align-items: center;
+    border-color: color-mix(in oklab, var(--gold) 24%, var(--c-line));
+    /* w pełni kryjące tło: karty układają się w stos i tekst spodniej nie może prześwitywać */
+    background:
+      radial-gradient(130% 150% at 0% 0%, color-mix(in oklab, var(--gold) 13%, transparent), transparent 55%),
+      oklch(0.105 0.008 285);
+  }
+  @media (min-width: 1024px) {
+    .c-step { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr); }
+  }
+  .c-step__num {
+    font-size: clamp(4.5rem, 8.5vw, 7.5rem);
+    line-height: 0.85;
+    background: linear-gradient(180deg, var(--gold-light) 10%, color-mix(in oklab, var(--gold) 15%, transparent) 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 26px color-mix(in oklab, var(--gold) 30%, transparent));
+  }
+
+  /* liczby: biel przechodząca w złoto + poświata */
+  .c-num {
+    background: linear-gradient(180deg, white 38%, var(--gold-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 30px color-mix(in oklab, var(--gold) 26%, transparent));
+  }
+  .c-num__suffix { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+
+  /* taśma: półprzezroczysty pas nad sceną */
+  .c-marquee {
+    border-top: 1px solid var(--c-line);
+    background: oklch(0.07 0.008 285 / 0.55);
+  }
 
   /* ---------- intro ---------- */
   .c-intro {
@@ -547,7 +663,10 @@
     gap: 1.5rem;
     min-height: 21rem;
     padding: clamp(1.5rem, 3vw, 2.5rem);
-    background: color-mix(in oklab, var(--card) 90%, white 3%);
+    /* kryjące tło (color-mix z sumą < 100% dawał przezroczystość i prześwit tekstu spodniej karty) */
+    background:
+      linear-gradient(165deg, color-mix(in oklab, white 5%, transparent), transparent 55%),
+      oklch(0.135 0.008 285);
     transform-origin: 50% 100%;
     translate: 0 calc((var(--pos) - var(--drag, 0)) * 16px);
     scale: calc(1 - (var(--pos) - var(--drag, 0)) * 0.05);

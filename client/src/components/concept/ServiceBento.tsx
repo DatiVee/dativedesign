@@ -200,7 +200,8 @@ export function ServiceBento({ services, projects, labels, getProjectPath }: Pro
                   <h3 className="c-tile__name">{service.name}</h3>
                   <p className="c-tile__tag">{service.tagline}</p>
                 </div>
-                {big ? <img className="c-tile__art" src={service.coverImage} alt="" loading="lazy" /> : null}
+                <img className="c-tile__img" src={service.coverImage} alt="" loading="lazy" />
+                <span className="c-tile__shade" aria-hidden="true" />
                 <span className="c-tile__plus" aria-hidden="true">
                   <Plus size={16} />
                 </span>

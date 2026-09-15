@@ -166,8 +166,10 @@
     border-radius: 22px;
     corner-shape: squircle;
     border: 1px solid var(--c-line);
-    background: var(--c-glass);
-    backdrop-filter: blur(16px) saturate(1.2);
+    /* bez backdrop-filter: pod spodem pracuje scena WebGL, rozmycie liczone co klatkę byłoby za drogie */
+    background:
+      linear-gradient(165deg, color-mix(in oklab, white 6%, transparent), transparent 55%),
+      oklch(0.11 0.008 285 / 0.82);
     box-shadow: inset 0 1px 0 color-mix(in oklab, white 9%, transparent), 0 24px 60px -32px black;
   }
   .c-glow { transition: border-color 0.3s, box-shadow 0.3s, translate 0.5s var(--c-spring); }
@@ -208,11 +210,6 @@
     flex-direction: column;
     overflow: hidden;
     isolation: isolate;
-  }
-  /* Przyklejenie tylko tam, gdzie hero mieści się w całości w oknie – na telefonie
-     (treść wyższa niż ekran) dolna część z kartą metadanych byłaby nieosiągalna. */
-  @media (min-width: 1024px) and (min-height: 700px) {
-    .c-hero { position: sticky; top: var(--c-header); }
   }
   .c-hero__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
   .c-hero__bg::before,
@@ -346,37 +343,6 @@
     .c-in { opacity: 0; translate: 0 28px; }
   }
 
-  /* ---------- "kartka" treści nad hero ---------- */
-  .c-sheet {
-    position: relative;
-    z-index: 1;
-    background: var(--background);
-    border-top: 1px solid var(--c-line-strong);
-    border-radius: 30px 30px 0 0;
-    corner-shape: squircle;
-    box-shadow: 0 -40px 90px -20px oklch(0 0 0 / 0.75);
-  }
-
-  /* złota nić postępu (tylko szerokie ekrany, tylko z animation-timeline) */
-  .c-thread {
-    display: none;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: calc((100vw - 1280px) / 2 - 1.4rem);
-    width: 1px;
-    z-index: 30;
-    background: var(--c-line);
-    pointer-events: none;
-  }
-  .c-thread::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(var(--gold-light), var(--gold));
-    transform-origin: top;
-    scale: 1 0;
-  }
 
   /* ---------- sekcje ---------- */
   .c-section { padding-block: clamp(4.5rem, 9vw, 8rem); }
@@ -600,7 +566,7 @@
     min-height: 44svh;
     padding: 1.75rem;
     transform-origin: top center;
-    background: color-mix(in oklab, var(--card) 88%, white 2%);
+    background: oklch(0.125 0.008 285);
   }
   .c-step:nth-child(1) { view-timeline: --c-s1 block; }
   .c-step:nth-child(2) { view-timeline: --c-s2 block; }
@@ -673,7 +639,7 @@
     margin-block: 0.5rem 0.25rem;
     font-family: var(--c-sans);
     font-weight: 800;
-    font-size: clamp(1.45rem, 5.6vw, 4.8rem);
+    font-size: clamp(1.45rem, 5.2vw, 4.2rem);
     line-height: 1.05;
     letter-spacing: -0.045em;
     color: white;
@@ -755,7 +721,6 @@
   /* ---------- animacje sterowane przewijaniem (progresywnie) ---------- */
   @supports (animation-timeline: view()) {
     .c-reveal { animation: c-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 42%; }
-    .c-thread::after { animation: c-fill-y linear both; animation-timeline: scroll(root); }
     .c-progress::after { animation: c-fill-x linear both; animation-timeline: --c-work; }
     .c-card { animation: c-focus linear both; animation-timeline: view(inline); animation-range: cover 0% cover 100%; }
     .c-num { animation: c-count linear both; animation-timeline: view(); animation-range: entry 25% entry 85%; }
@@ -764,13 +729,10 @@
     .c-step:nth-child(1) { animation: c-shrink linear both; animation-timeline: --c-s2; animation-range: cover 28% cover 58%; }
     .c-step:nth-child(2) { animation: c-shrink linear both; animation-timeline: --c-s3; animation-range: cover 28% cover 58%; }
     .c-step:nth-child(3) { animation: c-shrink linear both; animation-timeline: --c-s4; animation-range: cover 28% cover 58%; }
-    /* "tonące" hero tylko tam, gdzie hero jest przyklejone (patrz .c-hero) */
+    /* hero przy zjeżdżaniu tonie i wygasa, a znak z cząsteczek w tym czasie rozsypuje się w pył */
     @media (min-width: 1024px) and (min-height: 700px) {
       .c-hero__inner,
       .c-hero__foot { animation: c-sink linear both; animation-timeline: scroll(root); animation-range: 0px 70vh; }
-    }
-    @media (min-width: 1380px) {
-      .c-thread { display: block; }
     }
   }
   @keyframes c-rise { from { opacity: 0; translate: 0 34px; } }
@@ -779,7 +741,8 @@
   @keyframes c-fill-x { to { scale: 1 1; } }
   @keyframes c-focus { 0% { opacity: 0.5; scale: 0.95; } 20%, 80% { opacity: 1; scale: 1; } 100% { opacity: 0.5; scale: 0.95; } }
   @keyframes c-count { from { --c-n: 0; } }
-  @keyframes c-shrink { to { scale: 0.9; opacity: 0.35; } }
+  /* przyciemnienie zamiast opacity: karty leżą w stosie, a półprzezroczysta karta pokazywałaby tekst tych pod spodem */
+  @keyframes c-shrink { to { scale: 0.9; filter: brightness(0.42); } }
 
   @media (prefers-reduced-motion: reduce) {
     .c-root *,
@@ -788,6 +751,8 @@
       animation: none !important;
       transition: none !important;
     }
-    .c-thread { display: none !important; }
+    /* bez animacji manifest musi być od razu w pełni jasny (bazowo słowa są wygaszone) */
+    .c-statement__w { color: white !important; }
+    .c-statement__w--accent { color: var(--gold) !important; }
   }
 }
