@@ -163,9 +163,9 @@ void main() {
 
   vec2 away = pos.xy - uMouse;
   float dist = length(away);
-  float push = uMouseStrength * exp(-dist * dist * 16.0) * (0.35 + 0.65 * formT);
-  pos.xy += away / max(dist, 0.001) * push * 0.22;
-  pos.z += push * 0.3;
+  float push = uMouseStrength * exp(-dist * dist * 30.0) * (0.35 + 0.65 * formT);
+  pos.xy += away / max(dist, 0.001) * push * 0.16;
+  pos.z += push * 0.22;
 
   pos.y += sin(phase * 3.0 + uTime * 2.0) * uScrollVel * 0.035 * (1.0 - formT);
 
