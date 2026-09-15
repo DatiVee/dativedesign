@@ -1,5 +1,5 @@
 import { CheckCircle, Mail, Phone, Send } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/LocaleContext";
 import { SectionHeading } from "./SectionHeading";
@@ -9,6 +9,19 @@ export function ContactSection() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+
+  /* Wstępne wypełnienie wiadomości z innych miejsc strony (np. "Zapytaj o ten projekt"
+     w koncepcie strony głównej): window.dispatchEvent(new CustomEvent("dative:contact-prefill", { detail: { message } })). */
+  useEffect(() => {
+    const onPrefill = (event: Event) => {
+      const message = (event as CustomEvent<{ message?: string }>).detail?.message;
+      if (!message) return;
+      setSent(false);
+      setFormData((current) => ({ ...current, message }));
+    };
+    window.addEventListener("dative:contact-prefill", onPrefill);
+    return () => window.removeEventListener("dative:contact-prefill", onPrefill);
+  }, []);
 
   const copy =
     locale === "en"

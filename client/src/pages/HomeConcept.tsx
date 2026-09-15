@@ -1,22 +1,19 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  CreditCard,
-  FileText,
-  Layers,
-  Megaphone,
-  Package,
-  PenTool,
-  Phone,
-  Share2,
-  Sparkles,
-  Star,
-  Tag,
-  type LucideIcon,
-} from "lucide-react";
+import { useCallback, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
+import { ArrowRight, Phone, Star } from "lucide-react";
 import { Link } from "wouter";
+import { CommandPalette } from "@/components/concept/CommandPalette";
+import { ConceptCursor } from "@/components/concept/ConceptCursor";
+import { ConceptDock } from "@/components/concept/ConceptDock";
+import { CopyEmail } from "@/components/concept/CopyEmail";
+import { IntroCurtain } from "@/components/concept/IntroCurtain";
+import { KineticHeadline } from "@/components/concept/KineticHeadline";
+import { ReviewDeck } from "@/components/concept/ReviewDeck";
+import { ServiceBento } from "@/components/concept/ServiceBento";
+import { ShaderBackdrop } from "@/components/concept/ShaderBackdrop";
+import { StatementReveal } from "@/components/concept/StatementReveal";
+import { VelocityMarquee } from "@/components/concept/VelocityMarquee";
+import { WorkShowcase } from "@/components/concept/WorkShowcase";
+import { prefersReducedMotion, scrollToSection, useFinePointer, useReducedMotion } from "@/components/concept/fx";
 import { ContactSection } from "@/components/site/ContactSection";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -25,59 +22,34 @@ import {
   getCompanyStats,
   getFaqs,
   getHomepageProjectsLocalized,
+  getProjects,
   getServices,
   getTestimonials,
 } from "@/data/localizedSiteContent";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { isShopOnlyFaq } from "@/lib/faqVisibility";
 import "@/styles/concept.css";
+import "@/styles/concept-fx.css";
 
 /**
- * KONCEPT 2026 – alternatywny wariant strony głównej (trasa /koncept, noindex).
- * Nie dotyka obecnej strony głównej. Korzysta z tych samych danych (siteContent),
- * nagłówka, stopki i formularza kontaktowego, więc można go 1:1 porównać z obecnym.
- * Style: client/src/styles/concept.css (opis użytych nowości CSS w nagłówku pliku).
+ * KONCEPT 2026 (v2) – alternatywny wariant strony głównej (trasa /koncept, noindex).
+ * Obecna strona główna bez zmian. Te same dane, nagłówek, stopka i formularz.
+ * Interakcje: client/src/components/concept/*, style: concept.css + concept-fx.css.
  */
 
-/* Usługi w siatce bento – kolejność = układ (1. i 6. kafelek są duże). */
-const BENTO_SLUGS = [
-  "projekt-logo",
-  "branding",
-  "projekt-etykiety",
-  "projekt-opakowania",
-  "projekt-wizytowki",
-  "projekt-banera",
-];
+const BENTO_SLUGS = ["projekt-logo", "branding", "projekt-etykiety", "projekt-opakowania", "projekt-wizytowki", "projekt-banera"];
+const INTRO_KEY = "dative-concept-intro";
+const EMAIL = "kontakt@dativedesign.com";
 
-const SERVICE_ICONS: Record<string, LucideIcon> = {
-  "projekt-logo": PenTool,
-  branding: Layers,
-  "projekt-etykiety": Tag,
-  "projekt-opakowania": Package,
-  "projekt-wizytowki": CreditCard,
-  "projekt-banera": Megaphone,
-  "social-media": Share2,
-  "projekt-ulotki": FileText,
-};
-
-/** Zmienne CSS w atrybucie style (TS nie zna własnych właściwości). */
 const cssVars = (vars: Record<string, string | number>) => vars as CSSProperties;
 
-/** Czas lokalny studia (Europe/Warsaw), odświeżany co 15 s. */
-function useLocalTime(locale: "pl" | "en") {
-  const [time, setTime] = useState("");
-  useEffect(() => {
-    const format = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "pl-PL", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Europe/Warsaw",
-    });
-    const tick = () => setTime(format.format(new Date()));
-    tick();
-    const id = window.setInterval(tick, 15_000);
-    return () => window.clearInterval(id);
-  }, [locale]);
-  return time;
+function shouldPlayIntro() {
+  if (prefersReducedMotion() || window.location.hash) return false;
+  try {
+    return window.sessionStorage.getItem(INTRO_KEY) !== "seen";
+  } catch {
+    return false;
+  }
 }
 
 function Label({ n, children }: { n?: string; children: ReactNode }) {
@@ -89,7 +61,7 @@ function Label({ n, children }: { n?: string; children: ReactNode }) {
   );
 }
 
-/** Liczba z licznikiem w czystym CSS: "300+" → cyfry animuje @property, sufiks jest złoty. */
+/** "300+" → licznik w czystym CSS (@property), sufiks złoty. */
 function Stat({ value, label }: { value: string; label: string }) {
   const match = value.match(/^(\d+)\s*(.*)$/);
   return (
@@ -99,28 +71,23 @@ function Stat({ value, label }: { value: string; label: string }) {
           {match[2] ? <span className="c-num__suffix">{match[2]}</span> : null}
         </div>
       ) : (
-        <div className="c-num" style={cssVars({ "--c-n": 0 })}>
-          {value}
-        </div>
+        <div className="c-num">{value}</div>
       )}
       <div className="c-stat__label">{label}</div>
     </div>
   );
 }
 
-function Stars({ count }: { count: number }) {
-  return (
-    <span className="c-stars" aria-hidden="true">
-      {Array.from({ length: count }).map((_, index) => (
-        <Star key={index} size={13} className="fill-current" />
-      ))}
-    </span>
-  );
-}
-
 export default function HomeConcept() {
   const { locale, getBlogPostPath, getPortfolioDetailPath, getStaticPath } = useLocale();
-  const projects = getHomepageProjectsLocalized(locale);
+  const finePointer = useFinePointer();
+  const reducedMotion = useReducedMotion();
+  const [playIntro] = useState(shouldPlayIntro);
+  const [introState, setIntroState] = useState<"pending" | "done">(playIntro ? "pending" : "done");
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  const homepageProjects = getHomepageProjectsLocalized(locale);
+  const allProjects = getProjects(locale);
   const services = getServices(locale);
   const bento = BENTO_SLUGS.map((slug) => services.find((service) => service.slug === slug)).filter(
     (service): service is NonNullable<typeof service> => Boolean(service),
@@ -131,49 +98,77 @@ export default function HomeConcept() {
     .filter((faq) => !isShopOnlyFaq(faq))
     .slice(0, 5);
   const posts = getBlogPosts(locale).slice(0, 3);
-  const time = useLocalTime(locale);
-  const trackRef = useRef<HTMLDivElement>(null);
+
+  const onReveal = useCallback(() => {
+    try {
+      window.sessionStorage.setItem(INTRO_KEY, "seen");
+    } catch {
+      /* prywatne okno / zablokowane dane witryny – intro po prostu zagra ponownie */
+    }
+    setIntroState("done");
+  }, []);
+
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+
+  const goTo = (id: string) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    scrollToSection(id);
+  };
 
   usePageMeta(
     locale === "en" ? "Concept 2026 | DatiVe Design" : "Koncept 2026 | DatiVe Design",
-    locale === "en"
-      ? "Design concept of the new DatiVe Design homepage."
-      : "Koncepcja nowej strony głównej DatiVe Design.",
+    locale === "en" ? "Design concept of the new DatiVe Design homepage." : "Koncepcja nowej strony głównej DatiVe Design.",
     { locale, path: getStaticPath("concept"), robots: "noindex, follow" },
   );
 
   const t =
     locale === "en"
       ? {
+          introTag: "Graphic design studio · Rzeszów / Kolbuszowa",
           status: "Taking on new projects",
           h1a: "A brand people",
           h1b: "notice.",
-          lede:
-            "Visual identities, labels, print and advertising design. For companies in Rzeszów, Kolbuszowa and across Poland – from the first sketch to print-ready files.",
+          lede: "Visual identities, labels, print and advertising design. For companies in Rzeszów, Kolbuszowa and across Poland – from the first sketch to print-ready files.",
           primary: "See portfolio",
           secondary: "Get in touch",
           scroll: "Scroll",
           meta: [
             ["Studio", "Rzeszów · Kolbuszowa"],
-            ["Local time", time],
             ["Reply", "within 24h, business days"],
             ["Collaboration", "direct, no middlemen"],
           ],
-          workKicker: "Selected work",
-          workTitle: "Every project",
-          workAccent: "has an outcome.",
-          workDesc:
-            "Labels, branding, business cards and promotional materials. For each case I note what had to work – and what did.",
-          workAll: "Full portfolio",
-          workCount: "projects",
-          open: "View project",
-          prev: "Previous project",
-          next: "Next project",
-          servicesKicker: "Scope",
-          servicesTitle: "What I can",
-          servicesAccent: "do for you.",
-          servicesDesc:
-            "From logo and identity to labels, print and ad graphics. One designer, one consistent style – no hand-offs between departments.",
+          marquee: ["Logo", "Branding", "Labels", "Packaging", "Business cards", "Print", "Advertising", "Social media"],
+          work: {
+            kicker: "Selected work",
+            title: "Every project",
+            accent: "has an outcome.",
+            desc: "Labels, branding, business cards and promotional materials. For each case I note what had to work – and what did.",
+            hint: "Keep scrolling – the work slides sideways",
+            all: "Full portfolio",
+            open: "View",
+            prev: "Previous project",
+            next: "Next project",
+            count: "projects",
+            endTitle: "See all projects",
+          },
+          statementKicker: "In short",
+          statement:
+            "I design *visual identities,* labels and print materials for companies in Rzeszów, Kolbuszowa and across Poland. You work *directly with me* – from the brief to *print-ready files.*",
+          services: {
+            kicker: "Scope",
+            title: "What I can",
+            accent: "do for you.",
+            desc: "From logo and identity to labels, print and ad graphics. Open a card to see what you get.",
+            more: "Details",
+            benefits: "What you gain",
+            deliverables: "What you get",
+            related: "Example projects",
+            open: "View",
+            ask: "Ask about this project",
+            call: "Call",
+            close: "Close",
+            prefill: (name: string) => `Hello, I'm interested in: ${name}.\n\n`,
+          },
           numbersKicker: "In numbers",
           processKicker: "Process",
           processTitle: "From brief",
@@ -181,12 +176,17 @@ export default function HomeConcept() {
           processDesc: "Four stages, each with a concrete result. You know where things stand before you have to ask.",
           resultLabel: "Result",
           reviewsKicker: "Reviews",
+          reviewsTitle: "What clients",
+          reviewsAccent: "say.",
           reviewsPill: "100% recommendations · 5/5",
+          reviewsHint: "Drag a card or use the arrows",
           reviewsAll: "All reviews",
+          deck: { prev: "Previous review", next: "Next review", drag: "Drag" },
           ctaKicker: "Got a project?",
           ctaTitle: "Let’s talk about",
           ctaAccent: "your brand.",
           ctaDesc: "A few sentences about what you need is enough to start. I reply within 24 hours on business days.",
+          email: { copy: "Copy", copied: "Copied", hint: "Click the address to copy it", open: "Open in mail app" },
           ctaForm: "Contact form",
           faqKicker: "Good to know",
           faqTitle: "Before",
@@ -194,37 +194,55 @@ export default function HomeConcept() {
           faqAll: "Full FAQ",
           blogKicker: "From the blog",
           blogAll: "Go to blog",
+          dock: { nav: "Page navigation", top: "Back to top", palette: "Open command palette", cta: "Contact" },
+          sections: ["Work", "Scope", "Numbers", "Process", "Reviews", "Contact"],
         }
       : {
+          introTag: "Studio graficzne · Rzeszów / Kolbuszowa",
           status: "Przyjmuję nowe projekty",
           h1a: "Marka, którą",
           h1b: "widać.",
-          lede:
-            "Identyfikacje wizualne, etykiety, materiały drukowane i grafika reklamowa. Dla firm z Rzeszowa, Kolbuszowej i całej Polski – od pierwszego szkicu po pliki gotowe do druku.",
+          lede: "Identyfikacje wizualne, etykiety, materiały drukowane i grafika reklamowa. Dla firm z Rzeszowa, Kolbuszowej i całej Polski – od pierwszego szkicu po pliki gotowe do druku.",
           primary: "Zobacz portfolio",
           secondary: "Napisz do nas",
           scroll: "Przewiń",
           meta: [
             ["Studio", "Rzeszów · Kolbuszowa"],
-            ["Czas lokalny", time],
             ["Odpowiedź", "do 24h w dni robocze"],
             ["Współpraca", "bezpośrednio, bez pośredników"],
           ],
-          workKicker: "Wybrane realizacje",
-          workTitle: "Każdy projekt",
-          workAccent: "ma swój efekt.",
-          workDesc:
-            "Etykiety, branding, wizytówki i materiały reklamowe. Przy każdej realizacji zapisuję, co miało zadziałać – i co zadziałało.",
-          workAll: "Pełne portfolio",
-          workCount: "projektów",
-          open: "Zobacz projekt",
-          prev: "Poprzedni projekt",
-          next: "Następny projekt",
-          servicesKicker: "Zakres",
-          servicesTitle: "Co mogę dla Ciebie",
-          servicesAccent: "zrobić.",
-          servicesDesc:
-            "Od logo i identyfikacji po etykiety, druk i grafikę reklamową. Jeden projektant, jeden spójny styl – bez przekazywania projektu między działami.",
+          marquee: ["Logo", "Branding", "Etykiety", "Opakowania", "Wizytówki", "Druk", "Reklama", "Social media"],
+          work: {
+            kicker: "Wybrane realizacje",
+            title: "Każdy projekt",
+            accent: "ma swój efekt.",
+            desc: "Etykiety, branding, wizytówki i materiały reklamowe. Przy każdej realizacji zapisuję, co miało zadziałać – i co zadziałało.",
+            hint: "Przewijaj – realizacje przesuną się w bok",
+            all: "Pełne portfolio",
+            open: "Zobacz",
+            prev: "Poprzedni projekt",
+            next: "Następny projekt",
+            count: "realizacji",
+            endTitle: "Zobacz wszystkie realizacje",
+          },
+          statementKicker: "W skrócie",
+          statement:
+            "Projektuję *identyfikacje wizualne,* etykiety i materiały drukowane dla firm z Rzeszowa, Kolbuszowej i całej Polski. Pracujesz *bezpośrednio ze mną* – od briefu po pliki *gotowe do druku.*",
+          services: {
+            kicker: "Zakres",
+            title: "Co mogę dla Ciebie",
+            accent: "zrobić.",
+            desc: "Od logo i identyfikacji po etykiety, druk i grafikę reklamową. Otwórz kartę, żeby zobaczyć, co dostajesz.",
+            more: "Szczegóły",
+            benefits: "Co zyskujesz",
+            deliverables: "Co dostajesz",
+            related: "Przykładowe realizacje",
+            open: "Zobacz",
+            ask: "Zapytaj o ten projekt",
+            call: "Zadzwoń",
+            close: "Zamknij",
+            prefill: (name: string) => `Dzień dobry, interesuje mnie: ${name}.\n\n`,
+          },
           numbersKicker: "W liczbach",
           processKicker: "Proces",
           processTitle: "Od briefu",
@@ -232,12 +250,17 @@ export default function HomeConcept() {
           processDesc: "Cztery etapy, każdy z konkretnym wynikiem. Wiesz, na czym stoimy, zanim zapytasz.",
           resultLabel: "Wynik etapu",
           reviewsKicker: "Opinie",
+          reviewsTitle: "Co mówią",
+          reviewsAccent: "klienci.",
           reviewsPill: "100% rekomendacji · ocena 5/5",
+          reviewsHint: "Przeciągnij kartę albo użyj strzałek",
           reviewsAll: "Wszystkie opinie",
+          deck: { prev: "Poprzednia opinia", next: "Następna opinia", drag: "Przeciągnij" },
           ctaKicker: "Masz projekt?",
           ctaTitle: "Porozmawiajmy",
           ctaAccent: "o Twojej marce.",
           ctaDesc: "Kilka zdań o tym, czego potrzebujesz, wystarczy na start. Odpowiadam do 24 godzin w dni robocze.",
+          email: { copy: "Kopiuj", copied: "Skopiowano", hint: "Kliknij adres, żeby go skopiować", open: "Otwórz w poczcie" },
           ctaForm: "Formularz kontaktowy",
           faqKicker: "Warto wiedzieć",
           faqTitle: "Zanim",
@@ -245,7 +268,12 @@ export default function HomeConcept() {
           faqAll: "Pełne FAQ",
           blogKicker: "Z bloga",
           blogAll: "Przejdź do bloga",
+          dock: { nav: "Nawigacja po stronie", top: "Wróć na górę", palette: "Otwórz paletę poleceń", cta: "Napisz" },
+          sections: ["Realizacje", "Zakres", "Liczby", "Proces", "Opinie", "Kontakt"],
         };
+
+  const sectionIds = ["realizacje", "zakres", "liczby", "proces", "opinie", "kontakt"];
+  const sections = sectionIds.map((id, index) => ({ id, label: t.sections[index] }));
 
   const steps: [string, string, string][] =
     locale === "en"
@@ -262,33 +290,17 @@ export default function HomeConcept() {
           ["Przekazanie", "Odbierasz gotowe pliki pod web, druk i wdrożenie.", "Pliki produkcyjne do druku i na ekran (PDF, SVG, PNG, JPG)."],
         ];
 
-  const scrollTrack = (direction: 1 | -1) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const card = track.firstElementChild as HTMLElement | null;
-    const step = card ? card.offsetWidth + 14 : track.clientWidth * 0.8;
-    track.scrollBy({ left: direction * step, behavior: "smooth" });
-  };
-
-  /* Reflektor pod kursorem na kafelkach bento – tylko dla myszy. */
-  const spotlight = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== "mouse") return;
-    const tile = (event.target as HTMLElement).closest<HTMLElement>(".c-tile");
-    if (!tile) return;
-    const rect = tile.getBoundingClientRect();
-    tile.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-    tile.style.setProperty("--my", `${event.clientY - rect.top}px`);
-  };
-
-  const [leadReview, ...moreReviews] = testimonials;
-
   return (
     <SiteLayout>
-      <div className="c-thread" aria-hidden="true" />
-      <div className="c-root">
-        {/* ---------- HERO: sama typografia, przyklejone; treść wjeżdża na nie jak kartka ---------- */}
-        <section className="c-hero fx-grain">
-          <div className="c-hero__bg" aria-hidden="true" />
+      <div className="c-root" data-intro={introState}>
+        {playIntro ? <IntroCurtain brand="DatiVe" accent="Design" tagline={t.introTag} onReveal={onReveal} /> : null}
+        {finePointer && !reducedMotion ? <ConceptCursor /> : null}
+
+        {/* ---------- HERO ---------- */}
+        <section className="c-hero fx-grain" id="start">
+          <div className="c-hero__bg" aria-hidden="true">
+            <ShaderBackdrop />
+          </div>
           <div className="c-hero__grid" aria-hidden="true" />
           <div className="c-hero__inner container">
             <div className="c-hero__copy">
@@ -296,21 +308,20 @@ export default function HomeConcept() {
                 <span className="c-dot" aria-hidden="true" />
                 {t.status}
               </div>
-              <h1 className="c-h c-h--hero c-in" style={cssVars({ "--i": 1 })}>
-                <span className="block">{t.h1a}</span>
-                <span className="block">
-                  <span className="c-accent">{t.h1b}</span>
-                </span>
-              </h1>
+              <KineticHeadline
+                className="c-h c-h--hero"
+                interactive={finePointer && !reducedMotion}
+                lines={[{ text: t.h1a }, { text: t.h1b, accent: true }]}
+              />
               <p className="c-lede c-in" style={cssVars({ "--i": 2 })}>
                 {t.lede}
               </p>
               <div className="c-hero__actions c-in" style={cssVars({ "--i": 3 })}>
-                <Link href={getStaticPath("portfolio")} className="c-btn c-btn--gold gold-button-shimmer">
+                <Link href={getStaticPath("portfolio")} className="c-btn c-btn--gold gold-button-shimmer" data-magnetic="0.3">
                   {t.primary}
                   <ArrowRight size={15} />
                 </Link>
-                <a href="#kontakt" className="c-btn c-btn--glass">
+                <a href="#kontakt" className="c-btn c-btn--glass" data-magnetic="0.3" onClick={goTo("kontakt")}>
                   {t.secondary}
                 </a>
               </div>
@@ -334,117 +345,21 @@ export default function HomeConcept() {
         </section>
 
         <div className="c-sheet">
-          {/* ---------- (01) REALIZACJE: karuzela CSS ---------- */}
-          <section className="c-work c-section" id="realizacje">
-            <div className="container">
-              <div className="c-head c-reveal">
-                <div>
-                  <Label n="01">{t.workKicker}</Label>
-                  <h2 className="c-h c-h--section">
-                    <span className="block">{t.workTitle}</span>
-                    <span className="block">
-                      <span className="c-accent">{t.workAccent}</span>
-                    </span>
-                  </h2>
-                </div>
-                <div className="c-head__side">
-                  <p className="c-dim">{t.workDesc}</p>
-                  <div className="c-arrows">
-                    <button type="button" className="c-arrow" onClick={() => scrollTrack(-1)} aria-label={t.prev}>
-                      <ArrowLeft size={18} />
-                    </button>
-                    <button type="button" className="c-arrow" onClick={() => scrollTrack(1)} aria-label={t.next}>
-                      <ArrowRight size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <VelocityMarquee items={t.marquee} />
 
-            <div className="c-track" ref={trackRef}>
-              {projects.map((project, index) => (
-                <Link
-                  key={project.slug}
-                  href={getPortfolioDetailPath(project.slug)}
-                  className="c-card c-glow"
-                  aria-label={`${t.open}: ${project.title}`}
-                >
-                  <img src={project.image} alt="" loading={index < 2 ? "eager" : "lazy"} />
-                  <div className="c-card__body">
-                    <div className="c-label">
-                      <span className="c-label__n">{String(index + 1).padStart(2, "0")}</span>
-                      {project.category}
-                    </div>
-                    <h3 className="c-card__title">{project.title}</h3>
-                    <p className="c-card__summary">{project.summary}</p>
-                    <span className="c-card__cta">
-                      {t.open}
-                      <ArrowUpRight size={14} />
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+          <WorkShowcase
+            projects={homepageProjects}
+            labels={t.work}
+            portfolioPath={getStaticPath("portfolio")}
+            getProjectPath={getPortfolioDetailPath}
+          />
 
-            <div className="container">
-              <div className="c-progress" aria-hidden="true" />
-              <div className="c-work__foot">
-                <Link href={getStaticPath("portfolio")} className="c-link">
-                  {t.workAll}
-                  <ArrowRight size={14} />
-                </Link>
-                <span className="c-label">
-                  <span className="c-label__n">{String(projects.length).padStart(2, "0")}</span>
-                  {t.workCount}
-                </span>
-              </div>
-            </div>
-          </section>
+          <StatementReveal kicker={t.statementKicker} text={t.statement} />
 
-          {/* ---------- (02) ZAKRES: bento + reflektor pod kursorem ---------- */}
-          <section className="c-section">
-            <div className="container">
-              <div className="c-head c-reveal">
-                <div>
-                  <Label n="02">{t.servicesKicker}</Label>
-                  <h2 className="c-h c-h--section">
-                    <span className="block">{t.servicesTitle}</span>
-                    <span className="block">
-                      <span className="c-accent">{t.servicesAccent}</span>
-                    </span>
-                  </h2>
-                </div>
-                <div className="c-head__side">
-                  <p className="c-dim">{t.servicesDesc}</p>
-                </div>
-              </div>
+          <ServiceBento services={bento} projects={allProjects} labels={t.services} getProjectPath={getPortfolioDetailPath} />
 
-              <div className="c-bento c-reveal" onPointerMove={spotlight}>
-                {bento.map((service, index) => {
-                  const Icon = SERVICE_ICONS[service.slug] ?? Sparkles;
-                  const big = index === 0 || index === 5;
-                  return (
-                    <article key={service.slug} className={`c-tile c-glass c-glow${big ? " c-tile--big" : ""}`}>
-                      <div className="flex items-start justify-between gap-4">
-                        <span className="c-tile__icon">
-                          <Icon size={18} />
-                        </span>
-                        <span className="c-tile__cat">{service.category}</span>
-                      </div>
-                      <div>
-                        <h3 className="c-tile__name">{service.name}</h3>
-                        <p className="c-tile__tag">{service.tagline}</p>
-                      </div>
-                      {big ? <img className="c-tile__art" src={service.coverImage} alt="" loading="lazy" /> : null}
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          {/* ---------- (03) LICZBY: licznik w CSS ---------- */}
-          <section className="c-section--tight">
+          {/* ---------- (03) LICZBY ---------- */}
+          <section className="c-section--tight" id="liczby">
             <div className="container c-reveal">
               <Label n="03">{t.numbersKicker}</Label>
               <div className="c-stats">
@@ -455,8 +370,8 @@ export default function HomeConcept() {
             </div>
           </section>
 
-          {/* ---------- (04) PROCES: karty przyklejone, układane w stos ---------- */}
-          <section className="c-section">
+          {/* ---------- (04) PROCES ---------- */}
+          <section className="c-section" id="proces">
             <div className="container">
               <div className="c-head c-reveal">
                 <div>
@@ -472,7 +387,6 @@ export default function HomeConcept() {
                   <p className="c-dim">{t.processDesc}</p>
                 </div>
               </div>
-
               <div className="c-steps">
                 {steps.map(([title, text, result], index) => (
                   <article key={title} className="c-step c-glass" style={cssVars({ "--i": index })}>
@@ -496,23 +410,30 @@ export default function HomeConcept() {
             </div>
           </section>
 
-          {/* ---------- (05) OPINIE ---------- */}
-          {leadReview ? (
-            <section className="c-section">
-              <div className="container c-reviews__grid">
+          {/* ---------- (05) OPINIE: talia kart ---------- */}
+          {testimonials.length ? (
+            <section className="c-section" id="opinie">
+              <div className="container c-reviews2">
                 <div className="c-reveal">
                   <Label n="05">{t.reviewsKicker}</Label>
-                  <div className="c-quote-mark" aria-hidden="true">
-                    „
-                  </div>
-                  <blockquote className="c-quote">{leadReview.quote}</blockquote>
-                  <div className="c-quote__who">
-                    <b>{leadReview.name}</b> · {leadReview.company}
-                  </div>
+                  <h2 className="c-h c-h--section">
+                    <span className="block">{t.reviewsTitle}</span>
+                    <span className="block">
+                      <span className="c-accent">{t.reviewsAccent}</span>
+                    </span>
+                  </h2>
                   <div className="c-pill">
-                    <Stars count={leadReview.rating} />
+                    <span className="c-stars" aria-hidden="true">
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <Star key={index} size={13} className="fill-current" />
+                      ))}
+                    </span>
                     {t.reviewsPill}
                   </div>
+                  <p className="c-reviews2__hint">
+                    <span className="c-work__hint-line" aria-hidden="true" />
+                    {t.reviewsHint}
+                  </p>
                   <div>
                     <Link href={getStaticPath("reviews")} className="c-link">
                       {t.reviewsAll}
@@ -520,22 +441,12 @@ export default function HomeConcept() {
                     </Link>
                   </div>
                 </div>
-                <div className="c-reviews__side c-reveal">
-                  {moreReviews.slice(0, 2).map((review) => (
-                    <article key={review.id} className="c-glass c-glow c-mini">
-                      <Stars count={review.rating} />
-                      <p className="c-mini__quote">„{review.quote}”</p>
-                      <div className="c-mini__who">
-                        <b>{review.name}</b> · {review.company}
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                <ReviewDeck reviews={testimonials} labels={t.deck} />
               </div>
             </section>
           ) : null}
 
-          {/* ---------- CTA: wielki adres e-mail ---------- */}
+          {/* ---------- CTA ---------- */}
           <section className="c-section c-cta">
             <div className="container">
               <div className="c-cta__inner c-reveal">
@@ -547,15 +458,13 @@ export default function HomeConcept() {
                   </span>
                 </h2>
                 <p className="c-lede">{t.ctaDesc}</p>
-                <a href="mailto:kontakt@dativedesign.com" className="c-mail">
-                  kontakt@dativedesign.com
-                </a>
+                <CopyEmail email={EMAIL} labels={t.email} />
                 <div className="c-hero__actions">
-                  <a href="#kontakt" className="c-btn c-btn--gold gold-button-shimmer">
+                  <a href="#kontakt" className="c-btn c-btn--gold gold-button-shimmer" data-magnetic="0.3" onClick={goTo("kontakt")}>
                     {t.ctaForm}
                     <ArrowRight size={15} />
                   </a>
-                  <a href="tel:+48796106675" className="c-btn c-btn--glass">
+                  <a href="tel:+48796106675" className="c-btn c-btn--glass" data-magnetic="0.3">
                     <Phone size={15} />
                     +48 796 106 675
                   </a>
@@ -564,7 +473,7 @@ export default function HomeConcept() {
             </div>
           </section>
 
-          {/* ---------- (06) FAQ (natywny akordeon) + BLOG ---------- */}
+          {/* ---------- (06) FAQ + BLOG ---------- */}
           <section className="c-section">
             <div className="container c-faqblog">
               <div className="c-reveal">
@@ -614,6 +523,9 @@ export default function HomeConcept() {
             DatiVe
           </div>
         </div>
+
+        <ConceptDock sections={sections} labels={t.dock} onOpenPalette={openPalette} />
+        <CommandPalette open={paletteOpen} setOpen={setPaletteOpen} sections={sections} projects={allProjects} />
       </div>
     </SiteLayout>
   );

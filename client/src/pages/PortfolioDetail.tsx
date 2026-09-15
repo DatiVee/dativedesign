@@ -105,7 +105,8 @@ export default function PortfolioDetail() {
           </div>
 
           <div className="overflow-hidden rounded-sm border border-gold/15 bg-card">
-            <img src={project.image} alt={project.title} className="h-full w-full object-cover" />
+            {/* data-vt: cel płynnego przejścia (View Transition) z karty realizacji w koncepcie strony głównej */}
+            <img src={project.image} alt={project.title} data-vt="project-hero" className="h-full w-full object-cover" />
           </div>
         </div>
       </section>
