@@ -94,7 +94,7 @@ export function ContactSection() {
       }
 
       setSent(true);
-      /* konwersja dla Google Ads / GA4 (GTM: wyzwalacz "Zdarzenie niestandardowe" = generate_lead) */
+      /* konwersja główna Google Ads "Formularz kontaktowy" (etykieta w src/lib/analytics.ts) */
       track("generate_lead", { form_id: "contact" });
       setFormData({ name: "", email: "", message: "" });
       toast.success(copy.success);

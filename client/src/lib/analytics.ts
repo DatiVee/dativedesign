@@ -1,22 +1,37 @@
 /*
- * Zdarzenia dla Google Tag Manager (window.dataLayer, kontener GTM-NNVKR9BK).
- * Nazwy uzgodnione z kampanią Google Ads (docs/marketing/google-ads-kampania-1.md):
+ * Zdarzenia strony i konwersje Google Ads (tag Google ładowany w index.html).
  *   generate_lead  – wysłany formularz kontaktowy (konwersja główna)
- *   phone_click    – kliknięcie w link tel:
- *   email_click    – kliknięcie w link mailto:
+ *   phone_click    – kliknięcie w link tel: (konwersja pomocnicza)
+ *   email_click    – kliknięcie w link mailto: (konwersja pomocnicza)
  *   cta_click      – kliknięcie "Zapytaj o wycenę" na stronie usługi
  *   consent_update – decyzja w banerze cookies
- * Samo wrzucenie zdarzenia do dataLayer nie zapisuje cookies – tagi Google w GTM
- * respektują tryb zgody (Consent Mode v2, domyślnie "denied", patrz index.html).
+ * Każde zdarzenie trafia też do window.dataLayer (podgląd w konsoli, testy).
+ * Tag Google respektuje tryb zgody (Consent Mode v2, domyślnie "denied", patrz index.html):
+ * bez zgody konwersje idą w trybie ograniczonym, bez zapisywania plików cookies.
  */
 
-type DataLayerWindow = Window & { dataLayer?: unknown[] };
+/** Tag Google konta Google Ads DatiVe Design – ten sam identyfikator jest w client/index.html. */
+export const GOOGLE_ADS_ID = "AW-18466116864";
+
+/** Etykiety działań powodujących konwersję (Google Ads → Cele → Konwersje → działanie → Konfiguracja tagu). */
+const ADS_CONVERSION_LABELS: Partial<Record<string, string>> = {
+  generate_lead: "HonRCJbjmoAdEICqquVE",
+  phone_click: "PnhDCJnjmoAdEICqquVE",
+  email_click: "HAYdCJzjmoAdEICqquVE",
+};
+
+type TrackingWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void };
 
 export function track(event: string, params: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
-  const w = window as DataLayerWindow;
+  const w = window as TrackingWindow;
   w.dataLayer = w.dataLayer || [];
   w.dataLayer.push({ event, page_path: window.location.pathname, ...params });
+
+  const label = ADS_CONVERSION_LABELS[event];
+  if (label && typeof w.gtag === "function") {
+    w.gtag("event", "conversion", { send_to: `${GOOGLE_ADS_ID}/${label}` });
+  }
 }
 
 let linkTrackingInstalled = false;

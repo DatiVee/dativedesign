@@ -6,7 +6,7 @@ import { track } from "@/lib/analytics";
 
 /*
  * Baner zgody na cookies + aktualizacja trybu zgody Google (Consent Mode v2).
- * Domyślne "denied" ustawia skrypt w index.html jeszcze przed Google Tag Manager.
+ * Domyślne "denied" ustawia skrypt w index.html jeszcze przed tagiem Google (Google Ads).
  * "Odrzucam" jest tak samo widoczne jak "Akceptuję" (wymóg RODO / wytyczne UODO).
  * Ponowne otwarcie: window.dispatchEvent(new Event("dative:open-consent")) – link w stopce.
  */
@@ -69,14 +69,14 @@ export function CookieConsent() {
     locale === "en"
       ? {
           title: "Cookies",
-          text: "This site uses Google tools (Analytics, Ads) to measure traffic and ad performance. Their cookies are stored only after you accept – the site works the same either way.",
+          text: "This site uses Google Ads to measure how well its ads work. Google cookies are stored only after you accept – the site works the same either way.",
           accept: "Accept",
           reject: "Reject",
           policy: "Privacy policy",
         }
       : {
           title: "Pliki cookies",
-          text: "Strona korzysta z narzędzi Google (Analytics, Ads) do mierzenia ruchu i skuteczności reklam. Ich pliki cookies zapisują się dopiero po Twojej zgodzie – strona działa tak samo w obu przypadkach.",
+          text: "Strona korzysta z Google Ads do mierzenia skuteczności reklam. Pliki cookies Google zapisują się dopiero po Twojej zgodzie – strona działa tak samo w obu przypadkach.",
           accept: "Akceptuję",
           reject: "Odrzucam",
           policy: "Polityka prywatności",

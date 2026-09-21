@@ -5,7 +5,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 
 /*
  * Polityka prywatności (RODO + cookies). Treść jest wzorem przygotowanym na podstawie tego,
- * jak działa strona (formularz Web3Forms, hosting, Google Tag Manager z trybem zgody) –
+ * jak działa strona (formularz Web3Forms, hosting, tag Google Ads z trybem zgody) –
  * przed publikacją warto, żeby przejrzał ją właściciel / prawnik.
  */
 
@@ -31,7 +31,7 @@ const CONTENT: Record<"pl" | "en", { title: string; intro: string; sections: Sec
         items: [
           "Formularz kontaktowy i korespondencja – imię i nazwisko, adres e-mail, treść wiadomości oraz inne dane, które sam podasz. Cel: odpowiedź na zapytanie, przygotowanie oferty i realizacja współpracy. Podstawa: art. 6 ust. 1 lit. b RODO (działania przed zawarciem umowy i jej wykonanie) oraz art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes – obsługa korespondencji).",
           "Rozliczenia – dane potrzebne do wystawienia faktury, jeśli dojdzie do współpracy. Podstawa: art. 6 ust. 1 lit. c RODO (obowiązki wynikające z przepisów podatkowych i rachunkowych).",
-          "Statystyki i mierzenie skuteczności reklam – dane z plików cookies i podobnych technologii Google (np. identyfikatory urządzenia, przybliżona lokalizacja, sposób korzystania ze strony). Tylko po Twojej zgodzie, art. 6 ust. 1 lit. a RODO.",
+          "Mierzenie skuteczności reklam – dane z plików cookies i podobnych technologii Google (np. identyfikator kliknięcia reklamy, identyfikatory urządzenia, przybliżona lokalizacja, wysłanie formularza albo kliknięcie w telefon lub e-mail). Tylko po Twojej zgodzie, art. 6 ust. 1 lit. a RODO.",
           "Ustalenie, dochodzenie lub obrona roszczeń – art. 6 ust. 1 lit. f RODO.",
         ],
       },
@@ -41,7 +41,7 @@ const CONTENT: Record<"pl" | "en", { title: string; intro: string; sections: Sec
         items: [
           "Web3Forms – obsługa formularza kontaktowego (przekazuje wiadomość na mój adres e-mail),",
           "dostawca hostingu strony (Railway) oraz dostawca poczty e-mail,",
-          "Google Ireland Limited – Google Tag Manager, Google Analytics i Google Ads, tylko po zgodzie na pliki cookies,",
+          "Google Ireland Limited – Google Ads (tag Google); pliki cookies Google zapisują się tylko po Twojej zgodzie,",
           "biuro rachunkowe oraz organy publiczne, jeśli wymagają tego przepisy.",
         ],
       },
@@ -71,7 +71,7 @@ const CONTENT: Record<"pl" | "en", { title: string; intro: string; sections: Sec
         heading: "7. Pliki cookies",
         items: [
           "Niezbędne – zapamiętanie Twojego wyboru w banerze cookies (pamięć przeglądarki) i prawidłowe działanie strony. Nie wymagają zgody.",
-          "Analityczne i marketingowe – Google Analytics i Google Ads uruchamiane przez Google Tag Manager. Zapisują pliki cookies dopiero po kliknięciu „Akceptuję”. Do tego czasu narzędzia Google działają w trybie ograniczonym (tryb zgody Google), bez zapisywania tych plików.",
+          "Marketingowe – Google Ads (tag Google) mierzy, czy wizyta z reklamy zakończyła się wysłaniem formularza albo kliknięciem w telefon lub e-mail. Pliki cookies (np. _gcl_au, _gcl_aw) zapisuje dopiero po kliknięciu „Akceptuję”. Do tego czasu tag działa w trybie ograniczonym (tryb zgody Google), bez zapisywania tych plików.",
         ],
         paragraphs: [
           "Swój wybór zmienisz w każdej chwili przez link „Ustawienia cookies” w stopce strony. Pliki cookies możesz też usunąć albo zablokować w ustawieniach przeglądarki.",
@@ -106,7 +106,7 @@ const CONTENT: Record<"pl" | "en", { title: string; intro: string; sections: Sec
         items: [
           "Contact form and correspondence – name, e-mail address, message and any other data you provide, to answer your inquiry, prepare an offer and deliver the project (Art. 6(1)(b) and (f) GDPR).",
           "Invoicing – data needed to issue an invoice if we work together (Art. 6(1)(c) GDPR).",
-          "Statistics and ad measurement – data from Google cookies and similar technologies, only with your consent (Art. 6(1)(a) GDPR).",
+          "Ad measurement – data from Google cookies and similar technologies (e.g. ad click ID, device identifiers, approximate location, a form submission or a click on the phone number or e-mail), only with your consent (Art. 6(1)(a) GDPR).",
           "Establishing, exercising or defending legal claims (Art. 6(1)(f) GDPR).",
         ],
       },
@@ -115,7 +115,7 @@ const CONTENT: Record<"pl" | "en", { title: string; intro: string; sections: Sec
         items: [
           "Web3Forms – contact form handling (forwards your message to my e-mail),",
           "the website hosting provider (Railway) and the e-mail provider,",
-          "Google Ireland Limited – Google Tag Manager, Google Analytics and Google Ads, only after cookie consent,",
+          "Google Ireland Limited – Google Ads (Google tag); Google cookies are stored only after your consent,",
           "an accounting office and public authorities where required by law.",
         ],
       },
@@ -143,7 +143,7 @@ const CONTENT: Record<"pl" | "en", { title: string; intro: string; sections: Sec
         heading: "7. Cookies",
         items: [
           "Essential – remembering your choice in the cookie banner (browser storage) and proper site operation. No consent required.",
-          "Analytics and marketing – Google Analytics and Google Ads loaded via Google Tag Manager. Their cookies are stored only after you click “Accept”; until then Google tools run in a limited mode (Google Consent Mode) without storing them.",
+          "Marketing – Google Ads (Google tag) measures whether a visit from an ad ended with a form submission or a click on the phone number or e-mail. Its cookies (e.g. _gcl_au, _gcl_aw) are stored only after you click “Accept”; until then the tag runs in a limited mode (Google Consent Mode) without storing them.",
         ],
         paragraphs: ["You can change your choice any time with the “Cookie settings” link in the footer or clear cookies in your browser."],
       },
