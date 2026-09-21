@@ -10,6 +10,7 @@ export type StaticRouteKey =
   | "faq"
   | "blog"
   | "concept"
+  | "privacy"
   | "order"
   | "cart"
   | "checkout"
@@ -26,6 +27,7 @@ const staticRoutes: Record<StaticRouteKey, Record<Locale, string>> = {
   blog: { pl: "/blog", en: "/en/blog" },
   /* Koncept nowej strony głównej (podgląd, noindex) – nie ma go w nawigacji. */
   concept: { pl: "/koncept", en: "/en/concept" },
+  privacy: { pl: "/polityka-prywatnosci", en: "/en/privacy-policy" },
   order: { pl: "/zamow-projekt", en: "/en/order" },
   cart: { pl: "/koszyk", en: "/en/cart" },
   checkout: { pl: "/checkout", en: "/en/checkout" },

@@ -18,6 +18,9 @@ const CheckoutPage = lazy(() => import("@/pages/Checkout"));
 const FAQPage = lazy(() => import("@/pages/FAQPage"));
 // Koncept 2026 strony głównej – ukryta trasa podglądowa (noindex), nie zastępuje "/".
 const HomeConcept = lazy(() => import("@/pages/HomeConcept"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+// Strona usługi bez cen i koszyka – w trybie wizytówki zastępuje ServiceDetail (strona docelowa reklam).
+const ServiceLanding = lazy(() => import("@/pages/ServiceLanding"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const OrderPage = lazy(() => import("@/pages/Order"));
 const Portfolio = lazy(() => import("@/pages/Portfolio"));
@@ -28,14 +31,13 @@ const Services = lazy(() => import("@/pages/Services"));
 const ThankYouPage = lazy(() => import("@/pages/ThankYou"));
 
 /**
- * Trasy sklepu (usługi, konfigurator, koszyk, checkout, brief, podziękowanie).
+ * Trasy sklepu (lista usług, konfigurator, koszyk, checkout, brief, podziękowanie).
  * Przy SHOP_ENABLED === false każda z nich przekierowuje na stronę główną
  * w swojej wersji językowej – PL na "/", EN na "/en".
+ * Wyjątek: strony pojedynczych usług – w trybie wizytówki pokazuje je ServiceLanding (bez cen).
  */
 const shopPathsPl = [
   "/uslugi",
-  "/uslugi/:slug",
-  ...services.map((service) => `/${service.slug}`),
   "/zamow-projekt",
   "/koszyk",
   "/checkout",
@@ -45,7 +47,6 @@ const shopPathsPl = [
 
 const shopPathsEn = [
   "/en/services",
-  "/en/services/:slug",
   "/en/order",
   "/en/cart",
   "/en/checkout",
@@ -106,6 +107,8 @@ function Router() {
           <Route path="/en/blog" component={Blog} />
           <Route path="/blog/:slug" component={BlogPostPage} />
           <Route path="/en/blog/:slug" component={BlogPostPage} />
+          <Route path="/polityka-prywatnosci" component={PrivacyPolicy} />
+          <Route path="/en/privacy-policy" component={PrivacyPolicy} />
 
           {SHOP_ENABLED ? (
             <>
@@ -135,6 +138,13 @@ function Router() {
             </>
           ) : (
             <>
+              {services.map((service) => (
+                <Route key={service.slug} path={`/${service.slug}`}>
+                  <ServiceLanding slug={service.slug} />
+                </Route>
+              ))}
+              <Route path="/uslugi/:slug">{(params) => <ServiceLanding slug={params.slug} />}</Route>
+              <Route path="/en/services/:slug">{(params) => <ServiceLanding slug={params.slug} />}</Route>
               {shopPathsPl.map((path) => (
                 <Route key={path} path={path}>
                   <Redirect to="/" replace />

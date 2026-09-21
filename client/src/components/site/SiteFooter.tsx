@@ -122,11 +122,25 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="container mt-10 border-t border-white/5 pt-6 text-xs tracking-wide text-white/55">
-        © 2025–2026 DatiVe Design –{" "}
-        {locale === "en"
-          ? "Professional graphic design services for your business."
-          : "Profesjonalne usługi graficzne dla Twojej firmy."}
+      <div className="container mt-10 flex flex-col gap-3 border-t border-white/5 pt-6 text-xs tracking-wide text-white/55 sm:flex-row sm:items-center sm:justify-between">
+        <span>
+          © 2025–2026 DatiVe Design –{" "}
+          {locale === "en"
+            ? "Professional graphic design services for your business."
+            : "Profesjonalne usługi graficzne dla Twojej firmy."}
+        </span>
+        <span className="flex flex-wrap gap-x-5 gap-y-2">
+          <Link href={getStaticPath("privacy")} className="transition-colors hover:text-gold">
+            {locale === "en" ? "Privacy policy" : "Polityka prywatności"}
+          </Link>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("dative:open-consent"))}
+            className="text-left transition-colors hover:text-gold"
+          >
+            {locale === "en" ? "Cookie settings" : "Ustawienia cookies"}
+          </button>
+        </span>
       </div>
     </footer>
   );

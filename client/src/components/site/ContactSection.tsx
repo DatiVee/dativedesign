@@ -1,11 +1,13 @@
 import { CheckCircle, Mail, Phone, Send } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
+import { Link } from "wouter";
 import { useLocale } from "@/contexts/LocaleContext";
+import { track } from "@/lib/analytics";
 import { SectionHeading } from "./SectionHeading";
 
 export function ContactSection() {
-  const { locale } = useLocale();
+  const { locale, getStaticPath } = useLocale();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -92,6 +94,8 @@ export function ContactSection() {
       }
 
       setSent(true);
+      /* konwersja dla Google Ads / GA4 (GTM: wyzwalacz "Zdarzenie niestandardowe" = generate_lead) */
+      track("generate_lead", { form_id: "contact" });
       setFormData({ name: "", email: "", message: "" });
       toast.success(copy.success);
     } catch {
@@ -172,6 +176,15 @@ export function ContactSection() {
                 <Send size={16} />
                 {isSubmitting ? copy.submitting : copy.submit}
               </button>
+              <p className="text-[11px] leading-relaxed text-white/40">
+                {locale === "en"
+                  ? "I use your data only to reply to this message. Details: "
+                  : "Dane z formularza wykorzystam tylko do odpowiedzi na wiadomość. Szczegóły: "}
+                <Link href={getStaticPath("privacy")} className="text-white/60 underline underline-offset-2 hover:text-gold">
+                  {locale === "en" ? "privacy policy" : "polityka prywatności"}
+                </Link>
+                .
+              </p>
             </form>
           )}
         </div>

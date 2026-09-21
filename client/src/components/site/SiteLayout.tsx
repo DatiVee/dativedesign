@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { useCart } from "@/contexts/CartContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { SHOP_ENABLED } from "@/siteConfig";
+import { CookieConsent } from "./CookieConsent";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -46,6 +47,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         </div>
       ) : null}
       <SiteFooter />
+      <CookieConsent />
     </div>
   );
 }

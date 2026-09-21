@@ -1,6 +1,28 @@
 <!doctype html>
 <html lang="pl">
   <head>
+    <!-- Tryb zgody Google (Consent Mode v2): domyślnie odrzucone, dopóki użytkownik nie zaakceptuje
+         plików cookies w banerze (CookieConsent). Zapamiętany wybór: localStorage "dative-consent". -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      (function () {
+        var choice = null;
+        try { choice = window.localStorage.getItem("dative-consent"); } catch (e) {}
+        var state = choice === "granted" ? "granted" : "denied";
+        gtag("consent", "default", {
+          ad_storage: state,
+          ad_user_data: state,
+          ad_personalization: state,
+          analytics_storage: state,
+          functionality_storage: "granted",
+          security_storage: "granted",
+          wait_for_update: 500
+        });
+        gtag("set", "ads_data_redaction", true);
+        gtag("set", "url_passthrough", true);
+      })();
+    </script>
     <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
